@@ -1,0 +1,42 @@
+{
+  "created": {
+    "type": "int",
+    "required": true,
+    "description": "Unix timestamp (UTC) for when this document was first created."
+  },
+  "updated": {
+    "type": "int",
+    "required": true,
+    "description": "Unix timestamp (UTC) for when this document was most recently updated."
+  },
+  "contents": {
+    "type": "object",
+    "required": true,
+    "description": "An object representing a list of each photo that belongs to this album, in order.",
+    "elements": {
+      "keys": {
+        "type": "int",
+        "description": "A number (starting at 0) that represents the order of the photo as it appears in the album."
+      },
+      "values": {
+        "type": "uuid",
+        "description": "The UUID of the document for each photo that belongs to the album, in the order it should appear in."
+      }
+    }
+  },
+  "meta": {
+    "type": "object",
+    "required": false,
+    "description": "Additional metadata to provide along with the document.",
+    "elements": {
+      "keys": {
+        "type": "str",
+        "description": "The name of the metadata property."
+      },
+      "values": {
+        "type": "any",
+        "description": "The value of the metadata property."
+      }
+    }
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "id": {
+    "type": "uuid",
+    "required": true,
+    "description": "A UUID, unique across servers, representing this document."
+  },
+  "entity_id": {
+    "type": "uuid",
+    "required": true,
+    "description": "The UUID corresponding to the entity that first published this document."
+  },
+  "created": {
+    "type": "int",
+    "required": true,
+    "description": "Unix timestamp (UTC) for when the first document was first created."
+  },
+  "updated": {
+    "type": "int",
+    "required": false,
+    "description": "Unix timestamp (UTC) for when the most recent document was most recently updated."
+  },
+  "mimetype": {
+    "type": "str",
+    "required": true,
+    "description": "Mimetype corresponding to the enclosed document type."
+  },
+  "version": {
+    "type": "int",
+    "required": true,
+    "description": "Current version of the document (starts at 1, increments by 1)."
+  },
+  "schema": {
+    "type": "int",
+    "required": true,
+    "description": "Current version of the superschema used."
+  },
+  "public": {
+    "type": "bool",
+    "required": false,
+    "description": "Was this document published publicly? Default false (published privately)."
+  },
+  "diffed": {
+    "type": "bool",
+    "required": false,
+    "description": "Are new versions of this document included as diffs, or revisions with full content? Default false (full content)."
+  },
+  "encryption": {
+    "type": "str",
+    "required": false,
+    "description": "If the document is encrypted, give the Sylow encryption protocol used. Otherwise, documents are encoded in base64."
+  },
+  "summary": {
+    "type": "object",
+    "required": false,
+    "description": "A base64-encoded summary or before-the-fold sample of data to submit with the document. Encrypted with the document's key if this document supports encryption.",
+    "properties": {
+      "mimetype": {
+        "type": "str",
+        "required": false,
+        "description": "The mimetype of the enclosed summary, if it is not a plain text object."
+      },
+      "encoding": {
+        "type": "str",
+        "required": false,
+        "description": "Either 'url', 'base64', 'uuid' or 'none'. If 'uuid', it should be the UUID of another document to use as reference. Default 'none'."
+      },
+      "data": {
+        "type": "str",
+        "required": true,
+        "description": "The URL, base64-encoded string or plain text that should represent the summary of this document."
+      }
+    }
+  },
+  "data": {
+    "type": "object",
+    "required": true,
+    "description": "Contains enclosed document data and their revisions.",
+    "elements": {
+      "keys": {
+        "type": "int",
+        "description": "Corresponds to the version number of the document in question."
+      },
+      "values": {
+        "type": "str",
+        "description": "A base64-encoded version of the document object. Encrypted with the document's key if this document supports encryption."
+      }
+    }
+  },
+  "references": {
+    "type": "object",
+    "required": false,
+    "description": "Contains idenfitiers for referring to other documents, keyed to points in the document objects.",
+    "elements": {
+      "keys": {
+        "type": "int",
+        "description": "Corresponds to the point in the document object that makes this reference."
+      },
+      "values": {
+        "type": "uuid",
+        "description": "The UUID of the document to which this reference points. Encrypted with the document's key if this document supports encryption."
+      }
+    }
+  },
+  "mentions": {
+    "type": "object",
+    "required": false,
+    "description": "Contains identifiers for referring to other entities, keyed to points in the document objects.",
+    "elements": {
+      "keys": {
+        "type": "int",
+        "description": "Corresponds to the point in the document object that makes this reference."
+      },
+      "values": {
+        "type": "str",
+        "description": "The name of the entity to which this reference points. Encrypted with the document's key if this document supports encryption."
+      }
+    }
+  },
+  "tags": {
+    "type": "object",
+    "required": false,
+    "description": "A list of pointers to tags saved in the entity's tag registry, to aid filtering and searching.",
+    "elements": {
+      "keys": {
+        "type": "uuid",
+        "description": "Points to the UUID of the tag definition."
+      },
+      "values": {
+        "type": "str",
+        "description": "The tag content used for filtering. Encrypted with the document's key if this document supports encryption."
+      }
+    }
+  },
+  "key": {
+    "type": "str",
+    "required": false,
+    "description": "A public-key encrypted version of the symmetrical encryption key for this document's data, references and tags. Only required if the document supports encryption."
+  }
+}

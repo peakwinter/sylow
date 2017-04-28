@@ -1,0 +1,165 @@
+{
+  "created": {
+    "type": "int",
+    "required": true,
+    "description": "Unix timestamp (UTC) for when this document was first created."
+  },
+  "updated": {
+    "type": "int",
+    "required": true,
+    "description": "Unix timestamp (UTC) for when this document was most recently updated."
+  },
+  "content": {
+    "type": "object",
+    "required": true,
+    "description": "The details of the contact card.",
+    "properties": {
+      "firstName": {
+        "type": "str",
+        "required": false,
+        "description": "First name of the contact."
+      },
+      "lastName": {
+        "type": "str",
+        "required": false,
+        "description": "Last name of the contact."
+      },
+      "companyName": {
+        "type": "str",
+        "required": false,
+        "description": "Company name of the contact."
+      },
+      "isCompany": {
+        "type": "bool",
+        "required": false,
+        "description": "Does this contact represent a company, or an individual? Default false (individual)."
+      },
+      "addresses": {
+        "type": "object",
+        "required": false,
+        "description": "Object of addresses and their associated properties.",
+        "elements": {
+          "keys": {
+            "type": "int",
+            "description": "An integer (starting with 1) representing the display order."
+          },
+          "values": {
+            "type": "object",
+            "properties": {
+              "tag": {
+                "type": "str",
+                "description": "A tag to correspond to the address, like 'home' or 'work'."
+              },
+              "primary": {
+                "type": "str",
+                "description": "Civic number and street."
+              },
+              "secondary": {
+                "type": "str",
+                "description": "An optional second line for apartment or suite number."
+              },
+              "city": {
+                "type": "str",
+                "description": "City, town or locality."
+              },
+              "state": {
+                "type": "str",
+                "description": "State, province or region."
+              },
+              "postalCode": {
+                "type": "str",
+                "description": "Postal code."
+              },
+              "country": {
+                "type": "str",
+                "description": "Country."
+              }
+            }
+          }
+        }
+      },
+      "phones": {
+        "type": "object",
+        "required": false,
+        "description": "Object of phone numbers and their associated properties.",
+        "elements": {
+          "keys": {
+            "type": "int",
+            "description": "An integer (starting with 1) representing the display order."
+          },
+          "values": {
+            "type": "object",
+            "properties": {
+              "tag": {
+                "type": "str",
+                "description": "A tag to correspond to the phone number, like 'home' or 'mobile'."
+              },
+              "number": {
+                "type": "str",
+                "description": "Phone number."
+              },
+              "extension": {
+                "type": "str",
+                "description": "Telephone extension."
+              }
+            }
+          }
+        }
+      },
+      "emails": {
+        "type": "object",
+        "required": false,
+        "description": "Object of email addresses and their associated properties.",
+        "elements": {
+          "keys": {
+            "type": "int",
+            "description": "An integer (starting with 1) representing the display order."
+          },
+          "values": {
+            "type": "object",
+            "properties": {
+              "tag": {
+                "type": "str",
+                "description": "A tag to correspond to the email address, like 'personal' or 'work'."
+              },
+              "address": {
+                "type": "str",
+                "description": "Email address."
+              }
+            }
+          }
+        }
+      },
+      "dates": {
+        "type": "object",
+        "required": false,
+        "description": "List of important dates.",
+        "properties": {
+          "birthday": {
+            "type": "int",
+            "description": "Unix timestamp (UTC) for the contact's birthday."
+          },
+          "anniversary": {
+            "type": "int",
+            "description": "Unix timestamp (UTC) for the contact's anniversary."
+          }
+        }
+      }
+    }
+  },
+  "meta": {
+    "type": "object",
+    "required": false,
+    "description": "Additional metadata to provide along with the document.",
+    "elements": {
+      "keys": {
+        "type": "str",
+        "description": "The name of the metadata property."
+      },
+      "values": {
+        "type": "any",
+        "description": "The value of the metadata property."
+      }
+    }
+  }
+}

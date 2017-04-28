@@ -1,0 +1,32 @@
+{
+  "created": {
+    "type": "int",
+    "required": true,
+    "description": "Unix timestamp (UTC) for when this document was first created."
+  },
+  "updated": {
+    "type": "int",
+    "required": true,
+    "description": "Unix timestamp (UTC) for when this document was most recently updated."
+  },
+  "content": {
+    "type": "str",
+    "required": true,
+    "description": "The content of the essay."
+  },
+  "meta": {
+    "type": "object",
+    "required": false,
+    "description": "Additional metadata to provide along with the document.",
+    "elements": {
+      "keys": {
+        "type": "str",
+        "description": "The name of the metadata property."
+      },
+      "values": {
+        "type": "any",
+        "description": "The value of the metadata property."
+      }
+    }
+  }
+}

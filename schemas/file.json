@@ -1,0 +1,37 @@
+{
+  "created": {
+    "type": "int",
+    "required": true,
+    "description": "Unix timestamp (UTC) for when this document was first created."
+  },
+  "updated": {
+    "type": "int",
+    "required": true,
+    "description": "Unix timestamp (UTC) for when this document was most recently updated."
+  },
+  "contentType": {
+    "type": "str",
+    "required": true,
+    "description": "Either 'url' or 'base64'. The content type of the file itself is noted in the superschema's mimetype."
+  },
+  "content": {
+    "type": "str",
+    "required": true,
+    "description": "Depending on the contentType, this will be either a URL pointing to an externally-hosted file, or a base64-encoded file."
+  },
+  "meta": {
+    "type": "object",
+    "required": false,
+    "description": "Additional metadata to provide along with the document.",
+    "elements": {
+      "keys": {
+        "type": "str",
+        "description": "The name of the metadata property."
+      },
+      "values": {
+        "type": "any",
+        "description": "The value of the metadata property."
+      }
+    }
+  }
+}
