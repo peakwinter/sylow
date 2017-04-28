@@ -24,6 +24,11 @@
     "required": true,
     "description": "Mimetype corresponding to the enclosed document type."
   },
+  "definition": {
+    "type": "str",
+    "required": true,
+    "description": "A URI pointing to a hosted version of the enclosed document schema to validate against."
+  },
   "version": {
     "type": "int",
     "required": true,
