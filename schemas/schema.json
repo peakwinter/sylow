@@ -1,6 +1,6 @@
 {
-  "id": "https://sylow.network/schemas/base#",
-  "$schema": "https://json-schema.org/draft-04/schema#",
+  "id": "https://sylow.network/schemas/base.json",
+  "$schema": "https://json-schema.org/draft-06/schema",
   "type": "object",
   "description": "Sylow base document schema",
   "required": ["id", "entityId", "created", "mimetype", "version", "summary", "data"],
@@ -31,18 +31,22 @@
     "version": {
       "type": "integer",
       "minimum": 1,
+      "default": 1,
       "description": "Current version of the document (starts at 1, increments by 1)."
     },
     "public": {
       "type": "boolean",
+      "default": false,
       "description": "Was this document published publicly? Default false (published privately)."
     },
     "diffed": {
       "type": "boolean",
+      "default": false,
       "description": "Are new versions of this document included as diffs, or revisions with full content? Default false (full content)."
     },
     "encryption": {
       "type": "string",
+      "default": "base64",
       "description": "If the document is encrypted, give the Sylow encryption protocol used. Otherwise, documents are encoded in base64."
     },
     "summary": {
@@ -51,10 +55,12 @@
       "properties": {
         "mimetype": {
           "type": "string",
+          "default": "text/plain",
           "description": "The mimetype of the enclosed summary, if it is not a plain text object."
         },
         "encoding": {
           "enum": ["url", "base64", "uuid", "none"],
+          "default": "none",
           "description": "Either 'url', 'base64', 'uuid' or 'none'. If 'uuid', it should be the UUID of another document to use as reference. Default 'none'."
         },
         "data": {
@@ -70,7 +76,16 @@
       "description": "Contains enclosed document data and their revisions. Keys correspond to the version number of the document in question.",
       "patternProperties": {
         "^\\d+$": {
-          "type": "string",
+          "type": "object",
+          "oneOf": [
+            { "$ref": "album.json" },
+            { "$ref": "contact.json" },
+            { "$ref": "essay.json" },
+            { "$ref": "event.json" },
+            { "$ref": "file.json" },
+            { "$ref": "photo.json" },
+            { "$ref": "status.json" }
+          ],
           "description": "A base64-encoded version of the document object. Encrypted with the document's key if this document supports encryption."
         }
       }
@@ -92,6 +107,7 @@
       "patternProperties": {
         "^\\d+$": {
           "type": "string",
+          "format": "email",
           "description": "The name of the entity to which this reference points. Encrypted with the document's key if this document supports encryption."
         }
       }

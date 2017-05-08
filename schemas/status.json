@@ -1,32 +1,26 @@
 {
-  "created": {
-    "type": "int",
-    "required": true,
-    "description": "Unix timestamp (UTC) for when this document was first created."
-  },
-  "updated": {
-    "type": "int",
-    "required": true,
-    "description": "Unix timestamp (UTC) for when this document was most recently updated."
-  },
-  "content": {
-    "type": "str",
-    "required": true,
-    "description": "The content of the status message."
-  },
-  "meta": {
-    "type": "object",
-    "required": false,
-    "description": "Additional metadata to provide along with the document.",
-    "elements": {
-      "keys": {
-        "type": "str",
-        "description": "The name of the metadata property."
-      },
-      "values": {
-        "type": "any",
-        "description": "The value of the metadata property."
-      }
+  "id": "https://sylow.network/schemas/status.json",
+  "$schema": "https://json-schema.org/draft-06/schema",
+  "type": "object",
+  "description": "Sylow social status schema",
+  "required": ["created", "updated", "content"],
+  "properties": {
+    "created": {
+      "type": "integer",
+      "description": "Unix timestamp (UTC) for when this document was first created."
+    },
+    "updated": {
+      "type": "integer",
+      "description": "Unix timestamp (UTC) for when this document was most recently updated."
+    },
+    "content": {
+      "type": "string",
+      "description": "The content of the status message."
+    },
+    "meta": {
+      "type": "object",
+      "description": "Additional metadata to provide along with the document.",
+      "additionalProperties": true
     }
   }
 }

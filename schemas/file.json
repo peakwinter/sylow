@@ -1,37 +1,30 @@
 {
-  "created": {
-    "type": "int",
-    "required": true,
-    "description": "Unix timestamp (UTC) for when this document was first created."
-  },
-  "updated": {
-    "type": "int",
-    "required": true,
-    "description": "Unix timestamp (UTC) for when this document was most recently updated."
-  },
-  "contentType": {
-    "type": "str",
-    "required": true,
-    "description": "Either 'url' or 'base64'. The content type of the file itself is noted in the superschema's mimetype."
-  },
-  "content": {
-    "type": "str",
-    "required": true,
-    "description": "Depending on the contentType, this will be either a URL pointing to an externally-hosted file, or a base64-encoded file."
-  },
-  "meta": {
-    "type": "object",
-    "required": false,
-    "description": "Additional metadata to provide along with the document.",
-    "elements": {
-      "keys": {
-        "type": "str",
-        "description": "The name of the metadata property."
-      },
-      "values": {
-        "type": "any",
-        "description": "The value of the metadata property."
-      }
+  "id": "https://sylow.network/schemas/file.json",
+  "$schema": "https://json-schema.org/draft-06/schema",
+  "type": "object",
+  "description": "Sylow file document schema",
+  "required": ["created", "updated", "encoding", "content"],
+  "properties": {
+    "created": {
+      "type": "integer",
+      "description": "Unix timestamp (UTC) for when this document was first created."
+    },
+    "updated": {
+      "type": "integer",
+      "description": "Unix timestamp (UTC) for when this document was most recently updated."
+    },
+    "encoding": {
+      "enum": ["url", "base64"],
+      "description": "The mimetype of the document itself is noted in the base schema."
+    },
+    "content": {
+      "type": "string",
+      "description": "Depending on the `encoding`, this will be either a URL pointing to an externally-hosted file, or a base64-encoded file."
+    },
+    "meta": {
+      "type": "object",
+      "description": "Additional metadata to provide along with the document.",
+      "additionalProperties": true
     }
   }
 }

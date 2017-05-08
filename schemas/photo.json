@@ -1,42 +1,34 @@
 {
-  "created": {
-    "type": "int",
-    "required": true,
-    "description": "Unix timestamp (UTC) for when this document was first created."
-  },
-  "updated": {
-    "type": "int",
-    "required": true,
-    "description": "Unix timestamp (UTC) for when this document was most recently updated."
-  },
-  "mimetype": {
-    "type": "str",
-    "required": true,
-    "description": "Mimetype corresponding to the enclosed photo type. This can be different from the mimetype cited in the superschema, especially in the case of mixed type photo albums."
-  },
-  "encoding": {
-    "type": "str",
-    "required": true,
-    "description": "Either 'url' or 'base64'."
-  },
-  "content": {
-    "type": "str",
-    "required": true,
-    "description": "Depending on the `encoding`, this will be either a URL pointing to an externally-hosted image, or a base64-encoded image binary."
-  },
-  "meta": {
-    "type": "object",
-    "required": false,
-    "description": "Additional metadata to provide along with the document.",
-    "elements": {
-      "keys": {
-        "type": "str",
-        "description": "The name of the metadata property."
-      },
-      "values": {
-        "type": "any",
-        "description": "The value of the metadata property."
-      }
+  "id": "https://sylow.network/schemas/photo.json",
+  "$schema": "https://json-schema.org/draft-06/schema",
+  "type": "object",
+  "description": "Sylow photo document schema",
+  "required": ["created", "updated", "mimetype", "encoding", "content"],
+  "properties": {
+    "created": {
+      "type": "integer",
+      "description": "Unix timestamp (UTC) for when this document was first created."
+    },
+    "updated": {
+      "type": "integer",
+      "description": "Unix timestamp (UTC) for when this document was most recently updated."
+    },
+    "mimetype": {
+      "type": "string",
+      "pattern": "^.*\/.*$",
+      "description": "Mimetype corresponding to the enclosed photo type. This can be different from the mimetype cited in the superschema, especially in the case of mixed type photo albums."
+    },
+    "encoding": {
+      "enum": ["url", "base64"]
+    },
+    "content": {
+      "type": "string",
+      "description": "Depending on the `encoding`, this will be either a URL pointing to an externally-hosted image, or a base64-encoded image binary."
+    },
+    "meta": {
+      "type": "object",
+      "description": "Additional metadata to provide along with the document.",
+      "additionalProperties": true
     }
   }
 }

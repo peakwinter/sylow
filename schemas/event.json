@@ -1,110 +1,27 @@
 {
-  "created": {
-    "type": "int",
-    "required": true,
-    "description": "Unix timestamp (UTC) for when this document was first created."
-  },
-  "updated": {
-    "type": "int",
-    "required": true,
-    "description": "Unix timestamp (UTC) for when this document was most recently updated."
-  },
-  "content": {
-    "type": "object",
-    "required": true,
-    "description": "The details of the event.",
-    "properties": {
-      "start": {
-        "type": "object",
-        "required": true,
-        "description": "Properties of the start time of the event.",
-        "properties": {
-          "datetime": {
-            "type": "int",
-            "required": true,
-            "description": "Unix timestamp (UTC) for when this event should start."
-          },
-          "timezone": {
-            "type": "float",
-            "required": true,
-            "description": "The original timezone of the event's start time. (e.g. EST: `-5.0`)"
-          }
-        }
-      },
-      "end": {
-        "type": "object",
-        "required": true,
-        "description": "Properties of the end time of the event.",
-        "properties": {
-          "datetime": {
-            "type": "int",
-            "required": true,
-            "description": "Unix timestamp (UTC) for when this event should end."
-          },
-          "timezone": {
-            "type": "float",
-            "required": true,
-            "description": "The original timezone of the event's end time."
-          }
-        }
-      },
-      "name": {
-        "type": "str",
-        "required": true,
-        "description": "Name of the event."
-      },
-      "description": {
-        "type": "str",
-        "required": false,
-        "description": "Description of the event."
-      },
-      "location": {
-        "type": "object",
-        "required": false,
-        "description": "Properties corresponding to the intended location of the event.",
-        "properties": {
-          "lat": {
-            "type": "float",
-            "required": false,
-            "description": "Latitude"
-          },
-          "lng": {
-            "type": "float",
-            "required": false,
-            "description": "Longitude"
-          },
-          "address": {
-            "type": "str",
-            "required": false,
-            "description": "Full address of the location."
-          }
-        }
-      },
-      "invitees": {
-        "type": "array[str]",
-        "required": false,
-        "description": "A list of invitees, by either entity or email address."
-      },
-      "recurrence": {
-        "type": "str",
-        "required": false,
-        "description": "A rrule describing the recurrence of this event."
-      }
-    }
-  },
-  "meta": {
-    "type": "object",
-    "required": false,
-    "description": "Additional metadata to provide along with the document.",
-    "elements": {
-      "keys": {
-        "type": "str",
-        "description": "The name of the metadata property."
-      },
-      "values": {
-        "type": "any",
-        "description": "The value of the metadata property."
-      }
+  "id": "https://sylow.network/schemas/event.json",
+  "$schema": "https://json-schema.org/draft-06/schema",
+  "type": "object",
+  "description": "Sylow event document schema",
+  "required": ["created", "updated", "content"],
+  "properties": {
+    "created": {
+      "type": "integer",
+      "description": "Unix timestamp (UTC) for when this document was first created."
+    },
+    "updated": {
+      "type": "integer",
+      "description": "Unix timestamp (UTC) for when this document was most recently updated."
+    },
+    "content": {
+      "type": "object",
+      "description": "The details of the event.",
+      "$ref": "https://json-schema.org/draft-06/calendar"
+    },
+    "meta": {
+      "type": "object",
+      "description": "Additional metadata to provide along with the document.",
+      "additionalProperties": true
     }
   }
 }
