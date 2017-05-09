@@ -6,8 +6,7 @@
   "required": ["id", "originalEntity", "created", "mimetype", "version", "summary", "data"],
   "properties": {
     "id": {
-      "type": "string",
-      "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$",
+      "$ref": "definitions/uuid.json",
       "description": "A UUID, unique across servers, representing this document."
     },
     "originalEntity": {
@@ -97,8 +96,7 @@
       "description": "Contains idenfitiers for referring to other documents, keyed to points in the document objects.",
       "patternProperties": {
         "^\\d+$": {
-          "type": "string",
-          "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$",
+          "$ref": "definitions/uuid.json",
           "description": "The UUID of the document to which this reference points. Encrypted with the document's key if this document supports encryption."
         }
       }

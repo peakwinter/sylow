@@ -20,8 +20,7 @@
       "description": "An object representing a list of each photo that belongs to this album, in order.",
       "patternProperties": {
         "^\\d+$": {
-          "type": "string",
-          "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$",
+          "$ref": "definitions/uuid.json",
           "description": "The UUID of the document for each photo that belongs to the album, in the order it should appear in."
         }
       }
