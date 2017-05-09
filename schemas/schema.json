@@ -1,27 +1,29 @@
 {
-  "id": "https://sylow.network/schemas/base.json",
+  "id": "https://sylow.network/schemas/v1/base.json",
   "$schema": "https://json-schema.org/draft-06/schema",
   "type": "object",
   "description": "Sylow base document schema",
-  "required": ["id", "entityId", "created", "mimetype", "version", "summary", "data"],
+  "required": ["id", "originalEntity", "created", "mimetype", "version", "summary", "data"],
   "properties": {
     "id": {
       "type": "string",
       "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$",
       "description": "A UUID, unique across servers, representing this document."
     },
-    "entity_id": {
+    "originalEntity": {
       "type": "string",
-      "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$",
-      "description": "The UUID corresponding to the entity that first published this document."
+      "format": "email",
+      "description": "The ID of the entity that first published this document."
     },
     "created": {
-      "type": "integer",
-      "description": "Unix timestamp (UTC) for when the first document was first created."
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp with zone for when this document was first created."
     },
     "updated": {
-      "type": "integer",
-      "description": "Unix timestamp (UTC) for when the most recent document was most recently updated."
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp with zone for when this document was most recently updated."
     },
     "mimetype": {
       "type": "string",
@@ -37,12 +39,12 @@
     "public": {
       "type": "boolean",
       "default": false,
-      "description": "Was this document published publicly? Default false (published privately)."
+      "description": "Was this document published publicly?"
     },
     "diffed": {
       "type": "boolean",
       "default": false,
-      "description": "Are new versions of this document included as diffs, or revisions with full content? Default false (full content)."
+      "description": "Are new versions of this document included as diffs, or revisions with full content?"
     },
     "encryption": {
       "type": "string",
@@ -53,15 +55,15 @@
       "type": "object",
       "description": "A base64-encoded summary or before-the-fold sample of data to submit with the document. Encrypted with the document's key if this document supports encryption.",
       "properties": {
-        "mimetype": {
+        "contentType": {
           "type": "string",
           "default": "text/plain",
-          "description": "The mimetype of the enclosed summary, if it is not a plain text object."
+          "description": "The content type of the enclosed summary."
         },
         "encoding": {
-          "enum": ["url", "base64", "uuid", "none"],
-          "default": "none",
-          "description": "Either 'url', 'base64', 'uuid' or 'none'. If 'uuid', it should be the UUID of another document to use as reference. Default 'none'."
+          "enum": ["url", "base64", "uuid", "plain"],
+          "default": "plain",
+          "description": "Specifies how the server decodes the summary. If 'uuid', it should be the UUID of another document to use as reference."
         },
         "data": {
           "type": "string",
@@ -86,7 +88,7 @@
             { "$ref": "photo.json" },
             { "$ref": "status.json" }
           ],
-          "description": "A base64-encoded version of the document object. Encrypted with the document's key if this document supports encryption."
+          "description": "The document content. Values are encoded in base64 in transit. Encrypted with the document's key if this document supports encryption."
         }
       }
     },

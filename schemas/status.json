@@ -1,17 +1,19 @@
 {
-  "id": "https://sylow.network/schemas/status.json",
+  "id": "https://sylow.network/schemas/v1/status.json",
   "$schema": "https://json-schema.org/draft-06/schema",
   "type": "object",
   "description": "Sylow social status schema",
   "required": ["created", "updated", "content"],
   "properties": {
     "created": {
-      "type": "integer",
-      "description": "Unix timestamp (UTC) for when this document was first created."
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp with zone for when this document was first created."
     },
     "updated": {
-      "type": "integer",
-      "description": "Unix timestamp (UTC) for when this document was most recently updated."
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp with zone for when this document was most recently updated."
     },
     "content": {
       "type": "string",

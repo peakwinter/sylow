@@ -1,17 +1,19 @@
 {
-  "id": "https://sylow.network/schemas/file.json",
+  "id": "https://sylow.network/schemas/v1/file.json",
   "$schema": "https://json-schema.org/draft-06/schema",
   "type": "object",
   "description": "Sylow file document schema",
   "required": ["created", "updated", "encoding", "content"],
   "properties": {
     "created": {
-      "type": "integer",
-      "description": "Unix timestamp (UTC) for when this document was first created."
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp with zone for when this document was first created."
     },
     "updated": {
-      "type": "integer",
-      "description": "Unix timestamp (UTC) for when this document was most recently updated."
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp with zone for when this document was most recently updated."
     },
     "encoding": {
       "enum": ["url", "base64"],
