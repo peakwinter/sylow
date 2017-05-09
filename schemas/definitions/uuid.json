@@ -1,5 +1,5 @@
 {
-  "id": "https://sylow.network/schemas/v1/definitions/uuid.json",
+  "$id": "https://sylow.network/schemas/v1/definitions/uuid.json",
   "$schema": "https://json-schema.org/draft-06/schema",
   "type": "string",
   "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$",

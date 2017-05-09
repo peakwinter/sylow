@@ -1,5 +1,5 @@
 {
-  "id": "https://sylow.network/schemas/v1/file.json",
+  "$id": "https://sylow.network/schemas/v1/file.json",
   "$schema": "https://json-schema.org/draft-06/schema",
   "type": "object",
   "description": "Sylow file document schema",

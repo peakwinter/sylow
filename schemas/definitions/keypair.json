@@ -1,0 +1,17 @@
+{
+  "$id": "https://sylow.network/schemas/v1/definitions/keychain.json",
+  "$schema": "https://json-schema.org/draft-06/schema",
+  "type": "object",
+  "description": "Sylow public/private key pair definition",
+  "required": ["public"],
+  "properties": {
+    "private": {
+      "type": "string",
+      "description": "Encoded (and encrypted) private key."
+    },
+    "public": {
+      "type": "string",
+      "description": "Encoded public key."
+    }
+  }
+}
