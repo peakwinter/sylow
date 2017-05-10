@@ -1,6 +1,7 @@
 import Promise from 'bluebird';
 import mongoose from 'mongoose';
 import httpStatus from 'http-status';
+import uuidV4 from 'uuid/v4';
 
 import APIError from '../helpers/APIError';
 import uuidRegex from '../utils/uuid';
@@ -12,6 +13,7 @@ const DocumentSchema = new mongoose.Schema({
   id: {
     type: String,
     required: true,
+    default: uuidV4,
     match: [uuidRegex, 'The value of path {PATH} ({VALUE}) is not a valid UUID.']
   },
   entityId: {
@@ -33,6 +35,7 @@ const DocumentSchema = new mongoose.Schema({
   },
   version: {
     type: Number,
+    default: 1,
     required: true
   },
   public: {
@@ -56,13 +59,9 @@ const DocumentSchema = new mongoose.Schema({
     encoding: {
       type: String,
       enum: ['url', 'base64', 'uuid', 'plain'],
-      default: 'plain',
-      required: true
+      default: 'plain'
     },
-    data: {
-      type: String,
-      required: true
-    }
+    data: String
   },
   data: Object,
   references: Object,

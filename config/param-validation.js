@@ -32,6 +32,53 @@ export default {
     }
   },
 
+  // POST /api/documents
+  createDocument: {
+    body: {
+      entityId: Joi.string(),
+      contentType: Joi.string().required(),
+      version: Joi.number(),
+      public: Joi.boolean(),
+      diffed: Joi.boolean(),
+      encryption: Joi.string(),
+      summary: Joi.object({
+        contentType: Joi.string(),
+        encoding: Joi.string(),
+        data: Joi.string()
+      }),
+      data: Joi.object(),
+      references: Joi.object(),
+      mentions: Joi.object(),
+      tags: Joi.array(),
+      key: Joi.string()
+    }
+  },
+
+  // POST /api/documents
+  updateDocument: {
+    body: {
+      entityId: Joi.string(),
+      contentType: Joi.string().required(),
+      version: Joi.number(),
+      public: Joi.boolean(),
+      diffed: Joi.boolean(),
+      encryption: Joi.string(),
+      summary: Joi.object({
+        contentType: Joi.string(),
+        encoding: Joi.string(),
+        data: Joi.string()
+      }),
+      data: Joi.object(),
+      references: Joi.object(),
+      mentions: Joi.object(),
+      tags: Joi.array(),
+      key: Joi.string()
+    },
+    params: {
+      documentId: Joi.string().uuid().required()
+    }
+  },
+
   // POST /api/auth/login
   login: {
     body: {
