@@ -1,5 +1,5 @@
 import express from 'express';
-import userRoutes from './user.route';
+import entityRoutes from './entity.route';
 import authRoutes from './auth.route';
 
 const router = express.Router(); // eslint-disable-line new-cap
@@ -9,8 +9,8 @@ router.get('/health-check', (req, res) =>
   res.send('OK')
 );
 
-// mount user routes at /users
-router.use('/users', userRoutes);
+// mount entity routes at /entities
+router.use('/entities', entityRoutes);
 
 // mount auth routes at /auth
 router.use('/auth', authRoutes);

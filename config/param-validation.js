@@ -1,22 +1,34 @@
 import Joi from 'joi';
 
 export default {
-  // POST /api/users
-  createUser: {
+  // POST /api/entities
+  createEntity: {
     body: {
-      username: Joi.string().required(),
-      mobileNumber: Joi.string().regex(/^[1-9][0-9]{9}$/).required()
+      entityName: Joi.string().required(),
+      // contact: Joi.string().uuid().required(),
+      passwordHash: Joi.string().required(),
+      passwordSalt: Joi.string().required(),
+      keypair: Joi.object({
+        public: Joi.string().required(),
+        private: Joi.string()
+      }).required()
     }
   },
 
-  // UPDATE /api/users/:userId
-  updateUser: {
+  // UPDATE /api/entities/:entityId
+  updateEntity: {
     body: {
-      username: Joi.string().required(),
-      mobileNumber: Joi.string().regex(/^[1-9][0-9]{9}$/).required()
+      entityName: Joi.string().required(),
+      // contact: Joi.string().uuid().required(),
+      passwordHash: Joi.string(),
+      passwordSalt: Joi.string(),
+      keypair: Joi.object({
+        public: Joi.string().required(),
+        private: Joi.string()
+      }).required()
     },
     params: {
-      userId: Joi.string().hex().required()
+      entityId: Joi.string().uuid().required()
     }
   },
 

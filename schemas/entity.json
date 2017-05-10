@@ -3,7 +3,7 @@
   "$schema": "https://json-schema.org/draft-06/schema",
   "type": "object",
   "description": "Sylow entity profile schema",
-  "required": ["id", "entityName", "contact", "keys", "created"],
+  "required": ["id", "entityName", "keypair", "created"],
   "properties": {
     "id": {
       "$ref": "definitions/uuid.json",
@@ -25,12 +25,12 @@
     "created": {
       "type": "string",
       "format": "date-time",
-      "description": "ISO-8601 timestamp with zone for when this document was first created."
+      "description": "ISO-8601 timestamp with zone for when this entity was first created."
     },
     "updated": {
       "type": "string",
       "format": "date-time",
-      "description": "ISO-8601 timestamp with zone for when this document was most recently updated."
+      "description": "ISO-8601 timestamp with zone for when this entity was most recently updated."
     }
   }
 }

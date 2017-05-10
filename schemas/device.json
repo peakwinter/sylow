@@ -3,7 +3,7 @@
   "$schema": "https://json-schema.org/draft-06/schema",
   "type": "object",
   "description": "Sylow entity device schema",
-  "required": ["id", "entityName", "contact", "keys", "created"],
+  "required": ["id", "entityId", "deviceName", "keypair", "created"],
   "properties": {
     "id": {
       "$ref": "definitions/uuid.json",
