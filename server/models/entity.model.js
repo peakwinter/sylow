@@ -1,22 +1,17 @@
 import Promise from 'bluebird';
 import mongoose from 'mongoose';
 import httpStatus from 'http-status';
-import uuidV4 from 'uuid/v4';
 
+import idPlugin from './plugins/id';
+import createdPlugin from './plugins/created';
+import updatedPlugin from './plugins/updated';
 import APIError from '../helpers/APIError';
 import { DocumentSchema } from './document.model';
-import uuidRegex from '../utils/uuid';
 
 /**
  * Entity Storage Schema
  */
 const EntitySchema = new mongoose.Schema({
-  id: {
-    type: String,
-    required: true,
-    default: uuidV4,
-    match: [uuidRegex, 'The value of path {PATH} ({VALUE}) is not a valid UUID.']
-  },
   username: {
     type: String,
     required: true
@@ -41,20 +36,15 @@ const EntitySchema = new mongoose.Schema({
     },
     private: String
   },
-  created: {
-    type: Date,
-    default: Date.now
-  },
-  updated: {
-    type: Date,
-    default: Date.now
-  },
   authoritative: {
     type: Boolean,
     default: false
   }
 });
 
+EntitySchema.plugin(idPlugin);
+EntitySchema.plugin(createdPlugin);
+EntitySchema.plugin(updatedPlugin);
 EntitySchema.set('toJSON', { virtuals: true });
 
 /**
@@ -75,6 +65,14 @@ EntitySchema.method({
  */
 
  /* eslint-disable func-names */
+EntitySchema.virtual('id')
+ .get(function () {
+   return this._id;
+ })
+ .set(function (v) {
+   this._id = v;
+ });
+
 EntitySchema.virtual('entityName')
   .get(function () {
     return `${this.username}@${this.domain}`;
@@ -89,29 +87,12 @@ EntitySchema.virtual('entityName')
  */
 EntitySchema.statics = {
   /**
-   * Get entity by Mongo object ID
-   * @param {ObjectId} id - The objectId of entity.
-   * @returns {Promise<Entity, APIError>}
-   */
-  getByObjectId(id) {
-    return this.findById(id)
-      .exec()
-      .then((user) => {
-        if (user) {
-          return user;
-        }
-        const err = new APIError('No such entity exists!', httpStatus.NOT_FOUND);
-        return Promise.reject(err);
-      });
-  },
-
-  /**
    * Get entity by Sylow UUID
    * @param {String} id - The id of entity.
    * @returns {Promise<Entity, APIError>}
    */
   get(id) {
-    return this.findOne({ id })
+    return this.findById(id)
       .exec()
       .then((user) => {
         if (user) {

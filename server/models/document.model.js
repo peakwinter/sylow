@@ -1,36 +1,24 @@
 import Promise from 'bluebird';
 import mongoose from 'mongoose';
 import httpStatus from 'http-status';
-import uuidV4 from 'uuid/v4';
 
+import idPlugin from './plugins/id';
+import createdPlugin from './plugins/created';
+import updatedPlugin from './plugins/updated';
 import APIError from '../helpers/APIError';
-import uuidRegex from '../utils/uuid';
 
 /**
  * Document Storage Schema
  */
 const DocumentSchema = new mongoose.Schema({
-  id: {
-    type: String,
-    required: true,
-    default: uuidV4,
-    match: [uuidRegex, 'The value of path {PATH} ({VALUE}) is not a valid UUID.']
-  },
   entityId: {
     type: String,
+    index: true,
     required: true
-  },
-  created: {
-    type: Date,
-    required: true,
-    default: Date.now
-  },
-  updated: {
-    type: Date,
-    default: Date.now
   },
   contentType: {
     type: String,
+    index: true,
     required: true
   },
   version: {
@@ -70,12 +58,31 @@ const DocumentSchema = new mongoose.Schema({
   key: String
 });
 
+DocumentSchema.plugin(idPlugin);
+DocumentSchema.plugin(createdPlugin);
+DocumentSchema.plugin(updatedPlugin);
+DocumentSchema.set('toJSON', { virtuals: true });
+
 /**
  * Add your
  * - pre-save hooks
  * - validations
  * - virtuals
  */
+
+/**
+ * Virtuals
+ */
+
+ /* eslint-disable func-names */
+DocumentSchema.virtual('id')
+  .get(function () {
+    return this._id;
+  })
+  .set(function (v) {
+    this._id = v;
+  });
+/* eslint-enable */
 
 /**
  * Methods
@@ -88,29 +95,12 @@ DocumentSchema.method({
  */
 DocumentSchema.statics = {
   /**
-   * Get document by Mongo object ID
-   * @param {ObjectId} id - The objectId of document.
-   * @returns {Promise<Document, APIError>}
-   */
-  getByObjectId(id) {
-    return this.findById(id)
-      .exec()
-      .then((user) => {
-        if (user) {
-          return user;
-        }
-        const err = new APIError('No such document exists!', httpStatus.NOT_FOUND);
-        return Promise.reject(err);
-      });
-  },
-
-  /**
    * Get document by Sylow UUID
    * @param {String} id - The id of document.
    * @returns {Promise<Document, APIError>}
    */
   get(id) {
-    return this.findOne({ id })
+    return this.findById(id)
       .exec()
       .then((user) => {
         if (user) {
