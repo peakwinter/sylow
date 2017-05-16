@@ -79,11 +79,18 @@ export default {
     }
   },
 
+  // GET /api/auth/salt
+  salt: {
+    query: {
+      username: Joi.string().required()
+    }
+  },
+
   // POST /api/auth/login
   login: {
     body: {
       username: Joi.string().required(),
-      password: Joi.string().required()
+      passwordHash: Joi.string().required()
     }
   }
 };

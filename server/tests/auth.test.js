@@ -10,15 +10,31 @@ chai.config.includeStack = true;
 describe('## Auth APIs', () => {
   const validUserCredentials = {
     username: 'react',
-    password: 'express'
+    // password: 'testpass',
+    passwordHash: '0f04a285f6554e97fbbd2d0faf180eeb9db3e90388d0f3570ab8e6e1db7ba9ac088b41e1ba66e65ab39aa6124f69879d48ef8f771c475a945687f55d1a5695bd'
   };
 
   const invalidUserCredentials = {
     username: 'react',
-    password: 'IDontKnow'
+    // password: 'IDontKnow',
+    passwordHash: 'xxxxxx'
   };
 
   let jwtToken;
+
+  describe('# GET /api/auth/salt', () => {
+    it('should return correct password salt', (done) => {
+      request(app)
+        .get('/api/auth/salt')
+        .query({ username: validUserCredentials.username })
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body.salt).to.equal('9b02e8d16d99533a1063b9fb554d8380');
+          done();
+        })
+        .catch(done);
+    });
+  });
 
   describe('# POST /api/auth/login', () => {
     it('should return Authentication error', (done) => {

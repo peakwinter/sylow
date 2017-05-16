@@ -11,6 +11,11 @@ const router = express.Router(); // eslint-disable-line new-cap
 router.route('/login')
   .post(validate(paramValidation.login), authCtrl.login);
 
+
+/** POST /api/auth/salt - Returns password salt if correct username is provided */
+router.route('/salt')
+  .get(validate(paramValidation.salt), authCtrl.getSalt);
+
 /** GET /api/auth/random-number - Protected route,
  * needs token returned by the above as header. Authorization: Bearer {token} */
 router.route('/random-number')
