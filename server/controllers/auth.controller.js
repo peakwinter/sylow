@@ -51,7 +51,7 @@ function getSalt(req, res, next) {
     });
   }
 
-  const err = new APIError('Authentication error', httpStatus.NOT_FOUND, true);
+  const err = new APIError('User not found', httpStatus.NOT_FOUND, true);
   return next(err);
 }
 

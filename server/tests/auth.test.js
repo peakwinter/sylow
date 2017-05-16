@@ -23,6 +23,18 @@ describe('## Auth APIs', () => {
   let jwtToken;
 
   describe('# GET /api/auth/salt', () => {
+    it('should return Authentication error', (done) => {
+      request(app)
+        .get('/api/auth/salt')
+        .query({ username: 'xxxxxx' })
+        .expect(httpStatus.NOT_FOUND)
+        .then((res) => {
+          expect(res.body.message).to.equal('User not found');
+          done();
+        })
+        .catch(done);
+    });
+
     it('should return correct password salt', (done) => {
       request(app)
         .get('/api/auth/salt')
