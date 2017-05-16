@@ -1,7 +1,12 @@
 import Joi from 'joi';
+import dotenv from 'dotenv';
 
-// require and configure dotenv, will load vars in .env in PROCESS.ENV
-require('dotenv').config();
+dotenv.config();
+const envConfig = Object.create(process.env);
+
+if (envConfig.SY_SCHEMA_DOMAIN_WHITELIST && typeof envConfig.SY_SCHEMA_DOMAIN_WHITELIST === 'string') {
+  envConfig.SY_SCHEMA_DOMAIN_WHITELIST = envConfig.SY_SCHEMA_DOMAIN_WHITELIST.split(' ');
+}
 
 // define validation for all the env vars
 const envVarsSchema = Joi.object({
@@ -21,11 +26,13 @@ const envVarsSchema = Joi.object({
   MONGO_HOST: Joi.string().required()
     .description('Mongo DB host url'),
   MONGO_PORT: Joi.number()
-    .default(27017)
+    .default(27017),
+  SY_SCHEMA_DOMAIN_WHITELIST: Joi.array()
+    .items(Joi.string().valid('sylow.network').required(), Joi.string().hostname())
 }).unknown()
   .required();
 
-const { error, value: envVars } = Joi.validate(process.env, envVarsSchema);
+const { error, value: envVars } = Joi.validate(envConfig, envVarsSchema);
 if (error) {
   throw new Error(`Config validation error: ${error.message}`);
 }
@@ -38,7 +45,8 @@ const config = {
   mongo: {
     host: envVars.MONGO_HOST,
     port: envVars.MONGO_PORT
-  }
+  },
+  sySchemaDomainWhitelist: envVars.SY_SCHEMA_DOMAIN_WHITELIST
 };
 
 export default config;
