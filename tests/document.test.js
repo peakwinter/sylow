@@ -3,7 +3,7 @@ import httpStatus from 'http-status';
 import chai, { expect } from 'chai';
 import uuidV4 from 'uuid/v4';
 
-import app from '../../index';
+import app from '../index';
 
 chai.config.includeStack = true;
 

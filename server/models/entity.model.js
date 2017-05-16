@@ -20,14 +20,8 @@ const EntitySchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  passwordHash: {
-    type: String,
-    required: true
-  },
-  passwordSalt: {
-    type: String,
-    required: true
-  },
+  passwordHash: String,
+  passwordSalt: String,
   contact: DocumentSchema,
   keypair: {
     public: {

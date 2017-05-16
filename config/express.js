@@ -9,8 +9,10 @@ import httpStatus from 'http-status';
 import expressWinston from 'express-winston';
 import expressValidation from 'express-validation';
 import helmet from 'helmet';
+import path from 'path';
 import winstonInstance from './winston';
 import routes from '../server/routes/index.route';
+import adminRoutes from '../admin/admin.route';
 import config from './config';
 import APIError from '../server/helpers/APIError';
 
@@ -34,6 +36,10 @@ app.use(helmet());
 // enable CORS - Cross Origin Resource Sharing
 app.use(cors());
 
+// set up view templates
+app.set('views', path.join(__dirname, '../admin/views'));
+app.set('view engine', 'pug');
+
 // enable detailed API logging in dev env
 if (config.env === 'development') {
   expressWinston.requestWhitelist.push('body');
@@ -46,8 +52,11 @@ if (config.env === 'development') {
   }));
 }
 
-// mount all routes on /api path
+// mount api routes on /api path
 app.use('/api', routes);
+
+// mount admin routes on the root path
+app.use('/', adminRoutes);
 
 // if error is not an instanceOf APIError, convert it.
 app.use((err, req, res, next) => {
