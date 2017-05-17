@@ -15,17 +15,11 @@ const DeviceSchema = new mongoose.Schema({
   entityId: EntitySchema,
   deviceName: {
     type: String,
+    required: true
   },
   deviceType: {
     type: String,
     enum: ['computer', 'mobile', 'gateway']
-  },
-  keypair: {
-    public: {
-      type: String,
-      required: true
-    },
-    private: String
   }
 });
 
@@ -50,6 +44,7 @@ DeviceSchema.method({
  * Virtuals
  */
 
+/* eslint-disable func-name */
 DeviceSchema.virtual('id')
   .get(function () {
     return this._id;
@@ -57,6 +52,7 @@ DeviceSchema.virtual('id')
   .set(function (v) {
     this._id = v;
   });
+/* eslint-enable */
 
 /**
  * Statics
