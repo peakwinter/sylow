@@ -33,7 +33,7 @@ describe('## Misc', () => {
   });
 
   describe('# Error Handling', () => {
-    it('should handle express validation error - username is required', (done) => {
+    it('should handle express validation error - public key is required', (done) => {
       request(app)
         .post('/api/entities')
         .send({
@@ -41,7 +41,7 @@ describe('## Misc', () => {
         })
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
-          expect(res.body.message).to.equal('"passwordHash" is required and "passwordSalt" is required and "keypair" is required');
+          expect(res.body.message).to.equal('"keypair" is required');
           done();
         })
         .catch(done);

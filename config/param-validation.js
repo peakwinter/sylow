@@ -5,13 +5,15 @@ export default {
   createEntity: {
     body: {
       entityName: Joi.string().required(),
-      // contact: Joi.string().uuid().required(),
-      passwordHash: Joi.string().required(),
-      passwordSalt: Joi.string().required(),
+      contactId: Joi.string().uuid(),
+      passwordHash: Joi.string().when('authoritative', { is: true, then: Joi.required() }),
+      passwordSalt: Joi.string().when('authoritative', { is: true, then: Joi.required() }),
       keypair: Joi.object({
         public: Joi.string().required(),
-        private: Joi.string()
-      }).required()
+        private: Joi.string().when('authoritative', { is: true, then: Joi.required() }),
+        recovery: Joi.string()
+      }).required(),
+      authoritative: Joi.boolean().default(false)
     }
   },
 
@@ -19,13 +21,15 @@ export default {
   updateEntity: {
     body: {
       entityName: Joi.string().required(),
-      // contact: Joi.string().uuid().required(),
-      passwordHash: Joi.string(),
-      passwordSalt: Joi.string(),
+      contactId: Joi.string().uuid(),
+      passwordHash: Joi.string().when('authoritative', { is: true, then: Joi.required() }),
+      passwordSalt: Joi.string().when('authoritative', { is: true, then: Joi.required() }),
       keypair: Joi.object({
         public: Joi.string().required(),
-        private: Joi.string()
-      }).required()
+        private: Joi.string(),
+        recovery: Joi.string()
+      }).when('authoritative', { is: true, then: Joi.required() }),
+      authoritative: Joi.boolean().default(false)
     },
     params: {
       entityId: Joi.string().uuid().required()

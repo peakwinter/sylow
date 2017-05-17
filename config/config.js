@@ -27,6 +27,7 @@ const envVarsSchema = Joi.object({
     .description('Mongo DB host url'),
   MONGO_PORT: Joi.number()
     .default(27017),
+  SY_ALLOW_SIGNUPS: Joi.boolean().default(true),
   SY_SCHEMA_DOMAIN_WHITELIST: Joi.array()
     .items(Joi.string().valid('sylow.network').required(), Joi.string().hostname())
 }).unknown()
@@ -46,7 +47,8 @@ const config = {
     host: envVars.MONGO_HOST,
     port: envVars.MONGO_PORT
   },
-  sySchemaDomainWhitelist: envVars.SY_SCHEMA_DOMAIN_WHITELIST
+  allowSignups: envVars.SY_ALLOW_SIGNUPS,
+  schemaDomainWhitelist: envVars.SY_SCHEMA_DOMAIN_WHITELIST
 };
 
 export default config;

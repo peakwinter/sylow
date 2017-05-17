@@ -41,7 +41,6 @@
     "cors": "2.8.1",
     "debug": "^2.4.5",
     "dotenv": "^4.0.0",
-    "enjoi": "2.2.3",
     "express": "4.14.0",
     "express-jwt": "5.1.0",
     "express-validation": "1.0.1",

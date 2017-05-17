@@ -1,5 +1,8 @@
 import uuidV4 from 'uuid/v4';
+import httpStatus from 'http-status';
 
+import APIError from '../helpers/APIError';
+import config from '../../config/config';
 import Entity from '../models/entity.model';
 
 /**
@@ -24,41 +27,55 @@ function get(req, res) {
 
 /**
  * Create new entity
- * @property {string} req.body.entityname - The entityname of entity.
- * @property {string} req.body.mobileNumber - The mobileNumber of entity.
  * @returns {Entity}
  */
 function create(req, res, next) {
+  if (!config.allowSignups && req.body.authoritative) {
+    const err = new APIError('New signups not allowed', httpStatus.BAD_REQUEST, true);
+    return next(err);
+  }
+
+  let keypair = {};
+  if (req.body.keypair) {
+    keypair = {
+      public: req.body.keypair.public,
+      private: req.body.keypair.private,
+      recovery: req.body.keypair.recovery
+    };
+  }
+
   const entity = new Entity({
     id: uuidV4(),
     entityName: req.body.entityName,
+    contactId: req.body.contactId,
     passwordHash: req.body.passwordHash,
     passwordSalt: req.body.passwordSalt,
-    keypair: {
-      public: req.body.keypair.public,
-      private: req.body.keypair.private
-    }
+    keypair,
+    authoritative: req.body.authoritative
   });
 
-  entity.save()
+  return entity.save()
     .then(savedEntity => res.json(savedEntity))
     .catch(e => next(e));
 }
 
 /**
  * Update existing entity
- * @property {string} req.body.entityName - The name and domain of entity.
- * @property {string} req.body.passwordHash - The passwordHash of entity.
- * @property {string} req.body.passwordSalt - The passwordSalt of entity.
  * @returns {Entity}
  */
 function update(req, res, next) {
   const entity = req.entity;
-  if (req.body.passwordHash) {
+  if (req.body.authoritative && req.body.passwordHash) {
     entity.passwordHash = req.body.passwordHash;
     entity.passwordSalt = req.body.passwordSalt;
   }
+  if (req.body.authoritative && req.body.keypair) {
+    entity.keypair.public = req.body.keypair.public;
+    entity.keypair.private = req.body.keypair.private;
+    entity.keypair.recovery = req.body.keypair.recovery;
+  }
   entity.entityName = req.body.entityName;
+  entity.contactId = req.body.contactId;
 
   entity.save()
     .then(savedEntity => res.json(savedEntity))
@@ -67,8 +84,6 @@ function update(req, res, next) {
 
 /**
  * Get entity list.
- * @property {number} req.query.skip - Number of entities to be skipped.
- * @property {number} req.query.limit - Limit number of entities to be returned.
  * @returns {Entity[]}
  */
 function list(req, res, next) {

@@ -24,7 +24,8 @@ describe('## Entity APIs', () => {
     passwordSalt: '694658b93aa9c2f245cca37da3b4d7cc',
     keypair: {
       public: 'xxxxx'
-    }
+    },
+    authoritative: true
   };
 
   describe('# POST /api/entities', () => {

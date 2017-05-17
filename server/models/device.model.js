@@ -6,13 +6,17 @@ import idPlugin from './plugins/id';
 import createdPlugin from './plugins/created';
 import updatedPlugin from './plugins/updated';
 import APIError from '../helpers/APIError';
-import { EntitySchema } from './entity.model';
+import uuidRegex from '../utils/uuid';
 
 /**
  * Device Storage Schema
  */
 const DeviceSchema = new mongoose.Schema({
-  entityId: EntitySchema,
+  entityId: {
+    type: String,
+    required: true,
+    match: [uuidRegex, 'The value of path {PATH} ({VALUE}) is not a valid UUID.']
+  },
   deviceName: {
     type: String,
     required: true
@@ -44,7 +48,7 @@ DeviceSchema.method({
  * Virtuals
  */
 
-/* eslint-disable func-name */
+/* eslint-disable func-names */
 DeviceSchema.virtual('id')
   .get(function () {
     return this._id;

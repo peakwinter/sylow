@@ -5,8 +5,8 @@ import httpStatus from 'http-status';
 import idPlugin from './plugins/id';
 import createdPlugin from './plugins/created';
 import updatedPlugin from './plugins/updated';
+import uuidRegex from '../utils/uuid';
 import APIError from '../helpers/APIError';
-import { DocumentSchema } from './document.model';
 
 /**
  * Entity Storage Schema
@@ -22,13 +22,17 @@ const EntitySchema = new mongoose.Schema({
   },
   passwordHash: String,
   passwordSalt: String,
-  contact: DocumentSchema,
+  contactId: {
+    type: String,
+    match: [uuidRegex, 'The value of path {PATH} ({VALUE}) is not a valid UUID.']
+  },
   keypair: {
     public: {
       type: String,
       required: true
     },
-    private: String
+    private: String,
+    recovery: String
   },
   authoritative: {
     type: Boolean,
