@@ -72,8 +72,8 @@ export function getClient(clientId, clientSecret) {
       if (!device) return new Error('Client not found');
       return {
         id: device.id,
-        redirectUris: device.redirectUris,
-        grants: device.grants
+        redirectUris: [device.redirectUri],
+        grants: ['authorization_code', 'password', 'refresh_token', 'client_credentials']
       };
     });
 }

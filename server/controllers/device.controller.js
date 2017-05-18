@@ -34,6 +34,10 @@ function create(req, res, next) {
     entityId: req.body.entityId,
     deviceName: req.body.deviceName,
     deviceType: req.body.deviceType,
+    clientId: req.body.clientId,
+    clientSecret: req.body.clientSecret,
+    redirectUri: req.body.redirectUri,
+    grantTypes: req.body.grantTypes
   });
 
   device.save()
@@ -53,6 +57,10 @@ function update(req, res, next) {
   device.entityId = req.body.entityId;
   device.deviceName = req.body.deviceName;
   device.deviceType = req.body.deviceType;
+  device.clientId = req.body.clientId;
+  device.clientSecret = req.body.clientSecret;
+  device.redirectUri = req.body.redirectUri;
+  device.grantTypes = req.body.grantTypes;
 
   device.save()
     .then(savedDevice => res.json(savedDevice))

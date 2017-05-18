@@ -33,7 +33,13 @@ const DeviceSchema = new mongoose.Schema({
   clientSecret: {
     type: String,
     required: true
-  }
+  },
+  redirectUri: {
+    type: String,
+    required: true
+  },
+  grantTypes: String,
+  scope: String
 });
 
 DeviceSchema.plugin(idPlugin);
