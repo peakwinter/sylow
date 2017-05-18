@@ -6,6 +6,7 @@ import compress from 'compression';
 import methodOverride from 'method-override';
 import cors from 'cors';
 import httpStatus from 'http-status';
+import OAuthServer from 'oauth2-server';
 import expressWinston from 'express-winston';
 import expressValidation from 'express-validation';
 import helmet from 'helmet';
@@ -13,10 +14,15 @@ import path from 'path';
 import winstonInstance from './winston';
 import routes from '../server/routes/index.route';
 import adminRoutes from '../admin/admin.route';
+import * as OAuthModel from '../server/helpers/OAuth';
 import config from './config';
 import APIError from '../server/helpers/APIError';
 
 const app = express();
+
+const oauth = new OAuthServer({
+  model: OAuthModel
+});
 
 if (config.env === 'development') {
   app.use(logger('dev'));
@@ -93,4 +99,4 @@ app.use((err, req, res, next) => // eslint-disable-line no-unused-vars
   })
 );
 
-export default app;
+export { app as default, oauth };

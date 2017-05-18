@@ -20,7 +20,7 @@ describe('## Auth APIs', () => {
     passwordHash: 'xxxxxx'
   };
 
-  let jwtToken;
+  // let jwtToken;
 
   describe('# GET /api/auth/salt', () => {
     it('should return Authentication error', (done) => {
@@ -71,7 +71,7 @@ describe('## Auth APIs', () => {
           jwt.verify(res.body.token, config.jwtSecret, (err, decoded) => {
             expect(err).to.not.be.ok; // eslint-disable-line no-unused-expressions
             expect(decoded.username).to.equal(validUserCredentials.username);
-            jwtToken = `Bearer ${res.body.token}`;
+            // jwtToken = `Bearer ${res.body.token}`;
             done();
           });
         })
@@ -103,7 +103,7 @@ describe('## Auth APIs', () => {
         .catch(done);
     });
 
-    it('should get a random number', (done) => {
+    /* it('should get a random number', (done) => {
       request(app)
         .get('/api/auth/random-number')
         .set('Authorization', jwtToken)
@@ -113,6 +113,6 @@ describe('## Auth APIs', () => {
           done();
         })
         .catch(done);
-    });
+    }); */
   });
 });

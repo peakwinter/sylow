@@ -23,7 +23,16 @@ const DeviceSchema = new mongoose.Schema({
   },
   deviceType: {
     type: String,
-    enum: ['computer', 'mobile', 'gateway']
+    enum: ['computer', 'mobile', 'gateway', 'web', 'other'],
+    required: true
+  },
+  clientId: {
+    type: String,
+    required: true
+  },
+  clientSecret: {
+    type: String,
+    required: true
   }
 });
 

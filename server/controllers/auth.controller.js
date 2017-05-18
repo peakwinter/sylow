@@ -1,7 +1,12 @@
 import jwt from 'jsonwebtoken';
 import httpStatus from 'http-status';
+import { Request, Response } from 'oauth2-server';
+
+import Device from '../models/device.model';
 import APIError from '../helpers/APIError';
 import config from '../../config/config';
+import { oauth } from '../../config/express';
+
 
 // sample user, used for authentication
 const users = {
@@ -69,4 +74,68 @@ function getRandomNumber(req, res) {
   });
 }
 
-export default { login, getSalt, getRandomNumber };
+function getToken(req, res, next) {
+  const request = new Request(req);
+  const response = new Response(res);
+
+  oauth.token(request, response)
+    .then(token => res.json(token))
+    .catch(err => next(err));
+}
+
+function getAuthorize(req, res, next) {
+  return Device.findOne({
+    where: {
+      client_id: req.query.client_id,
+      redirect_uri: req.query.redirect_uri,
+    },
+    attributes: ['id', 'name'],
+  })
+    .then((model) => {
+      if (!model) {
+        const err = new APIError('Client not found', httpStatus.NOT_FOUND, true);
+        return next(err);
+      }
+      return res.json(model);
+    })
+    .catch(err => next(err));
+}
+
+function postAuthorize(req, res, next) {
+  const request = new Request(req);
+  const response = new Response(res);
+
+  return oauth.authorize(request, response)
+    .then(success => res.json(success))
+    .catch(err => next(err));
+}
+
+function authenticate(options) {
+  return (req, res, next) => {
+    const request = new Request({
+      headers: { authorization: req.headers.authorization },
+      method: req.method,
+      query: req.query,
+      body: req.body
+    });
+    const response = new Response(res);
+
+    oauth.authenticate(request, response, options)
+      .then((token) => {
+        // Request is authorized.
+        req.user = token;  // eslint-disable-line no-param-reassign
+        next();
+      })
+      .catch(err => next(err));
+  };
+}
+
+export default {
+  login,
+  getAuthorize,
+  postAuthorize,
+  authenticate,
+  getSalt,
+  getToken,
+  getRandomNumber
+};

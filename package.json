@@ -52,6 +52,7 @@
     "method-override": "^2.3.5",
     "mongoose": "4.7.4",
     "morgan": "1.7.0",
+    "oauth2-server": "https://github.com/oauthjs/node-oauth2-server#v3.0.0-b4",
     "pug": "2.0.0-rc.1",
     "uuid": "3.0.1",
     "winston": "2.3.0"
