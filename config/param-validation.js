@@ -101,8 +101,8 @@ export default {
   // POST /api/devices
   createDevice: {
     body: {
-      entityId: Joi.string().required(),
-      deviceType: Joi.string(),
+      entityId: Joi.string().uuid().required(),
+      deviceType: Joi.string().required(),
       deviceName: Joi.string().required(),
     }
   },
@@ -111,7 +111,7 @@ export default {
   updateDevice: {
     body: {
       entityId: Joi.string().uuid().required(),
-      deviceType: Joi.string(),
+      deviceType: Joi.string().required(),
       deviceName: Joi.string().required()
     },
     params: {

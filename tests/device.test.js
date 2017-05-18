@@ -7,17 +7,6 @@ import uuidV4 from 'uuid/v4';
 
 chai.config.includeStack = true;
 
-/**
- * root level hooks
- */
-after((done) => {
-  // required because https://github.com/Automattic/mongoose/issues/1251#issuecomment-65793092
-  mongoose.models = {};
-  mongoose.modelSchemas = {};
-  mongoose.connection.close();
-  done();
-});
-
 describe('## Device APIs', () => {
   let device = {
     entityId: uuidV4(),
@@ -70,8 +59,7 @@ describe('## Device APIs', () => {
 
   describe('# PUT /api/devices/:deviceId', () => {
     it('should update device details', (done) => {
-       device.deviceName = 'MyNewName';
-      console.log(device._id)
+      device.deviceName = 'MyNewName';
       request(app)
         .put(`/api/devices/${device._id}`)
         .send(device)
