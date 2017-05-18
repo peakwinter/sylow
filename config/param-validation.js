@@ -96,5 +96,27 @@ export default {
       username: Joi.string().required(),
       passwordHash: Joi.string().required()
     }
+  },
+
+  // POST /api/devices
+  createDevice: {
+    body: {
+      entityId: Joi.string().uuid().required(),
+      deviceType: Joi.string().required(),
+      deviceName: Joi.string().required(),
+    }
+  },
+
+  // UPDATE /api/devices/:deviceId
+  updateDevice: {
+    body: {
+      entityId: Joi.string().uuid().required(),
+      deviceType: Joi.string().required(),
+      deviceName: Joi.string().required()
+    },
+    params: {
+      deviceId: Joi.string().uuid().required()
+    }
   }
 };
+
