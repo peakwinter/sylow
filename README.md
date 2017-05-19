@@ -17,6 +17,7 @@ To run Sylow locally you need to install [nvm](https://github.com/creationix/nvm
 git clone https://github.com/peakwinter/sylow
 cd sylow
 nvm use
+cp .env.example .env
 yarn install
 yarn start
 ```
