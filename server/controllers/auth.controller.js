@@ -69,7 +69,6 @@ function getSalt(req, res, next) {
 function getRandomNumber(req, res) {
   // req.user is assigned by jwt middleware if valid token is provided
   return res.json({
-    user: req.user,
     num: Math.random() * 100
   });
 }
@@ -85,12 +84,10 @@ function getToken(req, res, next) {
 
 function getAuthorize(req, res, next) {
   return Device.findOne({
-    where: {
-      client_id: req.query.client_id,
-      redirect_uri: req.query.redirect_uri,
-    },
-    attributes: ['id', 'name'],
+    clientId: req.query.client_id,
+    redirectUri: req.query.redirect_uri,
   })
+    .select({ id: 1, deviceName: 1 })
     .then((model) => {
       if (!model) {
         const err = new APIError('Client not found', httpStatus.NOT_FOUND, true);

@@ -1,3 +1,6 @@
+import httpStatus from 'http-status';
+
+import APIError from './APIError';
 import AccessToken from '../models/accessToken.model';
 import Device from '../models/device.model';
 import Entity from '../models/entity.model';
@@ -7,7 +10,7 @@ const authorizationCodes = {};
 
 
 export function getAccessToken(token) {
-  AccessToken.find({ token, tokenType: 'access' })
+  return AccessToken.findOne({ token, tokenType: 'access' })
     .then(accessToken =>
       Promise.all([
         accessToken,
@@ -15,19 +18,20 @@ export function getAccessToken(token) {
         Entity.get(accessToken.entityId)
       ])
     )
-    .then(([accessToken, device, entity]) => (
-      {
+    .then(([accessToken, device, entity]) => {
+      if (!accessToken || !device || !entity) return false;
+      return {
         accessToken: accessToken.token,
         accessTokenExpiresAt: accessToken.expiresAt,
         scope: accessToken.scope,
-        client: device,
-        user: entity
-      }
-    ));
+        client: device.toJSON(),
+        user: entity.toJSON()
+      };
+    });
 }
 
 export function getRefreshToken(token) {
-  AccessToken.find({ token, tokenType: 'refresh' })
+  return AccessToken.findOne({ token, tokenType: 'refresh' })
     .then(refreshToken =>
       Promise.all([
         refreshToken,
@@ -47,52 +51,65 @@ export function getRefreshToken(token) {
 
 export function getAuthorizationCode(code) {
   if (code in authorizationCodes) {
-    const codeData = authorizationCodes[code];
-    Promise.all([
-      codeData,
-      Device.get(codeData.deviceId),
-      Entity.get(codeData.entityId)
+    const authorizationCode = authorizationCodes[code];
+    return Promise.all([
+      Device.get(authorizationCode.deviceId),
+      Entity.get(authorizationCode.entityId)
     ])
-    .then(([authorizationCode, device, entity]) => (
-      {
-        code: authorizationCode.code,
-        expiresAt: authorizationCode.expiresAt,
-        redirectUri: authorizationCode.redirectUri,
-        scope: authorizationCode.scope,
-        client: device,
-        user: entity
-      }
-    ));
+      .then(([device, entity]) => (
+        {
+          code: authorizationCode.code,
+          expiresAt: authorizationCode.expiresAt,
+          redirectUri: authorizationCode.redirectUri,
+          scope: authorizationCode.scope,
+          client: device.toJSON(),
+          user: entity.toJSON()
+        }
+      ));
   }
+  return undefined;
 }
 
 export function getClient(clientId, clientSecret) {
-  Device.findOne({ clientId, clientSecret })
+  const query = { clientId };
+  if (clientSecret) {
+    query.clientSecret = clientSecret;
+  }
+  return Device.findOne(query)
     .then((device) => {
-      if (!device) return new Error('Client not found');
-      return {
-        id: device.id,
-        redirectUris: [device.redirectUri],
-        grants: ['authorization_code', 'password', 'refresh_token', 'client_credentials']
-      };
+      if (!device) {
+        const err = new APIError('Client not found', httpStatus.NOT_FOUND, true);
+        return Promise.reject(err);
+      }
+      const data = device.toJSON();
+      data.grants = ['authorization_code', 'password', 'refresh_token', 'client_credentials'];
+      data.redirectUris = [device.redirectUri];
+      delete data.redirectUri;
+      return data;
     });
 }
 
-export function getUser(username, passwordHash) {
+export function getUser(username, password) {
   return Entity.findOne({ username })
     .then((entity) => {
-      if (passwordHash === entity.passwordHash) {
-        return Entity;
+      if (!entity) {
+        const err = new APIError('Entity not found', httpStatus.NOT_FOUND, true);
+        return Promise.reject(err);
+      }
+      if (password === entity.passwordHash) {
+        return entity.toJSON();
       }
       return undefined;
     });
 }
 
 export function getUserFromClient(device) {
-  return Entity.get(device.entityId);
+  return Entity.get(device.entityId)
+    .then(entity => entity.toJSON());
 }
 
 export function saveToken(token, device, entity) {
+  const promises = [];
   const accessToken = new AccessToken({
     token: token.accessToken,
     expiresAt: token.accessTokenExpiresAt,
@@ -100,23 +117,30 @@ export function saveToken(token, device, entity) {
     deviceId: device.id,
     entityId: entity.id
   });
-  const refreshToken = new AccessToken({
-    token: token.refreshToken,
-    entityId: device.id,
-    deviceId: entity.id
-  });
+  promises.push(accessToken.save());
 
-  return Promise.all([accessToken.save(), refreshToken.save()])
-    .then(([savedAccessToken, savedRefreshToken]) => (
-      {
-        accessToken: savedAccessToken.token,
-        accessTokenExpiresAt: savedAccessToken.expiresAt,
-        refreshToken: savedRefreshToken.token,
-        scope: savedAccessToken.scope,
-        client: { id: savedAccessToken.deviceId },
-        user: { id: savedAccessToken.entityId }
-      }
-    ));
+  if (token.refreshToken) {
+    const refreshToken = new AccessToken({
+      token: token.refreshToken,
+      tokenType: 'refresh',
+      expiresAt: token.refreshTokenExpiresAt,
+      deviceId: device.id,
+      entityId: entity.id
+    });
+    promises.push(refreshToken.save());
+  }
+
+  return Promise.all(promises)
+    .then(([savedAccessToken]) =>
+      Object.assign({
+        client: device,
+        user: entity,
+        accessToken: token.accessToken, // proxy
+        refreshToken: token.refreshToken, // proxy
+        access_token: token.accessToken,
+        refresh_token: token.refresh_token,
+      }, savedAccessToken.toJSON())
+    );
 }
 
 export function saveAuthorizationCode(code, device, entity) {
@@ -128,7 +152,7 @@ export function saveAuthorizationCode(code, device, entity) {
     deviceId: device.id,
     entityId: entity.id
   };
-  authorizationCodes[code] = authCode;
+  authorizationCodes[code.authorizationCode] = authCode;
 
   return {
     authorizationCode: authCode.code,
@@ -150,10 +174,10 @@ export function revokeToken(token) {
 }
 
 export function revokeAuthorizationCode(code) {
-  if (!(code in authorizationCodes)) {
+  if (!(code.code in authorizationCodes)) {
     return false;
   }
-  delete authorizationCodes[code];
+  delete authorizationCodes[code.code];
   return true;
 }
 

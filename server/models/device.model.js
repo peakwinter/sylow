@@ -45,6 +45,7 @@ const DeviceSchema = new mongoose.Schema({
 DeviceSchema.plugin(idPlugin);
 DeviceSchema.plugin(createdPlugin);
 DeviceSchema.plugin(updatedPlugin);
+DeviceSchema.set('toJSON', { virtuals: true });
 
 /**
  * Add your
@@ -79,11 +80,11 @@ DeviceSchema.virtual('id')
 DeviceSchema.statics = {
   /**
    * Get device by Sylow UUID
-   * @param {String} id - the id of device.
+   * @param {String} _id - the id of device.
    * @returns {Promise<Device, APIError>}
    */
-  get(id) {
-    return this.findById(id)
+  get(_id) {
+    return this.findOne({ _id })
       .exec()
       .then((device) => {
         if (device) {

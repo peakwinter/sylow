@@ -12,7 +12,6 @@ const AccessTokenSchema = new mongoose.Schema({
   tokenType: {
     type: String,
     enum: ['access', 'refresh'],
-    required: true,
     default: 'access'
   },
   entityId: {
