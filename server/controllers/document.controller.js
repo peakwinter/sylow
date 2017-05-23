@@ -31,7 +31,6 @@ function get(req, res) {
 function create(req, res, next) {
   const document = new Document({
     id: uuidV4(),
-    // entityId: req.entity.id,
     entityId: req.body.entityId,
     contentType: req.body.contentType,
     version: req.body.version,
@@ -67,18 +66,6 @@ function update(req, res, next) {
     .catch(e => next(e));
 }
 
-/**
- * Get document list.
- * @property {number} req.query.skip - Number of documents to be skipped.
- * @property {number} req.query.limit - Limit number of documents to be returned.
- * @returns {Document[]}
- */
-function list(req, res, next) {
-  const { limit = 50, skip = 0 } = req.query;
-  Document.list({ limit, skip })
-    .then(documents => res.json(documents))
-    .catch(e => next(e));
-}
 
 /**
  * Delete document.
@@ -91,4 +78,27 @@ function remove(req, res, next) {
     .catch(e => next(e));
 }
 
-export default { load, get, create, update, list, remove };
+/**
+ * Redirection du traitement en fonction param
+ * Idée de surcharger les filtres (genre type + limite...)
+ */
+function getActions(req, res, next) {
+  const filter = {};
+  const query = req.query;
+
+  if ('contentType' in query) {
+    filter.contentType = query.contentType;
+  }
+  if ('skip' in query) {
+    filter.skip = query.skip;
+  }
+  if ('limit' in query) {
+    filter.limit = query.limit;
+  }
+
+  Document.find(filter)
+    .then(documents => res.json(documents))
+    .catch(e => next(e));
+}
+
+export default { load, get, create, update, remove, getActions };

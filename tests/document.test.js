@@ -9,13 +9,27 @@ chai.config.includeStack = true;
 
 
 describe('## Document APIs', () => {
+
+  let contentType1 = 'text/vnd.sylow.status';
+  let contentType2 = 'contentType2';
+
   let document = {
     entityId: uuidV4(),
-    contentType: 'text/vnd.sylow.status',
+    contentType: contentType1,
     public: true,
     encryption: 'plain',
     data: {
       content: 'This is the first test status.'
+    }
+  };
+
+  let document1 = {
+    entityId: uuidV4(),
+    contentType: contentType2,
+    public: true,
+    encryption: 'plain',
+    data: {
+      content: 'This is the second test status.'
     }
   };
 
@@ -32,7 +46,7 @@ describe('## Document APIs', () => {
         })
         .catch(done);
     });
-  });
+});
 
   describe('# GET /api/documents/:documentId', () => {
     it('should get document details', (done) => {
@@ -105,6 +119,34 @@ describe('## Document APIs', () => {
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.data.content).to.equal(document.data.content);
+          done();
+        })
+        .catch(done);
+    });
+  });
+
+  describe('# ContentType filter /api/documents?contentType=...', () => {
+    it('should get document list according to the filter', (done) => {
+      request(app)
+        .post('/api/documents')
+        .send(document)
+        .catch(done);
+
+      request(app)
+        .post('/api/documents')
+        .send(document1)
+        .catch(done);
+
+      request(app)
+        .get(`/api/documents`)
+        .query({ contentType: contentType2 })
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body).to.be.an('array');
+          for(let i = 0; i<res.body.length; i++) {
+            expect(res.body[i].contentType).to.equal(contentType2);
+            request(app).delete(`api/documents/${res.body[i].id}`);
+          }
           done();
         })
         .catch(done);

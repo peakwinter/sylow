@@ -7,7 +7,7 @@ const router = express.Router(); // eslint-disable-line new-cap
 
 router.route('/')
   /** GET /api/documents - Get list of documents */
-  .get(documentCtrl.list)
+  .get(validate(paramValidation.getActions), documentCtrl.getActions)
 
   /** POST /api/documents - Create new document */
   .post(validate(paramValidation.createDocument), documentCtrl.create);

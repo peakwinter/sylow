@@ -58,6 +58,14 @@ export default {
     }
   },
 
+  getActions: {
+    query: {
+      contentType: Joi.string(),
+      limit: Joi.number(),
+      skip: Joi.number(),
+    }
+  },
+
   // POST /api/documents
   updateDocument: {
     body: {
@@ -119,4 +127,3 @@ export default {
     }
   }
 };
-
