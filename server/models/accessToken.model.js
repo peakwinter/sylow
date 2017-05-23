@@ -18,7 +18,7 @@ const AccessTokenSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  deviceId: {
+  clientId: {
     type: String,
     required: true
   },

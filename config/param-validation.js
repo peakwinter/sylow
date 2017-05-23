@@ -98,25 +98,34 @@ export default {
     }
   },
 
-  // POST /api/devices
-  createDevice: {
+  // POST /api/clients
+  createClient: {
     body: {
       entityId: Joi.string().uuid().required(),
+      clientId: Joi.string().required(),
+      clientSecret: Joi.string().required(),
+      clientName: Joi.string().required(),
       deviceType: Joi.string().required(),
-      deviceName: Joi.string().required(),
+      redirectUri: Joi.string().required(),
+      grantTypes: Joi.string(),
+      scope: Joi.string()
     }
   },
 
-  // UPDATE /api/devices/:deviceId
-  updateDevice: {
+  // UPDATE /api/clients/:clientId
+  updateClient: {
     body: {
       entityId: Joi.string().uuid().required(),
+      clientId: Joi.string().required(),
+      clientSecret: Joi.string().required(),
+      clientName: Joi.string().required(),
       deviceType: Joi.string().required(),
-      deviceName: Joi.string().required()
+      redirectUri: Joi.string().required(),
+      grantTypes: Joi.string(),
+      scope: Joi.string()
     },
     params: {
-      deviceId: Joi.string().uuid().required()
+      clientId: Joi.string().required()
     }
   }
 };
-

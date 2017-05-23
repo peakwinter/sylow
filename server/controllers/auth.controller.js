@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import httpStatus from 'http-status';
 import { Request, Response } from 'oauth2-server';
 
-import Device from '../models/device.model';
+import Client from '../models/client.model';
 import APIError from '../helpers/APIError';
 import config from '../../config/config';
 import { oauth } from '../../config/express';
@@ -83,16 +83,16 @@ function getToken(req, res, next) {
 }
 
 function getAuthorize(req, res, next) {
-  return Device.findOne({
+  return Client.findOne({
     clientId: req.query.client_id,
     redirectUri: req.query.redirect_uri,
   })
-    .then((device) => {
-      if (!device) {
+    .then((client) => {
+      if (!client) {
         const err = new APIError('Client not found', httpStatus.NOT_FOUND, true);
         return next(err);
       }
-      return res.render('authorize', { device });
+      return res.render('authorize', { client });
     })
     .catch(err => next(err));
 }

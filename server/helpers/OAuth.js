@@ -2,7 +2,7 @@ import httpStatus from 'http-status';
 
 import APIError from './APIError';
 import AccessToken from '../models/accessToken.model';
-import Device from '../models/device.model';
+import Client from '../models/client.model';
 import Entity from '../models/entity.model';
 
 
@@ -11,20 +11,21 @@ const authorizationCodes = {};
 
 export function getAccessToken(token) {
   return AccessToken.findOne({ token, tokenType: 'access' })
-    .then(accessToken =>
-      Promise.all([
+    .then((accessToken) => {
+      if (!accessToken) return false;
+      return Promise.all([
         accessToken,
-        Device.get(accessToken.deviceId),
+        Client.get(accessToken.clientId),
         Entity.get(accessToken.entityId)
-      ])
-    )
-    .then(([accessToken, device, entity]) => {
-      if (!accessToken || !device || !entity) return false;
+      ]);
+    })
+    .then(([accessToken, client, entity]) => {
+      if (!accessToken || !client || !entity) return false;
       return {
         accessToken: accessToken.token,
         accessTokenExpiresAt: accessToken.expiresAt,
         scope: accessToken.scope,
-        client: device.toJSON(),
+        client: client.toJSON(),
         user: entity.toJSON()
       };
     });
@@ -35,16 +36,16 @@ export function getRefreshToken(token) {
     .then(refreshToken =>
       Promise.all([
         refreshToken,
-        Device.get(refreshToken.deviceId),
+        Client.get(refreshToken.clientId),
         Entity.get(refreshToken.entityId)
       ])
     )
-    .then(([refreshToken, device, entity]) => (
+    .then(([refreshToken, client, entity]) => (
       {
         refreshToken: refreshToken.refreshToken,
         scope: refreshToken.scope,
-        client: device,
-        user: entity
+        user: entity,
+        client
       }
     ));
 }
@@ -53,16 +54,16 @@ export function getAuthorizationCode(code) {
   if (code in authorizationCodes) {
     const authorizationCode = authorizationCodes[code];
     return Promise.all([
-      Device.get(authorizationCode.deviceId),
+      Client.get(authorizationCode.clientId),
       Entity.get(authorizationCode.entityId)
     ])
-      .then(([device, entity]) => (
+      .then(([client, entity]) => (
         {
           code: authorizationCode.code,
           expiresAt: authorizationCode.expiresAt,
           redirectUri: authorizationCode.redirectUri,
           scope: authorizationCode.scope,
-          client: device.toJSON(),
+          client: client.toJSON(),
           user: entity.toJSON()
         }
       ));
@@ -75,15 +76,15 @@ export function getClient(clientId, clientSecret) {
   if (clientSecret) {
     query.clientSecret = clientSecret;
   }
-  return Device.findOne(query)
-    .then((device) => {
-      if (!device) {
+  return Client.findOne(query)
+    .then((client) => {
+      if (!client) {
         const err = new APIError('Client not found', httpStatus.NOT_FOUND, true);
         return Promise.reject(err);
       }
-      const data = device.toJSON();
+      const data = client.toJSON();
       data.grants = ['authorization_code', 'password', 'refresh_token', 'client_credentials'];
-      data.redirectUris = [device.redirectUri];
+      data.redirectUris = [client.redirectUri];
       delete data.redirectUri;
       return data;
     });
@@ -103,18 +104,18 @@ export function getUser(username, password) {
     });
 }
 
-export function getUserFromClient(device) {
-  return Entity.get(device.entityId)
+export function getUserFromClient(client) {
+  return Entity.get(client.entityId)
     .then(entity => entity.toJSON());
 }
 
-export function saveToken(token, device, entity) {
+export function saveToken(token, client, entity) {
   const promises = [];
   const accessToken = new AccessToken({
     token: token.accessToken,
     expiresAt: token.accessTokenExpiresAt,
     scope: token.scope,
-    deviceId: device.id,
+    clientId: client.id,
     entityId: entity.id
   });
   promises.push(accessToken.save());
@@ -124,7 +125,7 @@ export function saveToken(token, device, entity) {
       token: token.refreshToken,
       tokenType: 'refresh',
       expiresAt: token.refreshTokenExpiresAt,
-      deviceId: device.id,
+      clientId: client.id,
       entityId: entity.id
     });
     promises.push(refreshToken.save());
@@ -133,7 +134,7 @@ export function saveToken(token, device, entity) {
   return Promise.all(promises)
     .then(() => (
       {
-        client: device,
+        client,
         user: entity,
         accessToken: token.accessToken, // proxy
         refreshToken: token.refreshToken, // proxy
@@ -143,13 +144,13 @@ export function saveToken(token, device, entity) {
     ));
 }
 
-export function saveAuthorizationCode(code, device, entity) {
+export function saveAuthorizationCode(code, client, entity) {
   const authCode = {
     code: code.authorizationCode,
     expiresAt: code.expiresAt,
     redirectUri: code.redirectUri,
     scope: code.scope,
-    deviceId: device.id,
+    clientId: client.id,
     entityId: entity.id
   };
   authorizationCodes[code.authorizationCode] = authCode;
@@ -159,7 +160,7 @@ export function saveAuthorizationCode(code, device, entity) {
     expiresAt: authCode.expiresAt,
     redirectUri: authCode.redirectUri,
     scope: authCode.scope,
-    client: { id: authCode.deviceId },
+    client: { id: authCode.clientId },
     user: { id: authCode.entityId }
   };
 }

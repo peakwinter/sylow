@@ -2,7 +2,7 @@ import express from 'express';
 import entityRoutes from './entity.route';
 import documentRoutes from './document.route';
 import authRoutes from './auth.route';
-import deviceRoutes from './device.route';
+import clientRoutes from './client.route';
 
 const router = express.Router(); // eslint-disable-line new-cap
 
@@ -20,7 +20,7 @@ router.use('/documents', documentRoutes);
 // mount auth routes at /auth
 router.use('/auth', authRoutes);
 
-// mount devices routes at /devices
-router.use('/devices', deviceRoutes);
+// mount clients routes at /clients
+router.use('/clients', clientRoutes);
 
 export default router;
