@@ -20,8 +20,8 @@ describe('## Document APIs', () => {
     encryption: 'plain',
     data: {
       content: 'This is the first test status.'
-  },
-  tags: ['1', '2', '3']
+    },
+    tags: ['1', '2', '3']
   };
 
   let document1 = {
@@ -118,12 +118,10 @@ describe('## Document APIs', () => {
     it('should get document list according to the filter', (done) => {
       request(app)
         .post('/api/documents')
-        .send(document)
-        .catch(done);
-
-      request(app)
-        .post('/api/documents')
         .send(document1)
+        .then((res) => {
+            document1 = res.body;
+        })
         .catch(done);
 
       request(app)
@@ -134,7 +132,6 @@ describe('## Document APIs', () => {
           expect(res.body).to.be.an('array');
           for(let i = 0; i<res.body.length; i++) {
             expect(res.body[i].contentType).to.equal(contentType2);
-            request(app).delete(`api/documents/${res.body[i].id}`);
           }
           done();
         })
@@ -157,7 +154,6 @@ describe('## Document APIs', () => {
           for(let i = 0; i<res.body.length; i++) {
             expect(res.body[i].created > dateRefStart);
             expect(res.body[i].created < dateRefEnd);
-            request(app).delete(`api/documents/${res.body[i].id}`);
           }
           done();
         })
@@ -186,7 +182,7 @@ describe('## Document APIs', () => {
     });
   });
 
-  describe('# tag filer /api/documents?tags=...,...,....', () => {
+  describe('# tag filter /api/documents?tags=...,...,....', () => {
     it('should get documents list according to the document tags', (done) => {
       let testTags = ['1', '5'];
 
@@ -205,6 +201,22 @@ describe('## Document APIs', () => {
     });
   });
 
+  describe('# paginate through results /api/documents?limit=...&page=...', () => {
+    it('should provide a pagination system to display the documents', (done) => {
+      const limitTest = 1;
+      const pageTest = 2;
+      request(app)
+        .get('/api/documents')
+        .query({ limit: limitTest, page: pageTest })
+        .then((res) => {
+            console.log(res.body)
+          expect(res.body[0].id).to.equal(document1.id);
+          done();
+      })
+      .catch(done);
+    });
+  });
+
   describe('# DELETE /api/documents/', () => {
     it('should delete document', (done) => {
       request(app)
@@ -212,9 +224,17 @@ describe('## Document APIs', () => {
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.data.content).to.equal(document.data.content);
-          done();
         })
         .catch(done);
+
+        request(app)
+          .delete(`/api/documents/${document1.id}`)
+          .expect(httpStatus.OK)
+          .then((res) => {
+            expect(res.body.data.content).to.equal(document1.data.content);
+            done();
+          })
+          .catch(done);
     });
   });
 });

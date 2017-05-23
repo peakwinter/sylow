@@ -84,16 +84,17 @@ function remove(req, res, next) {
  */
 function getActions(req, res, next) {
   const filter = {};
+  const finder = {};
   const query = req.query;
 
   if ('contentType' in query) {
     filter.contentType = query.contentType;
   }
   if ('skip' in query) {
-    filter.skip = query.skip;
+    finder.skip = query.skip;
   }
   if ('limit' in query) {
-    filter.limit = query.limit;
+    finder.limit = query.limit;
   }
   if ('creationStart' in query) {
     filter.created = { $gt: query.creationStart };
@@ -118,8 +119,13 @@ function getActions(req, res, next) {
   if ('tags' in query) {
     filter.tags = { $in: query.tags };
   }
+  if ('page' in query) {
+    if (finder.limit) {
+      finder.skip = (finder.limit * (query.page - 1));
+    }
+  }
 
-  Document.find(filter)
+  Document.find(filter, null, finder)
     .then(documents => res.json(documents))
     .catch(e => next(e));
 }
