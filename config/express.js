@@ -64,6 +64,9 @@ app.use('/api', routes);
 // mount admin routes on the root path
 app.use('/', adminRoutes);
 
+// mount admin static assets
+app.use('/assets', express.static(path.join(__dirname, '../admin/assets')));
+
 // if error is not an instanceOf APIError, convert it.
 app.use((err, req, res, next) => {
   if (err instanceof expressValidation.ValidationError) {

@@ -1,0 +1,17 @@
+extends includes/base.pug
+
+block content
+  div(id="sy-authorize-form" class="ui middle aligned center aligned grid")
+    div(class="column")
+      div(class="ui top attached segment")
+        h1= "Authorize"
+        if device.scope
+          p #{device.deviceName} is requesting permission to access your Sylow server using the following scopes:
+          ul
+            each scope in device.scope.split(' ')
+              li= scope
+        else
+          p #{device.deviceName} is requesting permission to access your Sylow server using all scopes.
+      div(class="ui bottom attached buttons")
+        a(class="ui positive button" href=device.redirectUri) Accept
+        a(class="ui negative button") Reject

@@ -131,16 +131,16 @@ export function saveToken(token, device, entity) {
   }
 
   return Promise.all(promises)
-    .then(([savedAccessToken]) =>
-      Object.assign({
+    .then(() => (
+      {
         client: device,
         user: entity,
         accessToken: token.accessToken, // proxy
         refreshToken: token.refreshToken, // proxy
         access_token: token.accessToken,
         refresh_token: token.refresh_token,
-      }, savedAccessToken.toJSON())
-    );
+      }
+    ));
 }
 
 export function saveAuthorizationCode(code, device, entity) {

@@ -87,13 +87,12 @@ function getAuthorize(req, res, next) {
     clientId: req.query.client_id,
     redirectUri: req.query.redirect_uri,
   })
-    .select({ id: 1, deviceName: 1 })
-    .then((model) => {
-      if (!model) {
+    .then((device) => {
+      if (!device) {
         const err = new APIError('Client not found', httpStatus.NOT_FOUND, true);
         return next(err);
       }
-      return res.json(model);
+      return res.render('authorize', { device });
     })
     .catch(err => next(err));
 }
