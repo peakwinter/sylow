@@ -152,4 +152,49 @@ describe('## Document APIs', () => {
         .catch(done);
     });
   });
+
+  describe('# Created filter /api/documents?creationStart=...&creationEnd=...', () => {
+    it('should get documents list according to the created datetime', (done) => {
+      let dateRefStart = new Date();
+      dateRefStart.setDate(dateRefStart.getDate() - 1);
+
+      let dateRefEnd = new Date();
+
+      request(app)
+        .get('/api/documents')
+        .query({ creationStart : dateRefStart, creationEnd: dateRefEnd })
+        .then((res) => {
+          expect(res.body).to.be.an('array');
+          for(let i = 0; i<res.body.length; i++) {
+            expect(res.body[i].created > dateRefStart);
+            expect(res.body[i].created < dateRefEnd);
+            request(app).delete(`api/documents/${res.body[i].id}`);
+          }
+          done();
+        })
+        .catch(done);
+    });
+  });
+
+  describe('# Updated filter /api/documents?updatedStart=...&updatedEnd=...', () => {
+    it('should get documents list according to the update datetime', (done) => {
+      let dateRefStart = new Date();
+      dateRefStart.setDate(dateRefStart.getDate() - 1);
+      let dateRefEnd = new Date();
+
+      request(app)
+        .get('/api/documents')
+        .query({ updatedStart : dateRefStart, updatedEnd: dateRefEnd })
+        .then((res) => {
+          expect(res.body).to.be.an('array');
+          for(let i = 0; i<res.body.length; i++) {
+            expect(res.body[i].updated > dateRefStart);
+            expect(res.body[i].updated < dateRefEnd);
+            request(app).delete(`api/documents/${res.body[i].id}`);
+          }
+          done();
+        })
+        .catch(done);
+    });
+  });
 });

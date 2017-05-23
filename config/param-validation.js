@@ -63,6 +63,10 @@ export default {
       contentType: Joi.string(),
       limit: Joi.number(),
       skip: Joi.number(),
+      creationStart: Joi.date(),
+      creationEnd: Joi.date(),
+      updatedStart: Joi.date(),
+      updatedEnd: Joi.date()
     }
   },
 

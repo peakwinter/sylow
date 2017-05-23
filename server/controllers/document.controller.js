@@ -95,6 +95,26 @@ function getActions(req, res, next) {
   if ('limit' in query) {
     filter.limit = query.limit;
   }
+  if ('creationStart' in query) {
+    filter.created = { $gt: query.creationStart };
+  }
+  if ('creationEnd' in query) {
+    if (filter.created) {
+      filter.created.$lt = query.creationEnd;
+    } else {
+      filter.created = { $lt: query.creationEnd };
+    }
+  }
+  if ('updatedStart' in query) {
+    filter.updated = { $gt: query.updatedStart };
+  }
+  if ('updatedEnd' in query) {
+    if (filter.updated) {
+      filter.updated.$lt = query.updatedEnd;
+    } else {
+      filter.updated = { $lt: query.updatedEnd };
+    }
+  }
 
   Document.find(filter)
     .then(documents => res.json(documents))
