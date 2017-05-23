@@ -20,7 +20,8 @@ describe('## Document APIs', () => {
     encryption: 'plain',
     data: {
       content: 'This is the first test status.'
-    }
+  },
+  tags: ['1', '2', '3']
   };
 
   let document1 = {
@@ -30,7 +31,8 @@ describe('## Document APIs', () => {
     encryption: 'plain',
     data: {
       content: 'This is the second test status.'
-    }
+    },
+    tags: ['3', '4', '5']
   };
 
   describe('# POST /api/documents', () => {
@@ -112,19 +114,6 @@ describe('## Document APIs', () => {
     });
   });
 
-  describe('# DELETE /api/documents/', () => {
-    it('should delete document', (done) => {
-      request(app)
-        .delete(`/api/documents/${document.id}`)
-        .expect(httpStatus.OK)
-        .then((res) => {
-          expect(res.body.data.content).to.equal(document.data.content);
-          done();
-        })
-        .catch(done);
-    });
-  });
-
   describe('# ContentType filter /api/documents?contentType=...', () => {
     it('should get document list according to the filter', (done) => {
       request(app)
@@ -190,8 +179,39 @@ describe('## Document APIs', () => {
           for(let i = 0; i<res.body.length; i++) {
             expect(res.body[i].updated > dateRefStart);
             expect(res.body[i].updated < dateRefEnd);
-            request(app).delete(`api/documents/${res.body[i].id}`);
           }
+          done();
+        })
+        .catch(done);
+    });
+  });
+
+  describe('# tag filer /api/documents?tags=...,...,....', () => {
+    it('should get documents list according to the document tags', (done) => {
+      let testTags = ['1', '5'];
+
+      request(app)
+        .get('/api/documents')
+        .query({ tags: testTags })
+        .then((res) => {
+          expect(res.body).to.be.an('array');
+          for(let i = 0; i<res.body.length; i++) {
+              let bool = (testTags[0] in res.body[i].tags)||(testTags[1] in res.body[i].tags);
+              expect(bool);
+          }
+          done();
+        })
+        .catch(done);
+    });
+  });
+
+  describe('# DELETE /api/documents/', () => {
+    it('should delete document', (done) => {
+      request(app)
+        .delete(`/api/documents/${document.id}`)
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body.data.content).to.equal(document.data.content);
           done();
         })
         .catch(done);

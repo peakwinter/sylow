@@ -66,7 +66,8 @@ export default {
       creationStart: Joi.date(),
       creationEnd: Joi.date(),
       updatedStart: Joi.date(),
-      updatedEnd: Joi.date()
+      updatedEnd: Joi.date(),
+      tags: Joi.array()
     }
   },
 

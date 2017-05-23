@@ -115,6 +115,9 @@ function getActions(req, res, next) {
       filter.updated = { $lt: query.updatedEnd };
     }
   }
+  if ('tags' in query) {
+    filter.tags = { $in: query.tags };
+  }
 
   Document.find(filter)
     .then(documents => res.json(documents))
