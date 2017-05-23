@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import httpStatus from 'http-status';
 
 import createdPlugin from './plugins/created';
+import uuidRegex from '../utils/uuid';
 import APIError from '../helpers/APIError';
 
 /**
@@ -16,11 +17,14 @@ const AccessTokenSchema = new mongoose.Schema({
   },
   entityId: {
     type: String,
-    required: true
+    required: true,
+    match: [uuidRegex, 'The value of path {PATH} ({VALUE}) is not a valid UUID.'],
+    ref: 'Entity'
   },
   clientId: {
-    type: String,
-    required: true
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'Client'
   },
   token: {
     type: String,

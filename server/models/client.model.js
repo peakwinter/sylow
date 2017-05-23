@@ -13,7 +13,8 @@ const ClientSchema = new mongoose.Schema({
   entityId: {
     type: String,
     required: true,
-    match: [uuidRegex, 'The value of path {PATH} ({VALUE}) is not a valid UUID.']
+    match: [uuidRegex, 'The value of path {PATH} ({VALUE}) is not a valid UUID.'],
+    ref: 'Entity'
   },
   clientName: {
     type: String,

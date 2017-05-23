@@ -14,7 +14,8 @@ const DocumentSchema = new mongoose.Schema({
   entityId: {
     type: String,
     index: true,
-    required: true
+    required: true,
+    ref: 'Entity'
   },
   contentType: {
     type: String,

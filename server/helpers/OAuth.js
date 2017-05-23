@@ -11,43 +11,31 @@ const authorizationCodes = {};
 
 export function getAccessToken(token) {
   return AccessToken.findOne({ token, tokenType: 'access' })
+    .populate('Client', 'Entity')
     .then((accessToken) => {
-      if (!accessToken) return false;
-      return Promise.all([
-        accessToken,
-        Client.get(accessToken.clientId),
-        Entity.get(accessToken.entityId)
-      ]);
-    })
-    .then(([accessToken, client, entity]) => {
-      if (!accessToken || !client || !entity) return false;
+      if (!accessToken || !accessToken.client || !accessToken.entity) return false;
       return {
         accessToken: accessToken.token,
         accessTokenExpiresAt: accessToken.expiresAt,
         scope: accessToken.scope,
-        client: client.toJSON(),
-        user: entity.toJSON()
+        client: accessToken.client.toJSON(),
+        user: accessToken.entity.toJSON()
       };
     });
 }
 
 export function getRefreshToken(token) {
   return AccessToken.findOne({ token, tokenType: 'refresh' })
-    .then(refreshToken =>
-      Promise.all([
-        refreshToken,
-        Client.get(refreshToken.clientId),
-        Entity.get(refreshToken.entityId)
-      ])
-    )
-    .then(([refreshToken, client, entity]) => (
-      {
+    .populate('Client', 'Entity')
+    .then((refreshToken) => {
+      if (!refreshToken || !refreshToken.client || !refreshToken.entity) return false;
+      return {
         refreshToken: refreshToken.refreshToken,
         scope: refreshToken.scope,
-        user: entity,
-        client
-      }
-    ));
+        user: refreshToken.entity,
+        client: refreshToken.client
+      };
+    });
 }
 
 export function getAuthorizationCode(code) {
@@ -115,7 +103,7 @@ export function saveToken(token, client, entity) {
     token: token.accessToken,
     expiresAt: token.accessTokenExpiresAt,
     scope: token.scope,
-    clientId: client.id,
+    clientId: client._id,
     entityId: entity.id
   });
   promises.push(accessToken.save());
@@ -125,7 +113,7 @@ export function saveToken(token, client, entity) {
       token: token.refreshToken,
       tokenType: 'refresh',
       expiresAt: token.refreshTokenExpiresAt,
-      clientId: client.id,
+      clientId: client._id,
       entityId: entity.id
     });
     promises.push(refreshToken.save());

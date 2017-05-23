@@ -24,7 +24,8 @@ const EntitySchema = new mongoose.Schema({
   passwordSalt: String,
   contactId: {
     type: String,
-    match: [uuidRegex, 'The value of path {PATH} ({VALUE}) is not a valid UUID.']
+    match: [uuidRegex, 'The value of path {PATH} ({VALUE}) is not a valid UUID.'],
+    ref: 'Document'
   },
   keypair: {
     public: {
