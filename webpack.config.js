@@ -13,11 +13,12 @@ module.exports = {
     filename: '[name].bundle.min.js',
     path: path.resolve(__dirname, 'dist/admin/assets')
   },
-  devtool: 'source-map',
+  devtool: process.env.NODE_ENV === 'production' ? 'source-map' : 'eval',
   module: {
     rules: [
       {
         test: /\.(js|jsx)$/,
+        exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
           options: packageData.babel
@@ -27,7 +28,7 @@ module.exports = {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({
           loader: 'css-loader',
-          options: { minimize: true, sourceMap: !['test', 'production'].includes(process.env.NODE_ENV) }
+          options: { minimize: true, sourceMap: true }
         })
       },
       {
@@ -54,7 +55,7 @@ module.exports = {
         warnings: false,
         drop_console: false,
       },
-      sourceMap: !['test', 'production'].includes(process.env.NODE_ENV)
+      sourceMap: true
     }),
   ]
 };
