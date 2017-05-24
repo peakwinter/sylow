@@ -31,7 +31,6 @@ function get(req, res) {
 function create(req, res, next) {
   const document = new Document({
     id: uuidV4(),
-    // entityId: req.entity.id,
     entityId: req.body.entityId,
     contentType: req.body.contentType,
     version: req.body.version,
@@ -67,18 +66,6 @@ function update(req, res, next) {
     .catch(e => next(e));
 }
 
-/**
- * Get document list.
- * @property {number} req.query.skip - Number of documents to be skipped.
- * @property {number} req.query.limit - Limit number of documents to be returned.
- * @returns {Document[]}
- */
-function list(req, res, next) {
-  const { limit = 50, skip = 0 } = req.query;
-  Document.list({ limit, skip })
-    .then(documents => res.json(documents))
-    .catch(e => next(e));
-}
 
 /**
  * Delete document.
@@ -91,4 +78,64 @@ function remove(req, res, next) {
     .catch(e => next(e));
 }
 
-export default { load, get, create, update, list, remove };
+/**
+ * Retrieve a set of Documents according to the url parameters
+ * @property {string} req.query.contentType - A document content Type
+ * @property {string} req.query.skip - The number of tuple to skip
+ * @property {string} req.query.limit - The mac number of tuple to return
+ * @property {string} req.query.createdStart - The document creation lower limit datetime
+ * @property {string} req.query.createdEnd - The document creation upper limit datetime
+ * @property {string} req.query.updatedStart - The document update lower limit datetime
+ * @property {string} req.query.updatedEnd - The document update upper limit datetime
+ * @property {string} req.query.tags - A set of tags
+ * @property {string} req.query.page - The page number
+ * @returns {Document[]}
+ */
+
+function getActions(req, res, next) {
+  const filter = {};
+  const finder = {};
+  const query = req.query;
+
+  if ('contentType' in query) {
+    filter.contentType = query.contentType;
+  }
+  if ('skip' in query) {
+    finder.skip = query.skip;
+  }
+  if ('limit' in query) {
+    finder.limit = query.limit;
+  }
+  if ('createdStart' in query) {
+    filter.created = { $gt: query.createdStart };
+  }
+  if ('createdEnd' in query) {
+    if (filter.created) {
+      filter.created.$lt = query.createdEnd;
+    } else {
+      filter.created = { $lt: query.createdEnd };
+    }
+  }
+  if ('updatedStart' in query) {
+    filter.updated = { $gt: query.updatedStart };
+  }
+  if ('updatedEnd' in query) {
+    if (filter.updated) {
+      filter.updated.$lt = query.updatedEnd;
+    } else {
+      filter.updated = { $lt: query.updatedEnd };
+    }
+  }
+  if ('tags' in query) {
+    filter.tags = { $in: query.tags };
+  }
+  if ('page' in query && finder.limit) {
+    finder.skip = (finder.limit * (query.page - 1));
+  }
+
+  Document.find(filter, null, finder)
+    .then(documents => res.json(documents))
+    .catch(e => next(e));
+}
+
+export default { load, get, create, update, remove, getActions };
