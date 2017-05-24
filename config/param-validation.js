@@ -60,11 +60,11 @@ export default {
 
   getActions: {
     query: {
-      contentType: Joi.string(),
+      contentType: Joi.string().required(),
       limit: Joi.number(),
       skip: Joi.number(),
-      creationStart: Joi.date(),
-      creationEnd: Joi.date(),
+      createdStart: Joi.date(),
+      createdEnd: Joi.date(),
       updatedStart: Joi.date(),
       updatedEnd: Joi.date(),
       tags: Joi.array(),

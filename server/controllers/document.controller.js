@@ -79,9 +79,19 @@ function remove(req, res, next) {
 }
 
 /**
- * Redirection du traitement en fonction param
- * Idée de surcharger les filtres (genre type + limite...)
+ * Retrieve a set of Documents according to the url parameters
+ * @property {string} req.query.contentType - A document content Type
+ * @property {string} req.query.skip - The number of tuple to skip
+ * @property {string} req.query.limit - The mac number of tuple to return
+ * @property {string} req.query.createdStart - The document creation lower limit datetime
+ * @property {string} req.query.createdEnd - The document creation upper limit datetime
+ * @property {string} req.query.updatedStart - The document update lower limit datetime
+ * @property {string} req.query.updatedEnd - The document update upper limit datetime
+ * @property {string} req.query.tags - A set of tags
+ * @property {string} req.query.page - The page number
+ * @returns {Document[]}
  */
+
 function getActions(req, res, next) {
   const filter = {};
   const finder = {};
@@ -96,14 +106,14 @@ function getActions(req, res, next) {
   if ('limit' in query) {
     finder.limit = query.limit;
   }
-  if ('creationStart' in query) {
-    filter.created = { $gt: query.creationStart };
+  if ('createdStart' in query) {
+    filter.created = { $gt: query.createdStart };
   }
-  if ('creationEnd' in query) {
+  if ('createdEnd' in query) {
     if (filter.created) {
-      filter.created.$lt = query.creationEnd;
+      filter.created.$lt = query.createdEnd;
     } else {
-      filter.created = { $lt: query.creationEnd };
+      filter.created = { $lt: query.createdEnd };
     }
   }
   if ('updatedStart' in query) {
@@ -119,10 +129,8 @@ function getActions(req, res, next) {
   if ('tags' in query) {
     filter.tags = { $in: query.tags };
   }
-  if ('page' in query) {
-    if (finder.limit) {
-      finder.skip = (finder.limit * (query.page - 1));
-    }
+  if ('page' in query && finder.limit) {
+    finder.skip = (finder.limit * (query.page - 1));
   }
 
   Document.find(filter, null, finder)

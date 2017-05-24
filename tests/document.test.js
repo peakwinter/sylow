@@ -10,8 +10,8 @@ chai.config.includeStack = true;
 
 describe('## Document APIs', () => {
 
-  let contentType1 = 'text/vnd.sylow.status';
-  let contentType2 = 'contentType2';
+  const contentType1 = 'text/vnd.sylow.status';
+  const contentType2 = 'contentType2';
 
   let document = {
     entityId: uuidV4(),
@@ -33,6 +33,17 @@ describe('## Document APIs', () => {
       content: 'This is the second test status.'
     },
     tags: ['3', '4', '5']
+  };
+
+  let document2 = {
+    entityId: uuidV4(),
+    contentType: contentType2,
+    public: true,
+    encryption: 'plain',
+    data: {
+      content: 'This is the third test status.'
+    },
+    tags: ['3', '9']
   };
 
   describe('# POST /api/documents', () => {
@@ -89,41 +100,29 @@ describe('## Document APIs', () => {
     });
   });
 
-  describe('# GET /api/documents/', () => {
-    it('should get all documents', (done) => {
-      request(app)
-        .get('/api/documents')
-        .expect(httpStatus.OK)
-        .then((res) => {
-          expect(res.body).to.be.an('array');
-          done();
-        })
-        .catch(done);
-    });
+  describe('# Filters', () => {
 
     it('should get all documents (with limit and skip)', (done) => {
-      request(app)
-        .get('/api/documents')
-        .query({ limit: 10, skip: 1 })
-        .expect(httpStatus.OK)
-        .then((res) => {
-          expect(res.body).to.be.an('array');
-          done();
-        })
-        .catch(done);
-    });
-  });
-
-  describe('# ContentType filter /api/documents?contentType=...', () => {
-    it('should get document list according to the filter', (done) => {
       request(app)
         .post('/api/documents')
         .send(document1)
         .then((res) => {
-            document1 = res.body;
+          document1 = res.body;
         })
         .catch(done);
 
+      request(app)
+        .get('/api/documents')
+        .query({ limit: 10, skip: 1, contentType : contentType1 })
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body).to.be.an('array');
+          done();
+        })
+        .catch(done);
+    });
+
+    it('should get document list according to the contentType', (done) => {
       request(app)
         .get(`/api/documents`)
         .query({ contentType: contentType2 })
@@ -137,18 +136,16 @@ describe('## Document APIs', () => {
         })
         .catch(done);
     });
-  });
 
-  describe('# Created filter /api/documents?creationStart=...&creationEnd=...', () => {
     it('should get documents list according to the created datetime', (done) => {
       let dateRefStart = new Date();
       dateRefStart.setDate(dateRefStart.getDate() - 1);
-
       let dateRefEnd = new Date();
 
       request(app)
         .get('/api/documents')
-        .query({ creationStart : dateRefStart, creationEnd: dateRefEnd })
+        .query({ creationStart : dateRefStart, creationEnd: dateRefEnd, contentType: contentType1 })
+        .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body).to.be.an('array');
           for(let i = 0; i<res.body.length; i++) {
@@ -159,17 +156,16 @@ describe('## Document APIs', () => {
         })
         .catch(done);
     });
-  });
 
-  describe('# Updated filter /api/documents?updatedStart=...&updatedEnd=...', () => {
     it('should get documents list according to the update datetime', (done) => {
       let dateRefStart = new Date();
       dateRefStart.setDate(dateRefStart.getDate() - 1);
-      let dateRefEnd = new Date();
+      const dateRefEnd = new Date();
 
       request(app)
         .get('/api/documents')
-        .query({ updatedStart : dateRefStart, updatedEnd: dateRefEnd })
+        .query({ updatedStart : dateRefStart, updatedEnd: dateRefEnd, contentType: contentType1 })
+        .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body).to.be.an('array');
           for(let i = 0; i<res.body.length; i++) {
@@ -180,37 +176,42 @@ describe('## Document APIs', () => {
         })
         .catch(done);
     });
-  });
 
-  describe('# tag filter /api/documents?tags=...,...,....', () => {
     it('should get documents list according to the document tags', (done) => {
-      let testTags = ['1', '5'];
+      const testTags = ['1', '5'];
 
       request(app)
         .get('/api/documents')
-        .query({ tags: testTags })
+        .query({ tags: testTags, contentType: contentType1 })
+        .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body).to.be.an('array');
           for(let i = 0; i<res.body.length; i++) {
-              let bool = (testTags[0] in res.body[i].tags)||(testTags[1] in res.body[i].tags);
-              expect(bool);
+            expect(res.body[i].tags.some(e => testTags.includes(e)));
           }
           done();
         })
         .catch(done);
     });
-  });
 
-  describe('# paginate through results /api/documents?limit=...&page=...', () => {
     it('should provide a pagination system to display the documents', (done) => {
       const limitTest = 1;
       const pageTest = 2;
+
+      request(app)
+       .post('/api/documents')
+       .send(document2)
+       .then((res) => {
+         document2 = res.body;
+      })
+      .catch(done);
+
       request(app)
         .get('/api/documents')
-        .query({ limit: limitTest, page: pageTest })
+        .query({ limit: limitTest, page: pageTest, contentType: contentType2 })
+        .expect(httpStatus.OK)
         .then((res) => {
-            console.log(res.body)
-          expect(res.body[0].id).to.equal(document1.id);
+          expect(res.body[0].data.content).to.equal(document2.data.content);
           done();
       })
       .catch(done);
@@ -227,14 +228,23 @@ describe('## Document APIs', () => {
         })
         .catch(done);
 
-        request(app)
-          .delete(`/api/documents/${document1.id}`)
-          .expect(httpStatus.OK)
-          .then((res) => {
-            expect(res.body.data.content).to.equal(document1.data.content);
-            done();
-          })
-          .catch(done);
+      request(app)
+        .delete(`/api/documents/${document1.id}`)
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body.data.content).to.equal(document1.data.content);
+          done();
+        })
+        .catch(done);
+
+      request(app)
+        .delete(`/api/documents/${document2.id}`)
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body.data.content).to.equal(document2.data.content);
+        })
+        .catch(done);
+
     });
   });
 });
