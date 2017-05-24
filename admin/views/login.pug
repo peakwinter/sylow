@@ -1,0 +1,15 @@
+extends includes/base.pug
+
+block content
+  form(method="POST")
+    input(type="hidden" name="passwordHash")
+    div(id="sy-narrow-form" class="ui middle aligned center aligned grid")
+      div(class="column")
+        div(class="ui top attached left aligned segment")
+          div(class="ui form")
+            h1= "Login"
+            div(class="field")
+              input(type="text" name="username" placeholder="Username")
+            div(class="field")
+              input(type="password" id="password" placeholder="Password")
+        button(type="submit" class="ui bottom attached fluid positive button") Login

@@ -1,14 +1,10 @@
 import express from 'express';
 import validate from 'express-validation';
-import passport from 'passport';
 import paramValidation from '../../config/param-validation';
 import authCtrl from '../controllers/auth.controller';
 
 
 const router = express.Router(); // eslint-disable-line new-cap
-
-/** POST /api/auth/login - Enters authenticated session if correct username/password is provided */
-router.route('/login').post(passport.authenticate('local'));
 
 router.route('/token')
   .all(authCtrl.getToken);

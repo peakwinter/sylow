@@ -16,6 +16,10 @@ const users = {
   }
 };
 
+function login(req, res) {
+  return res.render('login');
+}
+
 /**
  * Returns the salt for a given user.
  * @param req
@@ -101,6 +105,7 @@ function authenticate(options) {
 }
 
 export default {
+  login,
   getAuthorize,
   postAuthorize,
   authenticate,
