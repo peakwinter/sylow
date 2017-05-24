@@ -3,11 +3,15 @@ import gulpLoadPlugins from 'gulp-load-plugins';
 import path from 'path';
 import del from 'del';
 import runSequence from 'run-sequence';
+import webpack from 'webpack';
+import webpackStream from 'webpack-stream';
+import webpackConfig from './webpack.config';
 
 const plugins = gulpLoadPlugins();
 
 const paths = {
-  js: ['./**/*.js', '!dist/**', '!node_modules/**', '!coverage/**'],
+  js: ['./**/*.js', '!admin/assets/**/*.js', '!dist/**', '!node_modules/**', '!coverage/**'],
+  jsFrontend: ['./admin/assets/**/*.js'],
   nonJs: ['./**/*.pug', './**/*.css', './package.json', './.gitignore', './.env'],
   tests: './server/tests/*.js'
 };
@@ -26,7 +30,7 @@ gulp.task('copy', () =>
 
 // Compile ES6 to ES5 and copy to dist
 gulp.task('babel', () =>
-  gulp.src([...paths.js, '!gulpfile.babel.js'], { base: '.' })
+  gulp.src([...paths.js, '!gulpfile.babel.js', '!webpack.config.js'], { base: '.' })
     .pipe(plugins.newer('dist'))
     .pipe(plugins.sourcemaps.init())
     .pipe(plugins.babel())
@@ -39,14 +43,20 @@ gulp.task('babel', () =>
     .pipe(gulp.dest('dist'))
 );
 
+gulp.task('build:frontend', () =>
+  gulp.src([...paths.jsFrontend])
+    .pipe(webpackStream(webpackConfig, webpack))
+    .pipe(gulp.dest('dist/admin/assets'))
+);
+
 // Start server with restart on file changes
-gulp.task('nodemon', ['copy', 'babel'], () =>
+gulp.task('nodemon', ['build:frontend', 'copy', 'babel'], () =>
   plugins.nodemon({
     script: path.join('dist', 'index.js'),
     ext: 'js pug css',
     watch: ['server/**/*.js', 'admin/**/*.js', 'admin/**/*.pug', 'admin/**/*.css'],
     ignore: ['node_modules/**/*.js', 'dist/**/*.js'],
-    tasks: ['copy', 'babel']
+    tasks: ['build:frontend', 'copy', 'babel']
   })
 );
 
