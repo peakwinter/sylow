@@ -1,13 +1,34 @@
 import httpStatus from 'http-status';
 import APIError from '../server/helpers/APIError';
 import config from '../config/config';
+import Document from '../server/models/document.model';
 
-const request = require('request');
-
+//const axios = require('axios');
 
 function init(req, res, next){
-  res.render('index')
+
+  Document
+    .find()
+    .distinct('contentType')
+    .then((contentTypes) => {
+       let l = {};
+       for(let i =0; i<contentTypes.length; i++) {
+         let ct = contentTypes[i]
+         Document
+           .find({contentType: ct})
+           .count()
+           .then((count) => {
+             l[ct] = count;
+             console.log(ct+' count : '+count)
+             console.log(l)
+           })
+           .catch(e => next(e));
+       }
+      console.log(l);
+      res.render('index', {l: l})
+    })
     .catch(e => next(e));
+
 }
 
 function postActions(req, res, next) {
