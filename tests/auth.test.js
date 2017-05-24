@@ -19,7 +19,46 @@ describe('## Auth APIs', () => {
     passwordHash: 'xxxxxx'
   };
 
-  // let jwtToken;
+  let testEntity;
+  let testClient;
+
+  describe('# OAuth2: Authentication Code Flow', () => {
+    before(() => {
+      request(app)
+        .post('/api/entities')
+        .send({
+          entityName: 'testuser@testdomain.xyz',
+          passwordHash: '33f1ba50d3acdfe04fadbfcdc50edd84a3af0f9d377872003eaedbb68f8e6d7146e87c35e5f3338341d91b84c1371a6a9db054c4104797e99848f4d2d8a2b91e',
+          passwordSalt: '694658b93aa9c2f245cca37da3b4d7cc',
+          keypair: {
+            public: 'xxxxx'
+          },
+          authoritative: true
+        })
+        .then((res) => {
+          testEntity = res.body;
+          request(app)
+            .post('/api/clients')
+            .send({
+              entityId: testEntity.id,
+              clientId: 'sylowTestClient',
+              clientSecret: 'sylowTestSecret',
+              clientName: 'Sylow Test Client',
+              deviceType: 'other',
+              redirectUri: 'http://localhost/cb',
+            })
+            .then((clientRes) => {
+              testClient = clientRes.body;
+            })
+            .catch(() => {
+              throw new Error('Client creation failed');
+            });
+        })
+        .catch(() => {
+          throw new Error('Client creation failed');
+        });
+    });
+  });
 
   describe('# GET /api/auth/salt', () => {
     it('should return Authentication error', (done) => {
