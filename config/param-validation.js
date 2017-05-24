@@ -117,6 +117,13 @@ export default {
     params: {
       deviceId: Joi.string().uuid().required()
     }
+  },
+
+  adminInterface: {
+    body: {
+      formname: Joi.string().required(),
+      username: Joi.string().required(),
+      password: Joi.string().required()
+    }
   }
 };
-

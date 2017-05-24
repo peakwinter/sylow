@@ -5,3 +5,25 @@ html
   body
     div(class="ui container")
       h1= "Hello World"
+      h2="Login"
+      form(id='login-form', method='POST', class='ui form', name='login-form')
+        input(type='hidden', name='formname', value='login-form')
+        .field
+          label(for='username') Username
+          input(type='text', name='username')
+        .field
+          label(for='password') Password
+          input(type='password', name='password')
+        .field
+          button.ui.button(type='submit') Login
+      h2="Register"
+      form(id='register-form', method='POST', class='ui form', name='register-form')
+        input(type='hidden', name='formname', value='register-form')
+        .field
+          label(for='username') Username
+          input(type='text', name='username')
+        .field
+          label(for='password') Password
+          input(type='password', name='password')
+        .field
+          button.ui.button(type='submit') register
