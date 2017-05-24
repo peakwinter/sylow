@@ -15,13 +15,13 @@ const AccessTokenSchema = new mongoose.Schema({
     enum: ['access', 'refresh'],
     default: 'access'
   },
-  entityId: {
+  entity: {
     type: String,
     required: true,
     match: [uuidRegex, 'The value of path {PATH} ({VALUE}) is not a valid UUID.'],
     ref: 'Entity'
   },
-  clientId: {
+  client: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: 'Client'

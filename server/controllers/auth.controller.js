@@ -1,10 +1,9 @@
-import jwt from 'jsonwebtoken';
 import httpStatus from 'http-status';
 import { Request, Response } from 'oauth2-server';
 
 import Client from '../models/client.model';
 import APIError from '../helpers/APIError';
-import config from '../../config/config';
+import toSnakeCase from '../utils/toSnakeCase';
 import { oauth } from '../../config/express';
 
 
@@ -16,31 +15,6 @@ const users = {
     passwordSalt: '9b02e8d16d99533a1063b9fb554d8380'
   }
 };
-
-/**
- * Returns jwt token if valid username and password is provided
- * @param req
- * @param res
- * @param next
- * @returns {*}
- */
-function login(req, res, next) {
-  // Ideally you'll fetch this from the db
-  // Idea here was to show how jwt works with simplicity
-  const user = users[req.body.username];
-  if (!!user && req.body.passwordHash === user.passwordHash) {
-    const token = jwt.sign({
-      username: user.username
-    }, config.jwtSecret);
-    return res.json({
-      token,
-      username: user.username
-    });
-  }
-
-  const err = new APIError('Authentication error', httpStatus.UNAUTHORIZED, true);
-  return next(err);
-}
 
 /**
  * Returns the salt for a given user.
@@ -78,7 +52,7 @@ function getToken(req, res, next) {
   const response = new Response(res);
 
   oauth.token(request, response)
-    .then(token => res.json(token))
+    .then(token => res.json(toSnakeCase(token)))
     .catch(err => next(err));
 }
 
@@ -127,7 +101,6 @@ function authenticate(options) {
 }
 
 export default {
-  login,
   getAuthorize,
   postAuthorize,
   authenticate,

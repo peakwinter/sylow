@@ -11,9 +11,9 @@ const authorizationCodes = {};
 
 export function getAccessToken(token) {
   return AccessToken.findOne({ token, tokenType: 'access' })
-    .populate('Client', 'Entity')
+    .populate('client entity')
     .then((accessToken) => {
-      if (!accessToken || !accessToken.client || !accessToken.entity) return false;
+      if (!accessToken) return false;
       return {
         accessToken: accessToken.token,
         accessTokenExpiresAt: accessToken.expiresAt,
@@ -26,7 +26,7 @@ export function getAccessToken(token) {
 
 export function getRefreshToken(token) {
   return AccessToken.findOne({ token, tokenType: 'refresh' })
-    .populate('Client', 'Entity')
+    .populate('client entity')
     .then((refreshToken) => {
       if (!refreshToken || !refreshToken.client || !refreshToken.entity) return false;
       return {
@@ -42,8 +42,8 @@ export function getAuthorizationCode(code) {
   if (code in authorizationCodes) {
     const authorizationCode = authorizationCodes[code];
     return Promise.all([
-      Client.get(authorizationCode.clientId),
-      Entity.get(authorizationCode.entityId)
+      Client.get(authorizationCode.client),
+      Entity.get(authorizationCode.entity)
     ])
       .then(([client, entity]) => (
         {
@@ -103,8 +103,8 @@ export function saveToken(token, client, entity) {
     token: token.accessToken,
     expiresAt: token.accessTokenExpiresAt,
     scope: token.scope,
-    clientId: client._id,
-    entityId: entity.id
+    client: client._id,
+    entity: entity._id
   });
   promises.push(accessToken.save());
 
@@ -113,8 +113,8 @@ export function saveToken(token, client, entity) {
       token: token.refreshToken,
       tokenType: 'refresh',
       expiresAt: token.refreshTokenExpiresAt,
-      clientId: client._id,
-      entityId: entity.id
+      client: client._id,
+      entity: entity._id
     });
     promises.push(refreshToken.save());
   }
@@ -126,8 +126,6 @@ export function saveToken(token, client, entity) {
         user: entity,
         accessToken: token.accessToken, // proxy
         refreshToken: token.refreshToken, // proxy
-        access_token: token.accessToken,
-        refresh_token: token.refresh_token,
       }
     ));
 }
@@ -138,8 +136,8 @@ export function saveAuthorizationCode(code, client, entity) {
     expiresAt: code.expiresAt,
     redirectUri: code.redirectUri,
     scope: code.scope,
-    clientId: client.id,
-    entityId: entity.id
+    client: client._id,
+    entity: entity._id
   };
   authorizationCodes[code.authorizationCode] = authCode;
 
@@ -148,8 +146,8 @@ export function saveAuthorizationCode(code, client, entity) {
     expiresAt: authCode.expiresAt,
     redirectUri: authCode.redirectUri,
     scope: authCode.scope,
-    client: { id: authCode.clientId },
-    user: { id: authCode.entityId }
+    client: { id: authCode.client },
+    user: { id: authCode.entity }
   };
 }
 

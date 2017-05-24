@@ -7,11 +7,14 @@ import methodOverride from 'method-override';
 import cors from 'cors';
 import httpStatus from 'http-status';
 import OAuthServer from 'oauth2-server';
+import expressSession from 'express-session';
 import expressWinston from 'express-winston';
 import expressValidation from 'express-validation';
+import passport from 'passport';
 import helmet from 'helmet';
 import path from 'path';
 import winstonInstance from './winston';
+import passportStrategy from './passport';
 import routes from '../server/routes/index.route';
 import adminRoutes from '../admin/admin.route';
 import * as OAuthModel from '../server/helpers/OAuth';
@@ -35,6 +38,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(compress());
 app.use(methodOverride());
+
+app.use(expressSession({
+  secret: config.jwtSecret,
+  resave: false,
+  saveUninitialized: true,
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(passportStrategy);
 
 // secure apps by setting various HTTP headers
 app.use(helmet());
