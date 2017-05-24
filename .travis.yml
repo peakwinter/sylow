@@ -10,6 +10,11 @@ cache:
   - node_modules
 git:
   depth: 3
+branches:
+  only:
+    - master
+    - develop
+    - patch
 script:
   - yarn test:check-coverage
 after_script:
