@@ -11,8 +11,8 @@ const plugins = gulpLoadPlugins();
 
 const paths = {
   js: ['./**/*.js', '!admin/assets/**/*.js', '!dist/**', '!node_modules/**', '!coverage/**'],
-  jsFrontend: ['./admin/assets/**/*.js'],
-  nonJs: ['./**/*.pug', './**/*.css', './package.json', './.gitignore', './.env'],
+  frontend: ['./admin/assets/**/*.js', './admin/assets/**/*.css'],
+  nonJs: ['./**/*.pug', './package.json', './.gitignore', './.env'],
   tests: './server/tests/*.js'
 };
 
@@ -44,7 +44,7 @@ gulp.task('babel', () =>
 );
 
 gulp.task('build:frontend', () =>
-  gulp.src([...paths.jsFrontend])
+  gulp.src([...paths.frontend])
     .pipe(webpackStream(webpackConfig, webpack))
     .pipe(gulp.dest('dist/admin/assets'))
 );
@@ -54,7 +54,7 @@ gulp.task('nodemon', ['build:frontend', 'copy', 'babel'], () =>
   plugins.nodemon({
     script: path.join('dist', 'index.js'),
     ext: 'js pug css',
-    watch: ['server/**/*.js', 'admin/**/*.js', 'admin/**/*.pug', 'admin/**/*.css'],
+    watch: ['server/**/*.js', 'admin/**/*'],
     ignore: ['node_modules/**/*.js', 'dist/**/*.js'],
     tasks: ['build:frontend', 'copy', 'babel']
   })
@@ -66,6 +66,6 @@ gulp.task('serve', ['clean'], () => runSequence('nodemon'));
 // default task: clean dist, compile js files and copy non-js files.
 gulp.task('default', ['clean'], () => {
   runSequence(
-    ['copy', 'babel']
+    ['build:frontend', 'copy', 'babel']
   );
 });
