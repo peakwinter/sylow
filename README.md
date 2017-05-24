@@ -19,6 +19,7 @@ cd sylow
 nvm use
 cp .env.example .env
 yarn install
+sudo service mongod start
 yarn start
 ```
 
