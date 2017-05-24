@@ -1,0 +1,11 @@
+body {
+  background-color: #DADADA;
+}
+
+body > .grid {
+  height: 100%;
+}
+
+#sy-authorize-form .column {
+  max-width: 450px;
+}
