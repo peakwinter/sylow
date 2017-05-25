@@ -6,7 +6,7 @@ import Document from '../server/models/document.model';
 //const axios = require('axios');
 
 function init(req, res, next){
-
+/*
   Document
     .find()
     .distinct('contentType')
@@ -19,15 +19,24 @@ function init(req, res, next){
            .count()
            .then((count) => {
              l[ct] = count;
-             console.log(ct+' count : '+count)
-             console.log(l)
            })
            .catch(e => next(e));
        }
-      console.log(l);
-      res.render('index', {l: l})
+      res.render('index', {liste: l})
     })
     .catch(e => next(e));
+*/
+  Document.aggregate([
+    {
+      $group: {
+        _id: '$contentType',
+        nbr: {$sum: 1}
+      }
+    },
+    (error, res) => {
+      console.log(res)
+    }
+  ]);
 
 }
 
