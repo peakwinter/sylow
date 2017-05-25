@@ -27,9 +27,9 @@ html
           input(type='password', name='password')
         .field
           button.ui.button(type='submit') register
-    p #{liste}
-    ul
-      each val, index in liste
-        li= index + ' : '+ val
+    div
+      each contentType in contentTypes
+        each val, index in contentType
+          p= index + ' : '+ val
 
 
