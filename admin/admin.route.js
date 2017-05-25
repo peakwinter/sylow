@@ -1,7 +1,6 @@
 import express from 'express';
-import passport from 'passport';
 
-import authCtrl from '../server/controllers/auth.controller';
+import * as authCtrl from '../server/controllers/auth.controller';
 
 
 const router = express.Router(); // eslint-disable-line new-cap
@@ -11,6 +10,6 @@ router.route('/')
 
 router.route('/login')
   .get(authCtrl.login)
-  .post(passport.authenticate('local'));
+  .post(authCtrl.authenticate);
 
 export default router;

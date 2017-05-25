@@ -6,7 +6,6 @@ import compress from 'compression';
 import methodOverride from 'method-override';
 import cors from 'cors';
 import httpStatus from 'http-status';
-import OAuthServer from 'oauth2-server';
 import expressSession from 'express-session';
 import expressWinston from 'express-winston';
 import expressValidation from 'express-validation';
@@ -14,18 +13,12 @@ import passport from 'passport';
 import helmet from 'helmet';
 import path from 'path';
 import winstonInstance from './winston';
-import passportStrategy from './passport';
 import routes from '../server/routes/index.route';
 import adminRoutes from '../admin/admin.route';
-import * as OAuthModel from '../server/helpers/OAuth';
 import config from './config';
 import APIError from '../server/helpers/APIError';
 
 const app = express();
-
-const oauth = new OAuthServer({
-  model: OAuthModel
-});
 
 if (config.env === 'development') {
   app.use(logger('dev'));
@@ -47,7 +40,6 @@ app.use(expressSession({
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use(passportStrategy);
 
 // secure apps by setting various HTTP headers
 app.use(helmet());
@@ -67,7 +59,8 @@ if (config.env === 'development') {
     winstonInstance,
     meta: true, // optional: log meta data about request (defaults to true)
     msg: 'HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms',
-    colorStatus: true // Color the status code (default green, 3XX cyan, 4XX yellow, 5XX red).
+    colorStatus: true, // Color the status code (default green, 3XX cyan, 4XX yellow, 5XX red).
+    ignoreRoutes: ['/assets']
   }));
 }
 
@@ -115,4 +108,4 @@ app.use((err, req, res, next) => // eslint-disable-line no-unused-vars
   })
 );
 
-export { app as default, oauth };
+export { app as default };
