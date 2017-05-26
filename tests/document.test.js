@@ -174,7 +174,7 @@ describe('## Document APIs', () => {
         .then((res) => {
           expect(res.body).to.be.an('array');
           for (let i = 0; i < res.body.length; i += 1) {
-            expect(res.body[i].tags.some(e => testTags.includes(e)));
+            expect(res.body[i].tags.some(e => testTags.indexOf(e) >= 0));
           }
           done();
         })

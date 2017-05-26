@@ -173,21 +173,21 @@ describe('## Auth APIs', () => {
     });
   });
 
-  /* describe('# POST /login', () => {
+  describe('# POST /login', () => {
     it('should return Authentication error', (done) => {
       request(app)
         .post('/login')
         .send(invalidUserCredentials)
         .type('form')
-        .expect(httpStatus.UNAUTHORIZED)
+        .expect(httpStatus.FOUND)
         .then((res) => {
-          expect(res.body.message).to.equal('Authentication error');
+          expect(res.headers.location).to.equal('/login');
           done();
         })
         .catch(done);
     });
 
-    it('should get valid JWT token', (done) => {
+    /* it('should get valid JWT token', (done) => {
       request(app)
         .post('/api/auth/login')
         .send(validUserCredentials)
@@ -202,6 +202,6 @@ describe('## Auth APIs', () => {
           });
         })
         .catch(done);
-    });
-  }); */
+    }); */
+  });
 });

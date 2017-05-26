@@ -67,30 +67,6 @@ AccessTokenSchema.statics = {
         const err = new APIError('No such access token exists!', httpStatus.NOT_FOUND);
         return Promise.reject(err);
       });
-  },
-
-  getByToken(token) {
-    return this.find({ token })
-      .exec()
-      .then((accessToken) => {
-        if (accessToken) {
-          return accessToken;
-        }
-        const err = new APIError('No such access token exists!', httpStatus.NOT_FOUND);
-        return Promise.reject(err);
-      });
-  },
-
-  getByEntityAndClient(entityId, clientId) {
-    return this.find({ entityId, clientId })
-      .exec()
-      .then((accessToken) => {
-        if (accessToken) {
-          return accessToken;
-        }
-        const err = new APIError('No such access token exists!', httpStatus.NOT_FOUND);
-        return Promise.reject(err);
-      });
   }
 };
 
