@@ -11,7 +11,10 @@ In development. For more information, [check out the Wiki](https://github.com/pe
 
 ### Development
 
-To run Sylow locally you need to install [nvm](https://github.com/creationix/nvm), [MongoDB](https://www.mongodb.com/) and [Yarn](https://yarnpkg.com/en/docs/install). Then you can run:
+To run Sylow locally you need to install [nvm](https://github.com/creationix/nvm), [MongoDB](https://www.mongodb.com/) and [Yarn](https://yarnpkg.com/en/docs/install). 
+* Make sure MongoDB is started. For example, on Linux, you can run: ```sudo systemctl start mongod```
+
+Then you can run:
 
 ```bash
 git clone https://github.com/peakwinter/sylow
@@ -29,6 +32,7 @@ You can also use the provided docker-compose configuration. You must first insta
 ```bash
 git clone https://github.com/peakwinter/sylow
 cd sylow
+cp .env.example .env
 ./bin/development.sh
 ```
 
