@@ -1,21 +1,20 @@
 import express from 'express';
 import validate from 'express-validation';
-import passport from 'passport';
 import paramValidation from '../../config/param-validation';
-import authCtrl from '../controllers/auth.controller';
+import * as authCtrl from '../controllers/auth.controller';
+import { authorizationApi, decisionApi, token } from '../helpers/OAuth';
 
 
 const router = express.Router(); // eslint-disable-line new-cap
 
-/** POST /api/auth/login - Enters authenticated session if correct username/password is provided */
-router.route('/login').post(passport.authenticate('local'));
+router.route('/authorize')
+  .get(authorizationApi);
+
+router.route('/decision')
+  .post(decisionApi);
 
 router.route('/token')
-  .all(authCtrl.getToken);
-
-router.route('/authorize')
-  .get(authCtrl.getAuthorize)
-  .post(authCtrl.postAuthorize);
+  .all(token);
 
 /** POST /api/auth/salt - Returns password salt if correct username is provided */
 router.route('/salt')
@@ -24,6 +23,6 @@ router.route('/salt')
 /** GET /api/auth/random-number - Protected route,
  * needs token returned by the above as header. Authorization: Bearer {token} */
 router.route('/random-number')
-  .get(authCtrl.authenticate(), authCtrl.getRandomNumber);
+  .get(authCtrl.authenticateOAuth, authCtrl.getRandomNumber);
 
 export default router;

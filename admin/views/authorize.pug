@@ -1,17 +1,19 @@
 extends includes/base.pug
 
 block content
-  div(id="sy-authorize-form" class="ui middle aligned center aligned grid")
+  div(id="sy-narrow-form" class="ui middle aligned center aligned grid")
     div(class="column")
-      div(class="ui top attached segment")
-        h1= "Authorize"
-        if client.scope
-          p #{client.clientName} is requesting permission to access your Sylow server using the following scopes:
-          ul
-            each scope in client.scope.split(' ')
-              li= scope
-        else
-          p #{client.clientName} is requesting permission to access your Sylow server using all scopes.
-      div(class="ui bottom attached buttons")
-        a(class="ui positive button" href=client.redirectUri) Accept
-        a(class="ui negative button") Reject
+      form(method="POST" action="./decision" class="ui form")
+        div(class="ui top attached segment")
+          h1= "Authorize"
+          input(type="hidden" name="transaction_id" value=transactionId)
+          if client.scope
+            p #{client.clientName} is requesting permission to access your Sylow server using the following scopes:
+            ul
+              each scope in client.scope.split(' ')
+                li= scope
+          else
+            p #{client.clientName} is requesting permission to access your Sylow server using all scopes.
+        div(class="ui bottom attached buttons")
+          button(type="submit" class="ui positive button") Accept
+          a(class="ui negative button") Reject

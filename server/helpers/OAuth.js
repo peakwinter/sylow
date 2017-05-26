@@ -1,178 +1,163 @@
-import httpStatus from 'http-status';
+// import httpStatus from 'http-status';
+import oauth2orize from 'oauth2orize';
+import passport from 'passport';
+import login from 'connect-ensure-login';
 
-import APIError from './APIError';
+// import APIError from './APIError';
+import { randomStr } from '../utils/random';
 import AccessToken from '../models/accessToken.model';
 import Client from '../models/client.model';
 import Entity from '../models/entity.model';
 
 
+const oauth = oauth2orize.createServer();
 const authorizationCodes = {};
 
 
-export function getAccessToken(token) {
-  return AccessToken.findOne({ token, tokenType: 'access' })
-    .populate('client entity')
-    .then((accessToken) => {
-      if (!accessToken) return false;
-      return {
-        accessToken: accessToken.token,
-        accessTokenExpiresAt: accessToken.expiresAt,
-        scope: accessToken.scope,
-        client: accessToken.client.toJSON(),
-        user: accessToken.entity.toJSON()
-      };
+export function serializeClient(client, done) {
+  return done(null, client.clientId);
+}
+
+export function deserializeClient(clientId, done) {
+  return Client.findOne({ clientId })
+    .then((client) => {
+      if (!client) {
+        return done('Client not found');
+      }
+      return done(null, client);
     });
 }
 
-export function getRefreshToken(token) {
-  return AccessToken.findOne({ token, tokenType: 'refresh' })
-    .populate('client entity')
-    .then((refreshToken) => {
-      if (!refreshToken || !refreshToken.client || !refreshToken.entity) return false;
-      return {
-        refreshToken: refreshToken.refreshToken,
-        scope: refreshToken.scope,
-        user: refreshToken.entity,
-        client: refreshToken.client
-      };
-    });
+export function grantAuthorizationCode(client, redirectUri, entity, ares, done) {
+  const code = randomStr(16);
+  const authCode = {
+    clientId: client._id,
+    entityId: entity._id,
+    redirectUri
+  };
+  authorizationCodes[code] = authCode;
+  return done(null, code);
 }
 
-export function getAuthorizationCode(code) {
+export function exchangeAuthorizationCode(client, code, redirectUri, done) {
   if (code in authorizationCodes) {
-    const authorizationCode = authorizationCodes[code];
-    return Promise.all([
-      Client.get(authorizationCode.client),
-      Entity.get(authorizationCode.entity)
-    ])
-      .then(([client, entity]) => (
-        {
-          code: authorizationCode.code,
-          expiresAt: authorizationCode.expiresAt,
-          redirectUri: authorizationCode.redirectUri,
-          scope: authorizationCode.scope,
-          client: client.toJSON(),
-          user: entity.toJSON()
-        }
-      ));
+    const authCode = authorizationCodes[code];
+    if (client.id !== authCode.clientId.toHexString()) return done(null, false);
+    if (redirectUri !== authCode.redirectUri) return done(null, false);
+
+    const token = randomStr(256);
+    const accessToken = new AccessToken({
+      token,
+      client: authCode.clientId,
+      entity: authCode.entityId
+    });
+
+    return accessToken.save()
+      .then(() => done(null, token))
+      .catch(err => done(err));
   }
   return undefined;
 }
 
-export function getClient(clientId, clientSecret) {
-  const query = { clientId };
-  if (clientSecret) {
-    query.clientSecret = clientSecret;
-  }
-  return Client.findOne(query)
-    .then((client) => {
-      if (!client) {
-        const err = new APIError('Client not found', httpStatus.NOT_FOUND, true);
-        return Promise.reject(err);
-      }
-      const data = client.toJSON();
-      data.grants = ['authorization_code', 'password', 'refresh_token', 'client_credentials'];
-      data.redirectUris = [client.redirectUri];
-      delete data.redirectUri;
-      return data;
-    });
+export function exchangePassword(client, username, passwordHash, scope, done) {
+  return Client.findOne({ clientId: client.clientId })
+    .then((localClient) => {
+      if (!localClient) return done(null, false);
+      if (localClient.clientSecret !== client.clientSecret) return done(null, false);
+
+      return Entity.findByUsername(username)
+        .then((entity) => {
+          if (!entity) return done(null, false);
+          if (passwordHash !== entity.passwordHash) return done(null, false);
+
+          const token = randomStr(256);
+          const accessToken = new AccessToken({
+            token,
+            client: client.clientId,
+            entity: entity.id
+          });
+
+          return accessToken.save()
+            .then(() => done(null, token))
+            .catch(err => done(err));
+        })
+        .catch(err => done(err));
+    })
+    .catch(err => done(err));
 }
 
-export function getUser(username, password) {
-  return Entity.findOne({ username })
-    .then((entity) => {
-      if (!entity) {
-        const err = new APIError('Entity not found', httpStatus.NOT_FOUND, true);
-        return Promise.reject(err);
-      }
-      if (password === entity.passwordHash) {
-        return entity.toJSON();
-      }
-      return undefined;
-    });
+export function exchangeClientCredentials(client, scope, done) {
+  return Client.findOne({ clientId: client.clientId })
+    .then((localClient) => {
+      if (!localClient) return done(null, false);
+      if (localClient.clientSecret !== client.clientSecret) return done(null, false);
+
+      const token = randomStr(256);
+      const accessToken = new AccessToken({
+        token,
+        client: client.clientId
+      });
+
+      return accessToken.save()
+        .then(() => done(null, token))
+        .catch(err => done(err));
+    })
+    .catch(err => done(err));
 }
 
-export function getUserFromClient(client) {
-  return Entity.get(client.entityId)
-    .then(entity => entity.toJSON());
-}
 
-export function saveToken(token, client, entity) {
-  const promises = [];
-  const accessToken = new AccessToken({
-    token: token.accessToken,
-    expiresAt: token.accessTokenExpiresAt,
-    scope: token.scope,
-    client: client._id,
-    entity: entity._id
-  });
-  promises.push(accessToken.save());
+const authorization = [
+  oauth.authorization((clientId, redirectUri, done) =>
+    Client.findOne({ clientId })
+      .then((client) => {
+        if (client.redirectUri !== redirectUri) return done(null, null, redirectUri);
+        return done(null, client, redirectUri);
+      })
+      .catch(err => done(err)),
+  (client, user, done) => {
+    if (client.isTrusted) return done(null, true);
+    return AccessToken.findOne({ entity: user.id, client: client._id })
+      .then((token) => {
+        if (token) return done(null, true);
+        return done(null, false);
+      })
+      .catch(err => done(err));
+  }),
+  (req, res) => {
+    res.render('authorize', { transactionId: req.oauth2.transactionID, user: req.user, client: req.oauth2.client });
+  },
+];
 
-  if (token.refreshToken) {
-    const refreshToken = new AccessToken({
-      token: token.refreshToken,
-      tokenType: 'refresh',
-      expiresAt: token.refreshTokenExpiresAt,
-      client: client._id,
-      entity: entity._id
-    });
-    promises.push(refreshToken.save());
-  }
+export const authorizationApi = [
+  passport.authenticate('basic'),
+  ...authorization
+];
 
-  return Promise.all(promises)
-    .then(() => (
-      {
-        client,
-        user: entity,
-        accessToken: token.accessToken, // proxy
-        refreshToken: token.refreshToken, // proxy
-      }
-    ));
-}
+export const authorizationClient = [
+  login.ensureLoggedIn(),
+  ...authorization
+];
 
-export function saveAuthorizationCode(code, client, entity) {
-  const authCode = {
-    code: code.authorizationCode,
-    expiresAt: code.expiresAt,
-    redirectUri: code.redirectUri,
-    scope: code.scope,
-    client: client._id,
-    entity: entity._id
-  };
-  authorizationCodes[code.authorizationCode] = authCode;
+export const decisionApi = [
+  passport.authenticate('basic', { session: false }),
+  oauth.decision()
+];
 
-  return {
-    authorizationCode: authCode.code,
-    expiresAt: authCode.expiresAt,
-    redirectUri: authCode.redirectUri,
-    scope: authCode.scope,
-    client: { id: authCode.client },
-    user: { id: authCode.entity }
-  };
-}
+export const decisionClient = [
+  login.ensureLoggedIn(),
+  oauth.decision()
+];
 
-export function revokeToken(token) {
-  return AccessToken.find({ token, tokenType: 'refresh' })
-    .then(accessToken =>
-      accessToken.remove()
-        .then(() => true)
-        .catch(() => false)
-    );
-}
+export const token = [
+  passport.authenticate(['basic', 'oauth2-client-password'], { session: false }),
+  oauth.token(),
+  oauth.errorHandler()
+];
 
-export function revokeAuthorizationCode(code) {
-  if (!(code.code in authorizationCodes)) {
-    return false;
-  }
-  delete authorizationCodes[code.code];
-  return true;
-}
+oauth.serializeClient(serializeClient);
+oauth.deserializeClient(deserializeClient);
 
-export function verifyScope(token, scope) {
-  if (!token.scope) {
-    return false;
-  }
-  const requestedScopes = scope.split(' ');
-  const authorizedScopes = token.scope.split(' ');
-  return requestedScopes.every(s => authorizedScopes.includes(s));
-}
+oauth.grant(oauth2orize.grant.code(grantAuthorizationCode));
+oauth.exchange(oauth2orize.exchange.code(exchangeAuthorizationCode));
+oauth.exchange(oauth2orize.exchange.password(exchangePassword));
+oauth.exchange(oauth2orize.exchange.clientCredentials(exchangeClientCredentials));

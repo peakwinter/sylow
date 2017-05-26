@@ -1,10 +1,14 @@
 import httpStatus from 'http-status';
-import { Request, Response } from 'oauth2-server';
+import passport from 'passport';
+import { Strategy as LocalStrategy } from 'passport-local';
+import { BasicStrategy } from 'passport-http';
+import { Strategy as ClientPasswordStrategy } from 'passport-oauth2-client-password';
+import { Strategy as BearerStrategy } from 'passport-http-bearer';
 
+import AccessToken from '../models/accessToken.model';
 import Client from '../models/client.model';
+import Entity from '../models/entity.model';
 import APIError from '../helpers/APIError';
-import toSnakeCase from '../utils/toSnakeCase';
-import { oauth } from '../../config/express';
 
 
 // sample user, used for authentication
@@ -16,6 +20,10 @@ const users = {
   }
 };
 
+export function login(req, res) {
+  return res.render('login');
+}
+
 /**
  * Returns the salt for a given user.
  * @param req
@@ -23,7 +31,7 @@ const users = {
  * @param next
  * @returns {*}
  */
-function getSalt(req, res, next) {
+export function getSalt(req, res, next) {
   if (req.query.username in users) {
     return res.json({
       salt: users[req.query.username].passwordSalt
@@ -40,71 +48,74 @@ function getSalt(req, res, next) {
  * @param res
  * @returns {*}
  */
-function getRandomNumber(req, res) {
+export function getRandomNumber(req, res) {
   // req.user is assigned by jwt middleware if valid token is provided
   return res.json({
     num: Math.random() * 100
   });
 }
 
-function getToken(req, res, next) {
-  const request = new Request(req);
-  const response = new Response(res);
-
-  oauth.token(request, response)
-    .then(token => res.json(toSnakeCase(token)))
-    .catch(err => next(err));
-}
-
-function getAuthorize(req, res, next) {
-  return Client.findOne({
-    clientId: req.query.client_id,
-    redirectUri: req.query.redirect_uri,
-  })
-    .then((client) => {
-      if (!client) {
-        const err = new APIError('Client not found', httpStatus.NOT_FOUND, true);
-        return next(err);
+passport.use(new LocalStrategy({ passwordField: 'passwordHash' },
+  (username, passwordHash, done) => {
+    Entity.findOne({ username }, (err, entity) => {
+      if (err) { return done(err); }
+      if (!entity) {
+        return done(null, false, { message: 'Incorrect username.' });
       }
-      return res.render('authorize', { client });
-    })
-    .catch(err => next(err));
-}
-
-function postAuthorize(req, res, next) {
-  const request = new Request(req);
-  const response = new Response(res);
-
-  return oauth.authorize(request, response)
-    .then(success => res.json(success))
-    .catch(err => next(err));
-}
-
-function authenticate(options) {
-  return (req, res, next) => {
-    const request = new Request({
-      headers: { authorization: req.headers.authorization },
-      method: req.method,
-      query: req.query,
-      body: req.body
+      if (passwordHash !== entity.passwordHash) {
+        return done(null, false, { message: 'Incorrect password.' });
+      }
+      return done(null, entity);
     });
-    const response = new Response(res);
+  }
+));
 
-    oauth.authenticate(request, response, options)
-      .then((token) => {
-        // Request is authorized.
-        req.user = token;  // eslint-disable-line no-param-reassign
-        next();
-      })
-      .catch(err => next(err));
-  };
+passport.use(new BasicStrategy((username, passwordHash, done) => {
+  Entity.findOne({ username })
+    .then((entity) => {
+      if (!entity || entity.passwordHash !== passwordHash) {
+        return done(null, false);
+      }
+      return done(null, entity);
+    });
+}));
+
+passport.use(new ClientPasswordStrategy((clientId, clientSecret, done) => {
+  Client.findOne({ clientId })
+    .then((client) => {
+      if (!client || client.clientSecret !== clientSecret) {
+        return done(null, null);
+      }
+      return done(null, client);
+    })
+    .catch(err => done(err));
+}));
+
+passport.use(new BearerStrategy((token, done) => {
+  AccessToken.findOne({ token })
+    .populate('client')
+    .then((accessToken) => {
+      if (!accessToken || !accessToken.client) return done(null, null);
+      return done(null, accessToken.client, { scope: '*', isClient: true });
+    })
+    .catch(err => done(err));
+}));
+
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
+
+export function isLoggedIn(req, res, next) {
+  if (req.isAuthenticated && req.isAuthenticated()) {
+    return next();
+  }
+  return res.redirect('/login');
 }
 
-export default {
-  getAuthorize,
-  postAuthorize,
-  authenticate,
-  getSalt,
-  getToken,
-  getRandomNumber
-};
+export const authenticate = passport.authenticate(['basic', 'local'], { successReturnToOrRedirect: '/', failureRedirect: '/login' });
+export const authenticateOAuth = passport.authenticate('bearer', { session: false });
+export const authenticateClient = passport.authenticate(['basic', 'oauth2-client-password'], { session: false });

@@ -1,8 +1,10 @@
 import Joi from 'joi';
 import dotenv from 'dotenv';
+import dotenvExpand from 'dotenv-expand';
 
-dotenv.config();
-const envConfig = Object.create(process.env);
+const myEnv = dotenv.config();
+dotenvExpand(myEnv);
+const envConfig = Object.create(myEnv.parsed);
 
 if (envConfig.SY_SCHEMA_DOMAIN_WHITELIST && typeof envConfig.SY_SCHEMA_DOMAIN_WHITELIST === 'string') {
   envConfig.SY_SCHEMA_DOMAIN_WHITELIST = envConfig.SY_SCHEMA_DOMAIN_WHITELIST.split(' ');

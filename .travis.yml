@@ -10,6 +10,8 @@ cache:
   - node_modules
 git:
   depth: 3
+before_script:
+  - cp .env.example .env
 branches:
   only:
     - master
