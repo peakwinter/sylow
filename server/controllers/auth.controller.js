@@ -70,23 +70,23 @@ passport.use(new LocalStrategy({ passwordField: 'passwordHash' },
   }
 ));
 
-passport.use(new BasicStrategy((username, password, done) => {
-  Client.findOne({ clientId: username })
-    .then((client) => {
-      if (client.clientSecret === password) {
-        return done(null, client);
+passport.use(new BasicStrategy((username, passwordHash, done) => {
+  Entity.findOne({ username })
+    .then((entity) => {
+      if (!entity || entity.passwordHash !== passwordHash) {
+        return done(null, false);
       }
-      return done(null, null);
+      return done(null, entity);
     });
 }));
 
 passport.use(new ClientPasswordStrategy((clientId, clientSecret, done) => {
   Client.findOne({ clientId })
     .then((client) => {
-      if (clientSecret === client.clientSecret) {
-        return done(null, client);
+      if (!client || client.clientSecret !== clientSecret) {
+        return done(null, null);
       }
-      return done(null, null);
+      return done(null, client);
     })
     .catch(err => done(err));
 }));
@@ -115,6 +115,6 @@ export function isLoggedIn(req, res, next) {
   }
   return res.redirect('/login');
 }
-export const authenticate = passport.authenticate('local', { successReturnToOrRedirect: '/', failureRedirect: '/login', session: true });
+export const authenticate = passport.authenticate(['basic', 'local'], { failureRedirect: '/login', session: true });
 export const authenticateOAuth = passport.authenticate('bearer', { session: false });
 export const authenticateClient = passport.authenticate(['basic', 'oauth2-client-password'], { session: false });
