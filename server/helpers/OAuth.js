@@ -106,9 +106,7 @@ export function exchangeClientCredentials(client, scope, done) {
 }
 
 
-export const authorization = [
-  // login.ensureLoggedIn(),
-  passport.authenticate(['basic', 'local'], { failureRedirect: '/login', session: false }),
+const authorization = [
   oauth.authorization((clientId, redirectUri, done) =>
     Client.findOne({ clientId })
       .then((client) => {
@@ -130,9 +128,23 @@ export const authorization = [
   },
 ];
 
-export const decision = [
-  // login.ensureLoggedIn(),
-  passport.authenticate(['basic', 'local'], { session: false }),
+export const authorizationApi = [
+  passport.authenticate('basic'),
+  ...authorization
+];
+
+export const authorizationClient = [
+  login.ensureLoggedIn(),
+  ...authorization
+];
+
+export const decisionApi = [
+  passport.authenticate('basic', { session: false }),
+  oauth.decision()
+];
+
+export const decisionClient = [
+  login.ensureLoggedIn(),
   oauth.decision()
 ];
 

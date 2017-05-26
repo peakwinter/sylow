@@ -3,7 +3,7 @@ extends includes/base.pug
 block content
   div(id="sy-narrow-form" class="ui middle aligned center aligned grid")
     div(class="column")
-      form(method="POST" action="/api/auth/decision" class="ui form")
+      form(method="POST" action="./decision" class="ui form")
         div(class="ui top attached segment")
           h1= "Authorize"
           input(type="hidden" name="transaction_id" value=transactionId)

@@ -2,16 +2,16 @@ import express from 'express';
 import validate from 'express-validation';
 import paramValidation from '../../config/param-validation';
 import * as authCtrl from '../controllers/auth.controller';
-import { authorization, decision, token } from '../helpers/OAuth';
+import { authorizationApi, decisionApi, token } from '../helpers/OAuth';
 
 
 const router = express.Router(); // eslint-disable-line new-cap
 
 router.route('/authorize')
-  .get(authorization);
+  .get(authorizationApi);
 
 router.route('/decision')
-  .post(decision);
+  .post(decisionApi);
 
 router.route('/token')
   .all(token);

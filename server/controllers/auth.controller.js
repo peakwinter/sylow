@@ -115,6 +115,7 @@ export function isLoggedIn(req, res, next) {
   }
   return res.redirect('/login');
 }
-export const authenticate = passport.authenticate(['basic', 'local'], { failureRedirect: '/login', session: true });
+
+export const authenticate = passport.authenticate(['basic', 'local'], { successReturnToOrRedirect: '/', failureRedirect: '/login' });
 export const authenticateOAuth = passport.authenticate('bearer', { session: false });
 export const authenticateClient = passport.authenticate(['basic', 'oauth2-client-password'], { session: false });
