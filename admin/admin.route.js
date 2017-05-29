@@ -1,25 +1,25 @@
 import express from 'express';
 
 import * as authCtrl from '../server/controllers/auth.controller';
-import { authorizationClient, decisionClient, token } from '../server/helpers/OAuth';
+import * as OAuth from '../server/helpers/OAuth';
 
 
 const router = express.Router(); // eslint-disable-line new-cap
 
 router.route('/')
-  .get((req, res) => res.render('index'));
+  .get(authCtrl.authenticateUser, (req, res) => res.render('index'));
 
 router.route('/login')
   .get(authCtrl.login)
   .post(authCtrl.authenticate);
 
 router.route('/authorize')
-  .get(authorizationClient);
+  .get([authCtrl.authenticateUser, ...OAuth.authorization]);
 
 router.route('/decision')
-  .post(decisionClient);
+  .post([authCtrl.authenticateUser, OAuth.Server.decision()]);
 
 router.route('/token')
-  .all(token);
+  .all([authCtrl.authenticateClient, OAuth.Server.token(), OAuth.Server.errorHandler()]);
 
 export default router;
