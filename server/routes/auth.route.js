@@ -2,19 +2,19 @@ import express from 'express';
 import validate from 'express-validation';
 import paramValidation from '../../config/param-validation';
 import * as authCtrl from '../controllers/auth.controller';
-import { authorizationApi, decisionApi, token } from '../helpers/OAuth';
+import * as OAuth from '../helpers/OAuth';
 
 
 const router = express.Router(); // eslint-disable-line new-cap
 
 router.route('/authorize')
-  .get(authorizationApi);
+  .get([authCtrl.authenticateBasic, ...OAuth.authorization]);
 
 router.route('/decision')
-  .post(decisionApi);
+  .post([authCtrl.authenticateBasicNoSession, ...OAuth.decision]);
 
 router.route('/token')
-  .all(token);
+  .all([authCtrl.authenticateClient, OAuth.Server.token(), OAuth.Server.errorHandler()]);
 
 /** POST /api/auth/salt - Returns password salt if correct username is provided */
 router.route('/salt')

@@ -6,6 +6,7 @@ import compress from 'compression';
 import methodOverride from 'method-override';
 import cors from 'cors';
 import httpStatus from 'http-status';
+import expressFlash from 'express-flash';
 import expressSession from 'express-session';
 import expressWinston from 'express-winston';
 import expressValidation from 'express-validation';
@@ -27,6 +28,7 @@ if (config.env === 'development') {
 // parse body params and attache them to req.body
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(expressFlash());
 
 app.use(cookieParser());
 app.use(compress());

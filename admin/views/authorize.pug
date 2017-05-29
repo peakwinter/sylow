@@ -15,5 +15,5 @@ block content
           else
             p #{client.clientName} is requesting permission to access your Sylow server using all scopes.
         div(class="ui bottom attached buttons")
-          button(type="submit" class="ui positive button") Accept
-          a(class="ui negative button") Reject
+          button(type="submit" name="success" value="success" class="ui positive button") Accept
+          button(type="submit" name="cancel" value="cancel" class="ui negative button") Reject

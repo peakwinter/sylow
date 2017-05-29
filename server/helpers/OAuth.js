@@ -1,9 +1,7 @@
-// import httpStatus from 'http-status';
+import httpStatus from 'http-status';
 import oauth2orize from 'oauth2orize';
-import passport from 'passport';
-import login from 'connect-ensure-login';
 
-// import APIError from './APIError';
+import APIError from './APIError';
 import { randomStr } from '../utils/random';
 import AccessToken from '../models/accessToken.model';
 import Client from '../models/client.model';
@@ -13,6 +11,7 @@ import Entity from '../models/entity.model';
 const oauth = oauth2orize.createServer();
 const authorizationCodes = {};
 
+export { oauth as Server };
 
 export function serializeClient(client, done) {
   return done(null, client.clientId);
@@ -22,7 +21,8 @@ export function deserializeClient(clientId, done) {
   return Client.findOne({ clientId })
     .then((client) => {
       if (!client) {
-        return done('Client not found');
+        const err = new APIError('Client not found', httpStatus.NOT_FOUND, true);
+        return done(err);
       }
       return done(null, client);
     });
@@ -33,6 +33,7 @@ export function grantAuthorizationCode(client, redirectUri, entity, ares, done) 
   const authCode = {
     clientId: client._id,
     entityId: entity._id,
+    scope: ares.scope,
     redirectUri
   };
   authorizationCodes[code] = authCode;
@@ -49,14 +50,15 @@ export function exchangeAuthorizationCode(client, code, redirectUri, done) {
     const accessToken = new AccessToken({
       token,
       client: authCode.clientId,
-      entity: authCode.entityId
+      entity: authCode.entityId,
+      scope: authCode.scope
     });
 
     return accessToken.save()
       .then(() => done(null, token))
       .catch(err => done(err));
   }
-  return undefined;
+  return done(null);
 }
 
 export function exchangePassword(client, username, passwordHash, scope, done) {
@@ -106,52 +108,31 @@ export function exchangeClientCredentials(client, scope, done) {
 }
 
 
-const authorization = [
+export const authorization = [
   oauth.authorization((clientId, redirectUri, done) =>
     Client.findOne({ clientId })
       .then((client) => {
+        if (!client) return done(null, null, null);
         if (client.redirectUri !== redirectUri) return done(null, null, redirectUri);
         return done(null, client, redirectUri);
       })
       .catch(err => done(err)),
-  (client, user, done) => {
-    if (client.isTrusted) return done(null, true);
-    return AccessToken.findOne({ entity: user.id, client: client._id })
+  (client, user, done) =>
+    // if (client.isTrusted) return done(null, true);
+    AccessToken.findOne({ entity: user._id, client: client._id })
       .then((token) => {
         if (token) return done(null, true);
         return done(null, false);
       })
-      .catch(err => done(err));
-  }),
+      .catch(err => done(err))
+  ),
   (req, res) => {
     res.render('authorize', { transactionId: req.oauth2.transactionID, user: req.user, client: req.oauth2.client });
   },
 ];
 
-export const authorizationApi = [
-  passport.authenticate('basic'),
-  ...authorization
-];
-
-export const authorizationClient = [
-  login.ensureLoggedIn(),
-  ...authorization
-];
-
-export const decisionApi = [
-  passport.authenticate('basic', { session: false }),
-  oauth.decision()
-];
-
-export const decisionClient = [
-  login.ensureLoggedIn(),
-  oauth.decision()
-];
-
-export const token = [
-  passport.authenticate(['basic', 'oauth2-client-password'], { session: false }),
-  oauth.token(),
-  oauth.errorHandler()
+export const decision = [
+  oauth.decision((req, done) => done(null, { scope: req.scope }))
 ];
 
 oauth.serializeClient(serializeClient);

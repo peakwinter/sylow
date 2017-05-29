@@ -3,20 +3,17 @@ import httpStatus from 'http-status';
 import cheerio from 'cheerio';
 import chai, { expect } from 'chai';
 import app from '../index';
-// import config from '../config/config';
 
 chai.config.includeStack = true;
 
-describe('## Auth APIs', () => {
-  const validUserCredentials = {
+describe('## Authentification', () => {
+  const badUsernameCredentials = {
     username: 'react',
-    // password: 'testpass',
-    passwordHash: '0f04a285f6554e97fbbd2d0faf180eeb9db3e90388d0f3570ab8e6e1db7ba9ac088b41e1ba66e65ab39aa6124f69879d48ef8f771c475a945687f55d1a5695bd'
+    passwordHash: 'xxxxxx'
   };
 
-  const invalidUserCredentials = {
-    username: 'react',
-    // password: 'IDontKnow',
+  const badPasswordCredentials = {
+    username: 'testuser',
     passwordHash: 'xxxxxx'
   };
 
@@ -39,6 +36,7 @@ describe('## Auth APIs', () => {
   };
 
   const oauthAgent = request.agent(app);
+  const localAgent = request.agent(app);
 
   let testAccessCode;
   let testAuthToken;
@@ -60,6 +58,38 @@ describe('## Auth APIs', () => {
               done();
             })
             .catch(done);
+        })
+        .catch(done);
+    });
+
+    it('should fail to find a client with this ID', (done) => {
+      oauthAgent.get('/api/auth/authorize')
+        .query({
+          client_id: 'noNameClient',
+          response_type: 'code',
+          redirect_uri: 'http://localhost/cb'
+        })
+        .auth(testEntity.username, testEntity.passwordHash)
+        .expect(httpStatus.FORBIDDEN)
+        .then((res) => {
+          expect(res.body.message).to.equal('Forbidden');
+          done();
+        })
+        .catch(done);
+    });
+
+    it('should reject client because of hijacked redirect uri', (done) => {
+      oauthAgent.get('/api/auth/authorize')
+        .query({
+          client_id: 'sylowTestClient',
+          response_type: 'code',
+          redirect_uri: 'http://testdomain.blah/cb'
+        })
+        .auth(testEntity.username, testEntity.passwordHash)
+        .expect(httpStatus.FORBIDDEN)
+        .then((res) => {
+          expect(res.body.message).to.equal('Forbidden');
+          done();
         })
         .catch(done);
     });
@@ -97,6 +127,46 @@ describe('## Auth APIs', () => {
         .catch(done);
     });
 
+    it('should fail to exchange an invalid authorization code', (done) => {
+      request(app)
+        .post('/api/auth/token')
+        .auth(testClient.clientId, testClient.clientSecret)
+        .send({
+          code: 'xxxxxx',
+          client_id: testClient.clientId,
+          client_secret: testClient.clientSecret,
+          grant_type: 'authorization_code',
+          redirect_uri: testClient.redirectUri
+        })
+        .type('form')
+        .expect(httpStatus.FORBIDDEN)
+        .then((res) => {
+          expect(res.body.error_description).to.equal('Invalid authorization code');
+          done();
+        })
+        .catch(done);
+    });
+
+    it('should fail to exchange an authorization code with a bad redirect uri', (done) => {
+      request(app)
+        .post('/api/auth/token')
+        .auth(testClient.clientId, testClient.clientSecret)
+        .send({
+          code: testAccessCode,
+          client_id: testClient.clientId,
+          client_secret: testClient.clientSecret,
+          grant_type: 'authorization_code',
+          redirect_uri: 'http://testdomain.blah/cb'
+        })
+        .type('form')
+        .expect(httpStatus.FORBIDDEN)
+        .then((res) => {
+          expect(res.body.error_description).to.equal('Invalid authorization code');
+          done();
+        })
+        .catch(done);
+    });
+
     it('should be able to use the code to retrieve a token', (done) => {
       request(app)
         .post('/api/auth/token')
@@ -129,6 +199,22 @@ describe('## Auth APIs', () => {
         .catch(done);
     });
 
+    it('should automatically give an access code after first authorize', (done) => {
+      oauthAgent.get('/api/auth/authorize')
+        .query({
+          client_id: 'sylowTestClient',
+          response_type: 'code',
+          redirect_uri: 'http://localhost/cb'
+        })
+        .auth(testEntity.username, testEntity.passwordHash)
+        .expect(httpStatus.FOUND)
+        .then((res) => {
+          testAccessCode = res.headers.location.split('code=')[1];
+          done();
+        })
+        .catch(done);
+    });
+
     it('should fail to get random number because of missing Authorization', (done) => {
       request(app)
         .get('/api/auth/random-number')
@@ -154,7 +240,7 @@ describe('## Auth APIs', () => {
         .query({ username: 'xxxxxx' })
         .expect(httpStatus.NOT_FOUND)
         .then((res) => {
-          expect(res.body.message).to.equal('User not found');
+          expect(res.body.message).to.equal('Entity not found');
           done();
         })
         .catch(done);
@@ -163,10 +249,10 @@ describe('## Auth APIs', () => {
     it('should return correct password salt', (done) => {
       request(app)
         .get('/api/auth/salt')
-        .query({ username: validUserCredentials.username })
+        .query({ username: testEntity.username })
         .expect(httpStatus.OK)
         .then((res) => {
-          expect(res.body.salt).to.equal('9b02e8d16d99533a1063b9fb554d8380');
+          expect(res.body.salt).to.equal('694658b93aa9c2f245cca37da3b4d7cc');
           done();
         })
         .catch(done);
@@ -174,34 +260,49 @@ describe('## Auth APIs', () => {
   });
 
   describe('# POST /login', () => {
-    it('should return Authentication error', (done) => {
-      request(app)
-        .post('/login')
-        .send(invalidUserCredentials)
+    it('should fail to login with a bad username', (done) => {
+      localAgent.post('/login')
+        .redirects(1)
+        .send(badUsernameCredentials)
         .type('form')
-        .expect(httpStatus.FOUND)
+        .expect(httpStatus.OK)
         .then((res) => {
-          expect(res.headers.location).to.equal('/login');
+          const html = cheerio.load(res.text);
+          const err = html('.ui.negative.message p').html();
+          expect(err).to.equal('Invalid username or password.');
           done();
         })
         .catch(done);
     });
 
-    /* it('should get valid JWT token', (done) => {
-      request(app)
-        .post('/api/auth/login')
-        .send(validUserCredentials)
+    it('should fail to login with bad password', (done) => {
+      localAgent.post('/login')
+        .redirects(1)
+        .send(badPasswordCredentials)
+        .type('form')
         .expect(httpStatus.OK)
         .then((res) => {
-          expect(res.body).to.have.property('token');
-          jwt.verify(res.body.token, config.jwtSecret, (err, decoded) => {
-            expect(err).to.not.be.ok; // eslint-disable-line no-unused-expressions
-            expect(decoded.username).to.equal(validUserCredentials.username);
-            // jwtToken = `Bearer ${res.body.token}`;
-            done();
-          });
+          const html = cheerio.load(res.text);
+          const err = html('.ui.negative.message p').html();
+          expect(err).to.equal('Invalid username or password.');
+          done();
         })
         .catch(done);
-    }); */
+    });
+
+    it('should successfully login', (done) => {
+      localAgent.post('/login')
+        .send({
+          username: testEntity.username,
+          passwordHash: testEntity.passwordHash
+        })
+        .type('form')
+        .expect(httpStatus.FOUND)
+        .then((res) => {
+          expect(res.headers.location).to.equal('/');
+          done();
+        })
+        .catch(done);
+    });
   });
 });
