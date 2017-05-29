@@ -1,0 +1,62 @@
+{
+	"variables": [],
+	"info": {
+		"name": "Sylow",
+		"_postman_id": "6501a19b-6466-6dc9-e178-1782c8d2bbad",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Entity",
+			"request": {
+				"url": "http://localhost:4040/api/entities",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"entityName\": \"testuser@testdomain.xyz\",\n\t\"passwordHash\": \"testpass\",\n\t\"passwordSalt\": \"xxxxxx\",\n\t\"keypair\": {\n\t\t\"public\": \"xxxxxx\"\n\t},\n\t\"authoritative\": true\n}"
+				},
+				"description": "Create an entity (user) with the Sylow server. Use this entity to authorize your requests to the admin interface, or in the first step of the OAuth2 authorization flow for other API endpoints."
+			},
+			"response": []
+		},
+		{
+			"name": "Create Client",
+			"request": {
+				"url": "http://localhost:4040/api/clients",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"entityId\": \"eb904e0b-27ea-4414-8aeb-9e214c0b2135\",\n\t\"clientName\": \"Postman\",\n\t\"clientId\": \"postman\",\n\t\"clientSecret\": \"xxxxxx\",\n\t\"deviceType\": \"other\",\n\t\"redirectUri\": \"https://www.getpostman.com/oauth2/callback\"\n}"
+				},
+				"description": "Create a client application that can be used in the OAuth2 authorization flow to gain access to protected API endpoints."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Random Number",
+			"request": {
+				"url": "http://localhost:4040/api/auth/random-number",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "Tests OAuth2 authorization flow. After creating a client and entity, use Postman to create an OAuth2 access token using the following parameters:\n\n* Auth URL: `http://localhost:4040/authorize`\n* Access Token URL: `http://localhost:4040/token`\n* Client ID: `postman`\n* Client Secret: `xxxxxx`\n* Grant Type: Authorization Code\n* Request access token locally"
+			},
+			"response": []
+		}
+	]
+}
