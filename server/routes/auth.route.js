@@ -11,7 +11,7 @@ router.route('/authorize')
   .get([authCtrl.authenticateBasic, ...OAuth.authorization]);
 
 router.route('/decision')
-  .post(authCtrl.authenticateBasicNoSession, OAuth.Server.decision());
+  .post([authCtrl.authenticateBasicNoSession, ...OAuth.decision]);
 
 router.route('/token')
   .all([authCtrl.authenticateClient, OAuth.Server.token(), OAuth.Server.errorHandler()]);

@@ -13,7 +13,7 @@ import APIError from '../helpers/APIError';
 
 
 passport.use(new LocalStrategy({ passwordField: 'passwordHash' },
-  (username, passwordHash, done) => {
+  (username, passwordHash, done) =>
     Entity.findOne({ username })
       .then((entity) => {
         if (!entity) {
@@ -24,21 +24,20 @@ passport.use(new LocalStrategy({ passwordField: 'passwordHash' },
         }
         return done(null, entity);
       })
-      .catch(err => done(err));
-  }
+      .catch(err => done(err))
 ));
 
-passport.use(new BasicStrategy((username, passwordHash, done) => {
+passport.use(new BasicStrategy((username, passwordHash, done) =>
   Entity.findOne({ username })
     .then((entity) => {
       if (!entity || entity.passwordHash !== passwordHash) {
         return done(null, false);
       }
       return done(null, entity);
-    });
-}));
+    })
+));
 
-passport.use(new ClientPasswordStrategy((clientId, clientSecret, done) => {
+passport.use(new ClientPasswordStrategy((clientId, clientSecret, done) =>
   Client.findOne({ clientId })
     .then((client) => {
       if (!client || client.clientSecret !== clientSecret) {
@@ -46,18 +45,18 @@ passport.use(new ClientPasswordStrategy((clientId, clientSecret, done) => {
       }
       return done(null, client);
     })
-    .catch(err => done(err));
-}));
+    .catch(err => done(err))
+));
 
-passport.use(new BearerStrategy((token, done) => {
+passport.use(new BearerStrategy((token, done) =>
   AccessToken.findOne({ token })
     .populate('client')
     .then((accessToken) => {
       if (!accessToken || !accessToken.client) return done(null, null);
       return done(null, accessToken.client, { scope: '*', isClient: true });
     })
-    .catch(err => done(err));
-}));
+    .catch(err => done(err))
+));
 
 passport.serializeUser((user, done) => {
   done(null, user);

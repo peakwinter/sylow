@@ -17,7 +17,7 @@ router.route('/authorize')
   .get([authCtrl.authenticateUser, ...OAuth.authorization]);
 
 router.route('/decision')
-  .post([authCtrl.authenticateUser, OAuth.Server.decision()]);
+  .post([authCtrl.authenticateUser, ...OAuth.decision]);
 
 router.route('/token')
   .all([authCtrl.authenticateClient, OAuth.Server.token(), OAuth.Server.errorHandler()]);

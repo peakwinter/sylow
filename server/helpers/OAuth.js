@@ -33,6 +33,7 @@ export function grantAuthorizationCode(client, redirectUri, entity, ares, done) 
   const authCode = {
     clientId: client._id,
     entityId: entity._id,
+    scope: ares.scope,
     redirectUri
   };
   authorizationCodes[code] = authCode;
@@ -49,7 +50,8 @@ export function exchangeAuthorizationCode(client, code, redirectUri, done) {
     const accessToken = new AccessToken({
       token,
       client: authCode.clientId,
-      entity: authCode.entityId
+      entity: authCode.entityId,
+      scope: authCode.scope
     });
 
     return accessToken.save()
@@ -127,6 +129,10 @@ export const authorization = [
   (req, res) => {
     res.render('authorize', { transactionId: req.oauth2.transactionID, user: req.user, client: req.oauth2.client });
   },
+];
+
+export const decision = [
+  oauth.decision((req, done) => done(null, { scope: req.scope }))
 ];
 
 oauth.serializeClient(serializeClient);
