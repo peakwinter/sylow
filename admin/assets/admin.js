@@ -1,8 +1,27 @@
+import $ from 'jquery';
+import scrypt from 'scrypt-async';
+
 import './images/logo-white.svg';
 
-console.log(`
-  ___  / / /_____ ___  /___  /______        ___      ________ ___________  /______  /___  /
-  __  /_/ / _  _ \\__  / __  / _  __ \\       __ | /| / /_  __ \\__  ___/__  / _  __  / __  /
-  _  __  /  /  __/_  /  _  /  / /_/ /       __ |/ |/ / / /_/ /_  /    _  /  / /_/ /   /_/
-  /_/ /_/   \\___/ /_/   /_/   \\____/        ____/|__/  \\____/ /_/     /_/   \\__,_/   (_)
-`);
+$(() => {
+  const loginForm = $('#login-form');
+
+  loginForm.submit((event) => {
+    if (!loginForm.find('#passwordHash').val()) {
+      event.preventDefault();
+      loginForm.find('#submit').addClass('disabled loading');
+      const username = loginForm.find('#username').val();
+      const password = loginForm.find('#password').val();
+      const options = {
+        N: 16384, r: 8, dkLen: 64, encoding: 'hex'
+      };
+      $.getJSON(`/api/auth/salt?username=${username}`, (data) => {
+        const salt = new Buffer(data.salt);
+        scrypt(password, salt, options, (key) => {
+          loginForm.find('#passwordHash').val(key);
+          loginForm.trigger('submit');
+        });
+      });
+    }
+  });
+});
