@@ -2,7 +2,12 @@ import request from 'supertest-as-promised';
 import httpStatus from 'http-status';
 import cheerio from 'cheerio';
 import chai, { expect } from 'chai';
+
 import app from '../index';
+import config from '../config/config';
+import AccessToken from '../server/models/accessToken.model';
+import Entity from '../server/models/entity.model';
+import Client from '../server/models/client.model';
 
 chai.config.includeStack = true;
 
@@ -41,6 +46,17 @@ describe('## Authentification', () => {
   let testAccessCode;
   let testAuthToken;
   let testTransactionId;
+
+  before('Clean up test data', (done) => {
+    if (config.env === 'test') {
+      return Promise.all([
+        AccessToken.remove(),
+        Entity.remove(),
+        Client.remove()
+      ]).then(done()).catch(done);
+    }
+    return done();
+  });
 
   describe('# OAuth2: Authentication Code Flow', () => {
     it('should create a new entity and client to test with', (done) => {
