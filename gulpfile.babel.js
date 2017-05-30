@@ -11,7 +11,7 @@ const plugins = gulpLoadPlugins();
 
 const paths = {
   js: ['./**/*.js', '!admin/assets/**/*.js', '!dist/**', '!node_modules/**', '!coverage/**'],
-  frontend: ['./admin/assets/**/*.js', './admin/assets/**/*.css'],
+  frontend: ['./admin/assets/**/*.js', './admin/assets/**/*.scss'],
   nonJs: ['./**/*.pug', './package.json', './.gitignore', './.env'],
   tests: './server/tests/*.js'
 };
@@ -50,15 +50,17 @@ gulp.task('build:frontend', () =>
 );
 
 // Start server with restart on file changes
-gulp.task('nodemon', ['build:frontend', 'copy', 'babel'], () =>
-  plugins.nodemon({
+gulp.task('nodemon', ['build:frontend', 'copy', 'babel'], () => {
+  gulp.watch(paths.nonJs, ['copy']);
+  gulp.watch(paths.frontend, ['build:frontend']);
+  return plugins.nodemon({
     script: path.join('dist', 'index.js'),
-    ext: 'js pug css',
-    watch: ['server/**/*.js', 'admin/**/*'],
+    ext: 'js',
+    watch: ['server/**/*.js'],
     ignore: ['node_modules/**/*.js', 'dist/**/*.js'],
-    tasks: ['build:frontend', 'copy', 'babel']
-  })
-);
+    tasks: ['babel']
+  });
+});
 
 // gulp serve for development
 gulp.task('serve', ['clean'], () => runSequence('nodemon'));

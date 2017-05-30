@@ -6,7 +6,7 @@ const packageData = require('./package.json');
 
 module.exports = {
   entry: {
-    admin: ['./admin/assets/admin.js', './admin/assets/admin.css'],
+    admin: ['./admin/assets/admin.js', './admin/assets/admin.scss'],
     vendor: ['semantic-ui-css', 'semantic-ui-css/semantic.css', 'jquery']
   },
   output: {
@@ -25,6 +25,15 @@ module.exports = {
         }
       },
       {
+        test: /\.(scss|sass)$/,
+        use: ExtractTextPlugin.extract({
+          loader: [
+            { loader: 'css-loader', options: { minimize: true, sourceMap: true } },
+            { loader: 'sass-loader' }
+          ],
+        })
+      },
+      {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({
           loader: 'css-loader',
@@ -34,8 +43,8 @@ module.exports = {
       {
         test: /\.(png|woff|woff2|eot|ttf|svg)(\?|$)/,
         use: {
-          loader: 'url-loader',
-          options: { limit: 100000, name: '[name].[ext]' }
+          loader: 'file-loader',
+          options: { name: '[name].[ext]' }
         }
       }
     ]

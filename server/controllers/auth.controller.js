@@ -9,6 +9,7 @@ import { Strategy as BearerStrategy } from 'passport-http-bearer';
 import AccessToken from '../models/accessToken.model';
 import Client from '../models/client.model';
 import Entity from '../models/entity.model';
+import AdminError from '../helpers/AdminError';
 import APIError from '../helpers/APIError';
 
 
@@ -66,6 +67,14 @@ passport.deserializeUser((user, done) => {
   done(null, user);
 });
 
+export function ensureAdmin(req, res, next) {
+  if (!req.user || !req.user.admin) {
+    const err = new AdminError('Entity does not have sufficient rights', httpStatus.FORBIDDEN, true);
+    return next(err);
+  }
+  return next();
+}
+
 export const authenticate = passport.authenticate(['basic', 'local'], {
   successReturnToOrRedirect: '/', failureRedirect: '/login', failureFlash: 'Invalid username or password.'
 });
@@ -77,6 +86,11 @@ export const authenticateClient = passport.authenticate(['basic', 'oauth2-client
 
 export function login(req, res) {
   return res.render('login');
+}
+
+export function logout(req, res) {
+  req.logout();
+  res.redirect('/');
 }
 
 /**
