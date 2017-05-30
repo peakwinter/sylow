@@ -6,7 +6,7 @@ const packageData = require('./package.json');
 
 module.exports = {
   entry: {
-    admin: ['./admin/assets/admin.js', './admin/assets/admin.scss'],
+    admin: ['./admin/app.js', './admin/assets/admin.scss'],
     vendor: ['semantic-ui-css', 'semantic-ui-css/semantic.css', 'jquery']
   },
   output: {

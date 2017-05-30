@@ -10,7 +10,7 @@ import AccessToken from '../models/accessToken.model';
 import Client from '../models/client.model';
 import Entity from '../models/entity.model';
 import AdminError from '../helpers/AdminError';
-import APIError from '../helpers/APIError';
+import { randomStr } from '../utils/random';
 
 
 passport.use(new LocalStrategy({ passwordField: 'passwordHash' },
@@ -85,7 +85,7 @@ export const authenticateOAuth = passport.authenticate('bearer', { session: fals
 export const authenticateClient = passport.authenticate(['basic', 'oauth2-client-password'], { session: false });
 
 export function login(req, res) {
-  return res.render('login');
+  return res.render('login', { ctrl: 'login' });
 }
 
 export function logout(req, res) {
@@ -100,7 +100,7 @@ export function logout(req, res) {
  * @param next
  * @returns {*}
  */
-export function getSalt(req, res, next) {
+export function getSalt(req, res) {
   Entity.findOne({ username: req.query.username })
     .then((entity) => {
       if (entity) {
@@ -108,8 +108,9 @@ export function getSalt(req, res, next) {
           salt: entity.passwordSalt
         });
       }
-      const err = new APIError('Entity not found', httpStatus.NOT_FOUND, true);
-      return next(err);
+      return res.json({
+        salt: randomStr(16)
+      });
     });
 }
 

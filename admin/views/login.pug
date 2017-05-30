@@ -5,13 +5,11 @@ block content
     div(class="column")
       img(class="sy-logo" src="/assets/logo-white.svg")
       h1= "Login"
-      form(id="login-form" method="POST")
+      include includes/messages.pug
+      form(id="password-form" method="POST")
         div(class="ui top attached left aligned segment")
           div(class="ui form")
             input(type="hidden" id="passwordHash" name="passwordHash")
-            if messages.error
-              div(class="ui negative message")
-                p= messages.error
             div(class="field")
               input(type="text" id="username" name="username" placeholder="Username")
             div(class="field")

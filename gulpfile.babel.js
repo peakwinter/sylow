@@ -10,8 +10,8 @@ import webpackConfig from './webpack.config';
 const plugins = gulpLoadPlugins();
 
 const paths = {
-  js: ['./**/*.js', '!admin/assets/**/*.js', '!dist/**', '!node_modules/**', '!coverage/**'],
-  frontend: ['./admin/assets/**/*.js', './admin/assets/**/*.scss'],
+  js: ['./**/*.js', '!admin/**', '!dist/**', '!node_modules/**', '!coverage/**'],
+  frontend: ['./admin/**/*.js', './admin/assets/**/*.scss'],
   nonJs: ['./**/*.pug', './package.json', './.gitignore', './.env'],
   tests: './server/tests/*.js'
 };

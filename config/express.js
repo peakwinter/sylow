@@ -15,7 +15,7 @@ import helmet from 'helmet';
 import path from 'path';
 import winstonInstance from './winston';
 import routes from '../server/routes/index.route';
-import adminRoutes from '../admin/admin.route';
+import adminRoutes from '../server/routes/admin.route';
 import config from './config';
 import APIError from '../server/helpers/APIError';
 import ExtendableError from '../server/helpers/ExtendableError';

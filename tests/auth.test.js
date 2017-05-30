@@ -250,13 +250,13 @@ describe('## Authentification', () => {
   });
 
   describe('# GET /api/auth/salt', () => {
-    it('should return Authentication error', (done) => {
+    it('should return a random salt if no user found', (done) => {
       request(app)
         .get('/api/auth/salt')
         .query({ username: 'xxxxxx' })
-        .expect(httpStatus.NOT_FOUND)
+        .expect(httpStatus.OK)
         .then((res) => {
-          expect(res.body.message).to.equal('Entity not found');
+          expect(res.body.salt).to.be.a('string');
           done();
         })
         .catch(done);
@@ -284,7 +284,7 @@ describe('## Authentification', () => {
         .expect(httpStatus.OK)
         .then((res) => {
           const html = cheerio.load(res.text);
-          const err = html('.ui.negative.message p').html();
+          const err = html('.ui.error.message p').html();
           expect(err).to.equal('Invalid username or password.');
           done();
         })
@@ -299,7 +299,7 @@ describe('## Authentification', () => {
         .expect(httpStatus.OK)
         .then((res) => {
           const html = cheerio.load(res.text);
-          const err = html('.ui.negative.message p').html();
+          const err = html('.ui.error.message p').html();
           expect(err).to.equal('Invalid username or password.');
           done();
         })

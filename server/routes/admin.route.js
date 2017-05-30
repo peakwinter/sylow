@@ -1,13 +1,18 @@
 import express from 'express';
 
-import * as authCtrl from '../server/controllers/auth.controller';
-import * as OAuth from '../server/helpers/OAuth';
+import * as adminCtrl from '../controllers/admin.controller';
+import * as authCtrl from '../controllers/auth.controller';
+import * as OAuth from '../helpers/OAuth';
 
 
 const router = express.Router(); // eslint-disable-line new-cap
 
 router.route('/')
-  .get(authCtrl.authenticateUser, authCtrl.ensureAdmin, (req, res) => res.render('index'));
+  .get(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.index);
+
+router.route('/entities')
+  .get(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.listEntities)
+  .post(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.createEntity);
 
 router.route('/login')
   .get(authCtrl.login)
