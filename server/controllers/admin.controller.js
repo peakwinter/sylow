@@ -13,7 +13,7 @@ export function index(req, res, next) {
 }
 
 export function listEntities(req, res) {
-  return Entity.find()
+  return Entity.find({ authoritative: true })
     .then(entities => res.render('entities', { ctrl: 'entity', active: 'entities', entities }))
     .catch(message => res.render('error', { ctrl: 'entity', message }));
 }

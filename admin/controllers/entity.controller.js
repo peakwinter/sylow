@@ -32,5 +32,10 @@ export default {
         form.trigger('submit');
       });
     }
-  }
+  },
+
+  deleteEntity() {
+    const entityId = this.app.modalParams[0];
+    console.log(entityId);
+  },
 };

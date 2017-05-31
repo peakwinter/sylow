@@ -8,7 +8,7 @@ block dashboard
         div(class="content")
           p(class="header")= entity.entityName
           div(class="description")= "Entity"
-        a(class="ui bottom attached negative button")= "Delete"
+        a(class="ui bottom attached negative button" data-action="showModal" data-params=`delete-entity-modal|${entity._id}`)= "Delete"
   h3(class="ui dividing header")= "Create New Entity"
   form(class="ui form" id="password-form" method="POST")
     input(type="hidden" id="passwordHash" name="passwordHash")
@@ -28,3 +28,19 @@ block dashboard
         label= "Admin User"
     button(type="submit" class="ui positive button") Register
     div(class="ui error message")
+
+  div(id="delete-entity-modal" class="ui basic modal")
+    input(type="hidden" class="sy-modal-data")
+    div(class="ui icon header")
+      i(class="remove user icon")
+      | Delete Entity
+    div(class="content")
+      p= "Are you sure you wish to delete this entity?"
+    div(class="actions")
+      form(method="DELETE")
+        div(class="ui basic inverted button" data-action="hideModal")
+          i(class="remove icon")
+          | Cancel
+        div(class="ui red basic inverted button" data-action="deleteEntity")
+          i(class="checkmark icon")
+          | Delete
