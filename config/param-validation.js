@@ -141,5 +141,13 @@ export default {
     params: {
       clientId: Joi.string().required()
     }
+  },
+
+  adminInterface: {
+    body: {
+      formname: Joi.string().required(),
+      username: Joi.string().required(),
+      password: Joi.string().required()
+    }
   }
 };

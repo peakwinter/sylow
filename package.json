@@ -34,6 +34,7 @@
   "homepage": "https://github.com/peakwinter/sylow#readme",
   "dependencies": {
     "ajv": "5.0.1",
+    "axios": "^0.16.1",
     "bluebird": "3.4.6",
     "body-parser": "1.15.2",
     "compression": "1.6.2",
@@ -71,6 +72,7 @@
     "winston": "2.3.0"
   },
   "devDependencies": {
+    "axios": "^0.16.1",
     "babel-cli": "6.18.0",
     "babel-core": "6.18.0",
     "babel-loader": "7.0.0",

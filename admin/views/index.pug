@@ -14,3 +14,6 @@ block dashboard
       div(class="value")= "0"
       div(class="label")= "Clients"
   h3(class="ui dividing header")= "Statistics"
+  each contentType in contentTypes
+    each val, index in contentType
+      p= index + ' : '+ val
