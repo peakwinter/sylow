@@ -46,13 +46,19 @@ function create(req, res, next) {
 
   const entity = new Entity({
     id: uuidV4(),
-    entityName: req.body.entityName,
     contactId: req.body.contactId,
     passwordHash: req.body.passwordHash,
     passwordSalt: req.body.passwordSalt,
     keypair,
     authoritative: req.body.authoritative
   });
+
+  if (req.body.entityName) {
+    entity.entityName = req.body.entityName;
+  } else {
+    entity.username = req.body.username;
+    entity.domain = req.body.domain;
+  }
 
   return entity.save()
     .then(savedEntity => res.json(savedEntity))
@@ -74,7 +80,13 @@ function update(req, res, next) {
     entity.keypair.private = req.body.keypair.private;
     entity.keypair.recovery = req.body.keypair.recovery;
   }
-  entity.entityName = req.body.entityName;
+
+  if (req.body.entityName) {
+    entity.entityName = req.body.entityName;
+  } else {
+    entity.username = req.body.username;
+    entity.domain = req.body.domain;
+  }
   entity.contactId = req.body.contactId;
 
   entity.save()
