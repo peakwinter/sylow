@@ -28,8 +28,19 @@ describe('## Entity APIs', () => {
     authoritative: true
   };
 
+  let entity2 = {
+    username: 'testuser',
+    domain: 'testdomain.xyz',
+    passwordHash: '33f1ba50d3acdfe04fadbfcdc50edd84a3af0f9d377872003eaedbb68f8e6d7146e87c35e5f3338341d91b84c1371a6a9db054c4104797e99848f4d2d8a2b91e',
+    passwordSalt: '694658b93aa9c2f245cca37da3b4d7cc',
+    keypair: {
+      public: 'xxxxx'
+    },
+    authoritative: true
+  };
+
   describe('# POST /api/entities', () => {
-    it('should create a new entity', (done) => {
+    it('should create a new entity with entityName parameter', (done) => {
       request(app)
         .post('/api/entities')
         .send(entity)
@@ -38,6 +49,21 @@ describe('## Entity APIs', () => {
           expect(res.body.entityName).to.equal(entity.entityName);
           expect(res.body.keypair.public).to.equal(entity.keypair.public);
           entity = res.body;
+          done();
+        })
+        .catch(done);
+    });
+
+    it('should create a new entity with username and domain parameters', (done) => {
+      request(app)
+        .post('/api/entities')
+        .send(entity2)
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body.username).to.equal(entity2.username);
+          expect(res.body.domain).to.equal(entity2.domain);
+          expect(res.body.entityName).to.equal(entity2.username.concat('@').concat(entity2.domain));
+          entity2 = res.body;
           done();
         })
         .catch(done);
@@ -121,6 +147,17 @@ describe('## Entity APIs', () => {
           done();
         })
         .catch(done);
+    });
+    it('should delete entity2', (done) => {
+      request(app)
+          .delete(`/api/entities/${entity2.id}`)
+          .expect(httpStatus.OK)
+          .then((res) => {
+            expect(res.body.id).to.equal(entity2.id);
+            expect(res.body.entityName).to.equal(entity2.username.concat('@').concat(entity2.domain));
+            done();
+          })
+          .catch(done);
     });
   });
 });

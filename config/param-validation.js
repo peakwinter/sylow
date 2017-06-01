@@ -4,7 +4,9 @@ export default {
   // POST /api/entities
   createEntity: {
     body: {
-      entityName: Joi.string().required(),
+      entityName: Joi.string(),
+      username: Joi.string(),
+      domain: Joi.string(),
       contactId: Joi.string().uuid(),
       passwordHash: Joi.string().when('authoritative', { is: true, then: Joi.required() }),
       passwordSalt: Joi.string().when('authoritative', { is: true, then: Joi.required() }),
@@ -21,7 +23,9 @@ export default {
   // UPDATE /api/entities/:entityId
   updateEntity: {
     body: {
-      entityName: Joi.string().required(),
+      entityName: Joi.string(),
+      username: Joi.string(),
+      domain: Joi.string(),
       contactId: Joi.string().uuid(),
       passwordHash: Joi.string().when('authoritative', { is: true, then: Joi.required() }),
       passwordSalt: Joi.string().when('authoritative', { is: true, then: Joi.required() }),
