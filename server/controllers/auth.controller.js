@@ -9,7 +9,8 @@ import { Strategy as BearerStrategy } from 'passport-http-bearer';
 import AccessToken from '../models/accessToken.model';
 import Client from '../models/client.model';
 import Entity from '../models/entity.model';
-import APIError from '../helpers/APIError';
+import AdminError from '../helpers/AdminError';
+import { randomStr } from '../utils/random';
 
 
 passport.use(new LocalStrategy({ passwordField: 'passwordHash' },
@@ -66,6 +67,14 @@ passport.deserializeUser((user, done) => {
   done(null, user);
 });
 
+export function ensureAdmin(req, res, next) {
+  if (!req.user || !req.user.admin) {
+    const err = new AdminError('Entity does not have sufficient rights', httpStatus.FORBIDDEN, true);
+    return next(err);
+  }
+  return next();
+}
+
 export const authenticate = passport.authenticate(['basic', 'local'], {
   successReturnToOrRedirect: '/', failureRedirect: '/login', failureFlash: 'Invalid username or password.'
 });
@@ -76,7 +85,12 @@ export const authenticateOAuth = passport.authenticate('bearer', { session: fals
 export const authenticateClient = passport.authenticate(['basic', 'oauth2-client-password'], { session: false });
 
 export function login(req, res) {
-  return res.render('login');
+  return res.render('login', { ctrl: 'login' });
+}
+
+export function logout(req, res) {
+  req.logout();
+  res.redirect('/');
 }
 
 /**
@@ -86,7 +100,7 @@ export function login(req, res) {
  * @param next
  * @returns {*}
  */
-export function getSalt(req, res, next) {
+export function getSalt(req, res) {
   Entity.findOne({ username: req.query.username })
     .then((entity) => {
       if (entity) {
@@ -94,8 +108,9 @@ export function getSalt(req, res, next) {
           salt: entity.passwordSalt
         });
       }
-      const err = new APIError('Entity not found', httpStatus.NOT_FOUND, true);
-      return next(err);
+      return res.json({
+        salt: randomStr(16)
+      });
     });
 }
 

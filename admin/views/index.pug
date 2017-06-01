@@ -1,5 +1,19 @@
-extends includes/base.pug
+extends includes/dash.pug
 
-block content
-  div(class="ui container")
-    h1= "Hello World"
+block dashboard
+  h1(class="ui header")= "Dashboard"
+  h3(class="ui dividing header")= "At A Glance"
+  div(class="ui statistics")
+    div(class="statistic")
+      div(class="value")= "0"
+      div(class="label")= "Documents"
+    div(class="statistic")
+      div(class="value")= "0"
+      div(class="label")= "Entities"
+    div(class="statistic")
+      div(class="value")= "0"
+      div(class="label")= "Clients"
+  h3(class="ui dividing header")= "Statistics"
+  each contentType in contentTypes
+    each val, index in contentType
+      p= index + ' : '+ val

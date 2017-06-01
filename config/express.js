@@ -15,9 +15,10 @@ import helmet from 'helmet';
 import path from 'path';
 import winstonInstance from './winston';
 import routes from '../server/routes/index.route';
-import adminRoutes from '../admin/admin.route';
+import adminRoutes from '../server/routes/admin.route';
 import config from './config';
 import APIError from '../server/helpers/APIError';
+import ExtendableError from '../server/helpers/ExtendableError';
 
 const app = express();
 
@@ -47,7 +48,14 @@ app.use(passport.session());
 app.use(helmet());
 
 // enable CORS - Cross Origin Resource Sharing
-app.use(cors());
+const corsOptions = {
+  origin: '*',
+  allowedHeaders: [
+    'Content-Type', 'Count', 'ETag', 'Link', 'Server-Authorization', 'WWW-Authenticate'
+  ],
+  maxAge: 2592000
+};
+app.use(cors(corsOptions));
 
 // set up view templates
 app.set('views', path.join(__dirname, '../admin/views'));
@@ -75,14 +83,14 @@ app.use('/', adminRoutes);
 // mount admin static assets
 app.use('/assets', express.static(path.join(__dirname, '../admin/assets')));
 
-// if error is not an instanceOf APIError, convert it.
+// if error is not an instanceOf one of our errors, convert it.
 app.use((err, req, res, next) => {
   if (err instanceof expressValidation.ValidationError) {
     // validation error contains errors which is an array of error each containing message[]
     const unifiedErrorMessage = err.errors.map(error => error.messages.join('. ')).join(' and ');
     const error = new APIError(unifiedErrorMessage, err.status, true);
     return next(error);
-  } else if (!(err instanceof APIError)) {
+  } else if (!['APIError', 'AdminError'].includes(err.name) && !(err instanceof ExtendableError)) {
     const apiError = new APIError(err.message, err.status, err.isPublic);
     return next(apiError);
   }
@@ -103,11 +111,16 @@ if (config.env !== 'test') {
 }
 
 // error handler, send stacktrace only during development
-app.use((err, req, res, next) => // eslint-disable-line no-unused-vars
-  res.status(err.status).json({
-    message: err.isPublic ? err.message : httpStatus[err.status],
-    stack: config.env === 'development' ? err.stack : {}
-  })
-);
+app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
+  if (err.returnType === 'json') {
+    return res.status(err.status).json({
+      message: err.isPublic ? err.message : httpStatus[err.status],
+      stack: config.env === 'development' ? err.stack : {}
+    });
+  }
+  return res.status(err.status).render('error', {
+    message: err.isPublic ? err.message : httpStatus[err.status]
+  });
+});
 
 export { app as default };

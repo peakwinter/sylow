@@ -13,7 +13,8 @@ export default {
         private: Joi.string().when('authoritative', { is: true, then: Joi.required() }),
         recovery: Joi.string()
       }).required(),
-      authoritative: Joi.boolean().default(false)
+      authoritative: Joi.boolean().default(false),
+      admin: Joi.boolean().default(false)
     }
   },
 
@@ -29,7 +30,8 @@ export default {
         private: Joi.string(),
         recovery: Joi.string()
       }).when('authoritative', { is: true, then: Joi.required() }),
-      authoritative: Joi.boolean().default(false)
+      authoritative: Joi.boolean().default(false),
+      admin: Joi.boolean().default(false)
     },
     params: {
       entityId: Joi.string().uuid().required()
@@ -140,6 +142,14 @@ export default {
     },
     params: {
       clientId: Joi.string().required()
+    }
+  },
+
+  adminInterface: {
+    body: {
+      formname: Joi.string().required(),
+      username: Joi.string().required(),
+      password: Joi.string().required()
     }
   }
 };

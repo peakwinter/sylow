@@ -3,16 +3,15 @@ extends includes/base.pug
 block content
   div(id="sy-narrow-form" class="ui middle aligned center aligned grid")
     div(class="column")
-      form(method="POST")
+      img(class="sy-logo" src="/assets/logo-white.svg")
+      h1= "Login"
+      include includes/messages.pug
+      form(id="password-form" method="POST")
         div(class="ui top attached left aligned segment")
           div(class="ui form")
-            h1= "Login"
-            // input(type="hidden" name="passwordHash")
-            if messages.error
-              div(class="ui negative message")
-                p= messages.error
+            input(type="hidden" id="passwordHash" name="passwordHash")
             div(class="field")
-              input(type="text" name="username" placeholder="Username")
+              input(type="text" id="username" name="username" placeholder="Username")
             div(class="field")
-              input(type="password" name="passwordHash" placeholder="Password")
+              input(type="password" id="password" placeholder="Password")
         button(type="submit" class="ui bottom attached fluid positive button") Login
