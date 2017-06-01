@@ -1,6 +1,6 @@
 verbose: false
 instrumentation:
-  excludes: ['dist/**', 'coverage/**', 'config/**', 'admin/assets/**', 'index.js', 'gulpfile.babel.js', 'webpack.config.js']
+  excludes: ['dist/**', 'coverage/**', 'config/**', 'admin/**', 'index.js', 'gulpfile.babel.js', 'webpack.config.js']
   include-all-sources: true
 reporting:
     print: summary

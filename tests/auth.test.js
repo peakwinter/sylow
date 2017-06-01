@@ -22,6 +22,11 @@ describe('## Authentification', () => {
     passwordHash: 'xxxxxx'
   };
 
+  const notAdminCredentials = {
+    username: 'notadmin',
+    passwordHash: 'xxxxxx'
+  };
+
   const testEntity = {
     entityName: 'testuser@testdomain.xyz',
     passwordHash: '33f1ba50d3acdfe04fadbfcdc50edd84a3af0f9d377872003eaedbb68f8e6d7146e87c35e5f3338341d91b84c1371a6a9db054c4104797e99848f4d2d8a2b91e',
@@ -29,8 +34,13 @@ describe('## Authentification', () => {
     keypair: {
       public: 'xxxxx'
     },
-    authoritative: true
+    authoritative: true,
+    admin: true
   };
+
+  const notAdminEntity = Object.assign(
+    {}, testEntity, { entityName: 'notadmin@testdomain.xyz', passwordHash: 'xxxxxx', admin: false }
+  );
 
   let testClient = {
     clientId: 'sylowTestClient',
@@ -47,37 +57,30 @@ describe('## Authentification', () => {
   let testAuthToken;
   let testTransactionId;
 
-  before('Clean up test data', (done) => {
-    if (config.env === 'test') {
-      return Promise.all([
-        AccessToken.remove(),
-        Entity.remove(),
-        Client.remove()
-      ]).then(done()).catch(done);
+  before('Clean up test data', () => {
+    if (config.env !== 'test') {
+      return Promise.reject('Not in a test environment');
     }
-    return done();
+    return Promise.all([
+      AccessToken.remove(),
+      Entity.remove(),
+      Client.remove()
+    ]).then(() =>
+      Entity.create([testEntity, notAdminEntity])
+        .then(([entity1, entity2]) => {
+          testEntity.username = entity1.username;
+          notAdminEntity.username = entity2.username;
+          testClient.entityId = entity1._id;
+          const newClient = new Client(testClient);
+          return newClient.save()
+            .then((client) => {
+              testClient = client;
+            });
+        })
+    );
   });
 
   describe('# OAuth2: Authentication Code Flow', () => {
-    it('should create a new entity and client to test with', (done) => {
-      request(app)
-        .post('/api/entities')
-        .send(testEntity)
-        .then((res) => {
-          Object.assign(testEntity, res.body);
-          testClient.entityId = testEntity.id;
-          request(app)
-            .post('/api/clients')
-            .send(testClient)
-            .then((clientRes) => {
-              testClient = clientRes.body;
-              done();
-            })
-            .catch(done);
-        })
-        .catch(done);
-    });
-
     it('should fail to find a client with this ID', (done) => {
       oauthAgent.get('/api/auth/authorize')
         .query({
@@ -301,6 +304,21 @@ describe('## Authentification', () => {
           const html = cheerio.load(res.text);
           const err = html('.ui.error.message p').html();
           expect(err).to.equal('Invalid username or password.');
+          done();
+        })
+        .catch(done);
+    });
+
+    it('should fail to login because of a lack of admin status', (done) => {
+      localAgent.post('/login')
+        .redirects(1)
+        .send(notAdminCredentials)
+        .type('form')
+        .expect(httpStatus.FORBIDDEN)
+        .then((res) => {
+          const html = cheerio.load(res.text);
+          const err = html('.ui.negative.message p').html();
+          expect(err).to.equal('Entity does not have sufficient rights');
           done();
         })
         .catch(done);
