@@ -48,7 +48,14 @@ app.use(passport.session());
 app.use(helmet());
 
 // enable CORS - Cross Origin Resource Sharing
-app.use(cors());
+const corsOptions = {
+  origin: '*',
+  allowedHeaders: [
+    'Content-Type', 'Count', 'ETag', 'Link', 'Server-Authorization', 'WWW-Authenticate'
+  ],
+  maxAge: 2592000
+};
+app.use(cors(corsOptions));
 
 // set up view templates
 app.set('views', path.join(__dirname, '../admin/views'));

@@ -1,29 +1,31 @@
 /* eslint-env browser */
 
 import $ from 'jquery';
+
+import Controller from './index';
 import * as scrypt from '../helpers/scrypt.helper';
 
-export default {
+export default class LoginController extends Controller {
   init() {
-    const form = $('#password-form');
-    form.submit(event => this.login(form, event));
-  },
+    this.form = $('#password-form');
+    this.form.submit(event => this.login(event));
+  }
 
-  login(form, event) {
-    if (!form.find('#passwordHash').val()) {
+  login(event) {
+    if (!this.form.find('#passwordHash').val()) {
       if (event) {
         event.preventDefault();
       }
-      form.find('button[type="submit"]').addClass('disabled loading');
-      const username = form.find('#username').val();
-      const password = form.find('#password').val();
+      this.form.find('button[type="submit"]').addClass('disabled loading');
+      const username = this.form.find('#username').val();
+      const password = this.form.find('#password').val();
       $.ajax({ url: `/api/auth/salt?username=${username}`, dataType: 'json' })
         .done((data) => {
           scrypt.scrypt(password, data.salt, (key) => {
-            form.find('#passwordHash').val(key);
-            form.trigger('submit');
+            this.form.find('#passwordHash').val(key);
+            this.form.trigger('submit');
           });
         });
     }
   }
-};
+}

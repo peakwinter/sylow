@@ -2,52 +2,23 @@
 
 import $ from 'jquery';
 
-export default {
-  childCtrl: null,
-
-  init() {
+export default class AppController {
+  constructor() {
     $('.ui.checkbox').checkbox();
-  },
+  }
 
-  showModal(event, id, ...params) {
-    $(`#${id}`).modal('show').find('.sy-modal-data').val(params.join('|'));
-  },
+  listActions(controller = this) {
+    const ctrlProto = Object.getPrototypeOf(controller);
+    return Object.getOwnPropertyNames(ctrlProto);
+  }
 
-  hideModal(event, id) {
-    const modalId = id || $(event.currentTarget).closest('.ui.modal').attr('id');
-    $(`#${modalId}`).modal('hide');
-  },
-
-  execAction(controller, action) {
-    const actionToExec = this.getAction(controller, action);
-    if (actionToExec) {
-      actionToExec();
-    }
-  },
-
-  getAction(controller, action) {
-    if (controller && controller[action] && typeof controller[action] === 'function') {
-      return controller[action];
-    }
-    return undefined;
-  },
-
-  listActions(controller) {
-    if (controller) {
-      return Object.keys(controller);
-    }
-    return [];
-  },
-
-  registerActions(controller) {
+  registerActions(controller = this) {
     const actions = this.listActions(controller);
-    actions.forEach((action) => {
-      if (action === 'init') {
-        return;
-      }
-
-      const target = $(`[data-action='${action}']`);
-      if (!target.length) {
+    const targets = $('[data-action]');
+    targets.each((idx, ele) => {
+      const target = $(ele);
+      const action = target.data('action');
+      if (!actions.includes(action)) {
         return;
       }
 
@@ -58,8 +29,17 @@ export default {
 
       target.on(
         target.data('actionOn') || 'click',
-        event => this.getAction(controller, action)(event, ...params)
+        event => controller[action](event, ...params)
       );
     });
-  },
-};
+  }
+
+  showModal(event, id) {
+    $(`#${id}`).modal('show');
+  }
+
+  hideModal(event, id) {
+    const modalId = id || $(event.currentTarget).closest('.ui.modal').attr('id');
+    $(`#${modalId}`).modal('hide');
+  }
+}
