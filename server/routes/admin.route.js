@@ -15,6 +15,8 @@ router.route('/entities')
   .post(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.createEntity);
 
 router.route('/entities/:entityId')
+  .get(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.showEntity)
+  .post(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.updateEntity)
   .delete(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.deleteEntity);
 
 router.route('/login')

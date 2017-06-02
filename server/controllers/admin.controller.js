@@ -17,10 +17,22 @@ export function index(req, res, next) {
     .catch(next);
 }
 
+export function showEntity(req, res) {
+  return Entity.get(req.params.entityId)
+    .then(entity => res.render('entity', { ctrl: 'entity', active: 'entities', entity }))
+    .catch((err) => {
+      req.flash('error', err.toString());
+      return res.redirect('/entities');
+    });
+}
+
 export function listEntities(req, res) {
   return Entity.find({ authoritative: true }).sort({ username: 1 })
     .then(entities => res.render('entities', { ctrl: 'entity', active: 'entities', entities }))
-    .catch(message => res.render('error', { ctrl: 'entity', message }));
+    .catch((err) => {
+      req.flash('error', err.toString());
+      return res.render('entities', { ctrl: 'entity', active: 'entities', entities: [] });
+    });
 }
 
 export function createEntity(req, res) {
@@ -42,6 +54,27 @@ export function createEntity(req, res) {
     .then(() => {
       req.flash('success', 'Entity created');
       return res.redirect('/entities');
+    })
+    .catch((err) => {
+      req.flash('error', err.toString());
+      return res.redirect('/entities');
+    });
+}
+
+export function updateEntity(req, res) {
+  const data = {
+    username: req.body.username,
+    admin: req.body.admin
+  };
+  if (req.body.passwordHash && req.body.passwordSalt) {
+    data.passwordHash = req.body.passwordHash;
+    data.passwordSalt = req.body.passwordSalt;
+  }
+
+  return Entity.findByIdAndUpdate(req.params.entityId, { $set: data }, { new: true })
+    .then((entity) => {
+      req.flash('success', 'Entity updated');
+      res.render('entity', { ctrl: 'entity', active: 'entities', entity });
     })
     .catch((err) => {
       req.flash('error', err.toString());
