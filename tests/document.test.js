@@ -4,24 +4,15 @@ import chai, { expect } from 'chai';
 import uuidV4 from 'uuid/v4';
 
 import app from '../index';
+import { beforeTest, accessToken, documentTest } from '../server/helpers/clean.test.js';
 
 chai.config.includeStack = true;
-
 
 describe('## Document APIs', () => {
   const contentType1 = 'text/vnd.sylow.status';
   const contentType2 = 'contentType2';
 
-  let document = {
-    entityId: uuidV4(),
-    contentType: contentType1,
-    public: true,
-    encryption: 'plain',
-    data: {
-      content: 'This is the first test status.'
-    },
-    tags: ['1', '2', '3']
-  };
+  let document = documentTest;
 
   let document1 = {
     entityId: uuidV4(),
@@ -33,6 +24,8 @@ describe('## Document APIs', () => {
     },
     tags: ['3', '4', '5']
   };
+
+  before('Clean up test data', beforeTest);
 
   describe('# POST /api/documents', () => {
     it('should create a new document', (done) => {
@@ -78,6 +71,7 @@ describe('## Document APIs', () => {
       document.data.content = 'Here is a new test status';
       request(app)
         .put(`/api/documents/${document.id}`)
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .send(document)
         .expect(httpStatus.OK)
         .then((res) => {
@@ -186,6 +180,7 @@ describe('## Document APIs', () => {
     it('should delete document', (done) => {
       request(app)
         .delete(`/api/documents/${document.id}`)
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.data.content).to.equal(document.data.content);
