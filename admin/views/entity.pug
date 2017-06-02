@@ -2,7 +2,14 @@ extends includes/dash.pug
 
 block dashboard
   h1(class="ui header") Entity: #{entity.entityName}
-  h3(class="ui dividing header")= "Edit Entity"
+  h3(class="ui dividing header")= "Registered Clients"
+  each client in clients
+    div(class="ui card")
+      div(class="content")
+        div(class="header")= client.clientName
+        div(class="description") #{client.deviceTypeProper} client
+      a(class="ui bottom attached negative button" data-action="showRevokeModal" data-params=client._id) Revoke
+  h3(class="ui dividing header") Edit Entity
   form(class="ui form" id="update-form" method="POST")
     input(type="hidden" id="passwordHash" name="passwordHash")
     input(type="hidden" id="passwordSalt" name="passwordSalt")
@@ -37,3 +44,17 @@ block dashboard
       div(class="ui red basic inverted button" data-action="deleteEntity")
         i(class="checkmark icon")
         | Delete
+  
+  div(id="revoke-client-modal" class="ui basic modal")
+    div(class="ui icon header")
+      i(class="remove icon")
+      | Revoke Client
+    div(class="content")
+      p= "Are you sure you wish to revoke this client?"
+    div(class="actions")
+      div(class="ui basic inverted button" data-action="hideModal")
+        i(class="remove icon")
+        | Cancel
+      div(class="ui red basic inverted button" data-action="revokeClient")
+        i(class="checkmark icon")
+        | Revoke

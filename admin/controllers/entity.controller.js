@@ -79,10 +79,22 @@ export default class extends Controller {
     this.app.showModal(event, 'delete-entity-modal');
   }
 
+  showRevokeModal(event, entityId) {
+    this.clientToRevoke = entityId;
+    this.app.showModal(event, 'revoke-client-modal');
+  }
+
   deleteEntity() {
     $.ajax({
       url: `/entities/${this.entityToDelete}`,
       method: 'DELETE'
     }).done(() => { window.location = '/entities'; });
+  }
+
+  revokeClient() {
+    $.ajax({
+      url: `/clients/${this.clientToRevoke}`,
+      method: 'DELETE'
+    }).done(() => { window.location = window.location; });
   }
 }

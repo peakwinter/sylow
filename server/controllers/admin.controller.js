@@ -1,5 +1,6 @@
 import httpStatus from 'http-status';
 
+import Client from '../models/client.model';
 import Document from '../models/document.model';
 import Entity from '../models/entity.model';
 
@@ -8,18 +9,23 @@ import APIError from '../helpers/APIError';
 
 
 export function index(req, res, next) {
-  Document.aggregate([
-    {
-      $sortByCount: '$contentType'
-    }
-  ])
-    .then(results => res.render('index', { active: 'index', contentTypes: results }))
+  const docTypes = Document.aggregate([{ $sortByCount: '$contentType' }]);
+  const [docCount, entityCount, clientCount] = [Document.count(), Entity.count(), Client.count()];
+
+  Promise.all([docTypes, docCount, entityCount, clientCount])
+    .then(([contentTypes, documents, entities, clients]) => res.render('index', {
+      active: 'index', contentTypes, documents, entities, clients
+    }))
     .catch(next);
 }
 
 export function showEntity(req, res) {
-  return Entity.get(req.params.entityId)
-    .then(entity => res.render('entity', { ctrl: 'entity', active: 'entities', entity }))
+  return Promise.all([
+    Entity.get(req.params.entityId), Client.find({ entityId: req.params.entityId })
+  ])
+    .then(([entity, clients]) => res.render('entity', {
+      ctrl: 'entity', active: 'entities', entity, clients
+    }))
     .catch((err) => {
       req.flash('error', err.toString());
       return res.redirect('/entities');
@@ -88,6 +94,19 @@ export function deleteEntity(req, res, next) {
     .then((entity) => {
       if (!entity || !entity.result.n) {
         const err = new APIError('Entity does not exist', httpStatus.NOT_FOUND, true);
+        return next(err);
+      }
+      return res.sendStatus(httpStatus.NO_CONTENT);
+    })
+    .catch(next);
+}
+
+export function revokeClient(req, res, next) {
+  const _id = req.params.clientId;
+  return Client.remove({ _id })
+    .then((client) => {
+      if (!client || !client.result.n) {
+        const err = new APIError('Client does not exist', httpStatus.NOT_FOUND, true);
         return next(err);
       }
       return res.sendStatus(httpStatus.NO_CONTENT);

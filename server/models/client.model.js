@@ -42,6 +42,7 @@ const ClientSchema = new mongoose.Schema({
 });
 
 ClientSchema.plugin(createdPlugin);
+ClientSchema.set('toJSON', { virtuals: true });
 
 /**
  * Add your
@@ -49,6 +50,14 @@ ClientSchema.plugin(createdPlugin);
  * - validations
  * - virtuals
  */
+
+ /** Virtuals */
+ /* eslint-disable func-names */
+ClientSchema.virtual('deviceTypeProper')
+  .get(function () {
+    return `${this.deviceType.charAt(0).toUpperCase()}${this.deviceType.slice(1)}`;
+  });
+/* eslint-enable */
 
 /**
  * Methods
