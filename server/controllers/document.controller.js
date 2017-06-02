@@ -1,6 +1,8 @@
+import httpStatus from 'http-status';
 import uuidV4 from 'uuid/v4';
 
 import Document from '../models/document.model';
+import APIError from '../helpers/APIError';
 
 /**
  * Load entity and append to req.
@@ -59,11 +61,17 @@ function create(req, res, next) {
  */
 function update(req, res, next) {
   const document = req.document;
-  document.updated = Date.now();
-  document.data = req.body.data;
-  document.save()
-    .then(savedDocument => res.json(savedDocument))
-    .catch(e => next(e));
+  const user = req.user;
+  if (user.admin || user.entityId === document.entityId) {
+    document.updated = new Date();
+    document.data = req.body.data;
+    document.save()
+      .then(savedDocument => res.json(savedDocument))
+      .catch(e => next(e));
+  } else {
+    const err = new APIError('Unauthorized action', httpStatus.UNAUTHORIZED, true);
+    next(err);
+  }
 }
 
 
@@ -73,9 +81,15 @@ function update(req, res, next) {
  */
 function remove(req, res, next) {
   const document = req.document;
-  document.remove()
-    .then(deletedDocument => res.json(deletedDocument))
-    .catch(e => next(e));
+  const user = req.user;
+  if (user.entityId === document.entityId) {
+    document.remove()
+      .then(deletedDocument => res.json(deletedDocument))
+      .catch(e => next(e));
+  } else {
+    const err = new APIError('Unauthorized action', httpStatus.UNAUTHORIZED, true);
+    next(err);
+  }
 }
 
 /**
