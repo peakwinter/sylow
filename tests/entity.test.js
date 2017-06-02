@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 import request from 'supertest-as-promised';
 import httpStatus from 'http-status';
 import chai, { expect } from 'chai';
+
+import config from '../config/config';
 import app from '../index';
 
 chai.config.includeStack = true;
@@ -40,6 +42,20 @@ describe('## Entity APIs', () => {
   };
 
   describe('# POST /api/entities', () => {
+    it('should fail to create a new entity due to server restriction', (done) => {
+      config.allowSignups = false;
+      request(app)
+        .post('/api/entities')
+        .send(entity)
+        .expect(httpStatus.BAD_REQUEST)
+        .then((res) => {
+          expect(res.body.message).to.equal('New signups not allowed');
+          config.allowSignups = true;
+          done();
+        })
+        .catch(done);
+    });
+
     it('should create a new entity with entityName parameter', (done) => {
       request(app)
         .post('/api/entities')

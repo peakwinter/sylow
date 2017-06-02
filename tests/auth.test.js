@@ -186,6 +186,23 @@ describe('## Authentification', () => {
         .catch(done);
     });
 
+    it('should fail to exchange an invalid client ID', (done) => {
+      request(app)
+        .post('/api/auth/token')
+        .auth(testClient.clientId, testClient.clientSecret)
+        .send({
+          code: testAccessCode,
+          client_id: 'xxxxxx',
+          client_secret: testClient.clientSecret,
+          grant_type: 'authorization_code',
+          redirect_uri: testClient.redirectUri
+        })
+        .type('form')
+        .expect(httpStatus.UNAUTHORIZED)
+        .then(() => done())
+        .catch(done);
+    });
+
     it('should be able to use the code to retrieve a token', (done) => {
       request(app)
         .post('/api/auth/token')
@@ -334,6 +351,19 @@ describe('## Authentification', () => {
         .expect(httpStatus.FOUND)
         .then((res) => {
           expect(res.headers.location).to.equal('/');
+          done();
+        })
+        .catch(done);
+    });
+  });
+
+  describe('# POST /logout', () => {
+    it('should successfully logout', (done) => {
+      localAgent.get('/logout')
+        .redirects(1)
+        .expect(httpStatus.FOUND)
+        .then((res) => {
+          expect(res.headers.location).to.equal('/login');
           done();
         })
         .catch(done);
