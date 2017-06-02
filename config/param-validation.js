@@ -11,10 +11,10 @@ export default {
       passwordHash: Joi.string().when('authoritative', { is: true, then: Joi.required() }),
       passwordSalt: Joi.string().when('authoritative', { is: true, then: Joi.required() }),
       keypair: Joi.object({
-        public: Joi.string().required(),
-        private: Joi.string().when('authoritative', { is: true, then: Joi.required() }),
+        public: Joi.string().when('authoritative', { is: false, then: Joi.required() }),
+        private: Joi.string(),
         recovery: Joi.string()
-      }).required(),
+      }),
       authoritative: Joi.boolean().default(false),
       admin: Joi.boolean().default(false)
     }
@@ -30,10 +30,10 @@ export default {
       passwordHash: Joi.string().when('authoritative', { is: true, then: Joi.required() }),
       passwordSalt: Joi.string().when('authoritative', { is: true, then: Joi.required() }),
       keypair: Joi.object({
-        public: Joi.string().required(),
+        public: Joi.string().when('authoritative', { is: false, then: Joi.required() }),
         private: Joi.string(),
         recovery: Joi.string()
-      }).when('authoritative', { is: true, then: Joi.required() }),
+      }),
       authoritative: Joi.boolean().default(false),
       admin: Joi.boolean().default(false)
     },

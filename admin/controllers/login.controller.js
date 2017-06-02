@@ -9,6 +9,12 @@ export default class LoginController extends Controller {
   init() {
     this.form = $('#password-form');
     this.form.submit(event => this.login(event));
+    this.form.form({
+      fields: {
+        username: 'empty',
+        password: 'empty'
+      }
+    });
   }
 
   login(event) {

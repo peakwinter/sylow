@@ -12,7 +12,7 @@ chai.config.includeStack = true;
 const adminSesh = request.agent(app);
 
 const testEntity = {
-  entityName: 'testuser@testdomain.xyz',
+  entityName: 'testuser@sylow.dev',
   passwordHash: '33f1ba50d3acdfe04fadbfcdc50edd84a3af0f9d377872003eaedbb68f8e6d7146e87c35e5f3338341d91b84c1371a6a9db054c4104797e99848f4d2d8a2b91e',
   passwordSalt: '694658b93aa9c2f245cca37da3b4d7cc',
   keypair: {
@@ -23,13 +23,10 @@ const testEntity = {
 };
 
 const superfluousEntity = {
-  entityName: 'newuser@testdomain.xyz',
+  username: 'newuser',
   passwordHash: 'xxxxxx',
   passwordSalt: 'xxxxxx',
-  keypair: {
-    public: 'xxxxx'
-  },
-  authoritative: true
+  admin: true
 };
 
 
@@ -79,7 +76,7 @@ describe('## Admin Interface', () => {
           const testuserCard = contents.children().first();
           expect(contents.length).to.equal(1);
           expect(testuserCard.find('.content p').first().html())
-            .to.equal('testuser@testdomain.xyz');
+            .to.equal('testuser@sylow.dev');
           done();
         })
         .catch(done);
@@ -87,6 +84,21 @@ describe('## Admin Interface', () => {
   });
 
   describe('# POST /entities', () => {
+    it('should fail to create an entity with missing information', (done) => {
+      adminSesh.post('/entities')
+        .redirects(1)
+        .send({ username: 'xxxxxx', authoritative: true })
+        .type('form')
+        .expect(httpStatus.OK)
+        .then((res) => {
+          const html = cheerio.load(res.text);
+          const err = html('.ui.sy-dashboard .ui.error.message p').html();
+          expect(err).to.equal('Missing values');
+          done();
+        })
+        .catch(done);
+    });
+
     it('should create an entity', (done) => {
       adminSesh.post('/entities')
         .redirects(1)
@@ -96,20 +108,30 @@ describe('## Admin Interface', () => {
         .then((res) => {
           const html = cheerio.load(res.text);
           const contents = html('.ui.sy-dashboard .ui.four.cards').children();
-          expect(contents.length).to.equal(1);
-          /* const testuserCard = contents.first();
+          const testuserCard = contents.first();
+          superfluousEntity.id = testuserCard.find('.ui.negative.button').data('params');
           expect(contents.length).to.equal(2);
           expect(testuserCard.find('.content p').first().html())
-            .to.equal('newuser@testdomain.xyz'); */
+            .to.equal('newuser@sylow.dev');
           done();
         })
         .catch(done);
     });
   });
 
-  /* describe('# DELETE /entities/:id', () => {
+  describe('# DELETE /entities/:id', () => {
+    it('should fail to delete a nonexistent entity', (done) => {
+      adminSesh.delete('/entities/xxxxxx')
+        .expect(httpStatus.NOT_FOUND)
+        .then((res) => {
+          expect(res.body.message).to.equal('Entity does not exist');
+          done();
+        })
+        .catch(done);
+    });
+
     it('should delete an entity', (done) => {
-      adminSesh.delete(`/entities/${superfluousEntity._id}`)
+      adminSesh.delete(`/entities/${superfluousEntity.id}`)
         .expect(httpStatus.NO_CONTENT)
         .then(() =>
           adminSesh.get('/entities')
@@ -120,11 +142,11 @@ describe('## Admin Interface', () => {
               const testuserCard = contents.children().first();
               expect(contents.length).to.equal(1);
               expect(testuserCard.find('.content p').first().html())
-                .to.equal('testuser@testdomain.xyz');
+                .to.equal('testuser@sylow.dev');
               done();
             })
         )
         .catch(done);
     });
-  }); */
+  });
 });
