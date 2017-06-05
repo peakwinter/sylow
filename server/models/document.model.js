@@ -110,20 +110,6 @@ DocumentSchema.statics = {
         const err = new APIError('No such document exists!', httpStatus.NOT_FOUND);
         return Promise.reject(err);
       });
-  },
-
-  /**
-   * List documents in descending order of 'created' timestamp.
-   * @param {number} skip - Number of documents to be skipped.
-   * @param {number} limit - Limit number of documents to be returned.
-   * @returns {Promise<Document[]>}
-   */
-  list({ skip = 0, limit = 50 } = {}) {
-    return this.find()
-      .sort({ created: -1 })
-      .skip(+skip)
-      .limit(+limit)
-      .exec();
   }
 };
 

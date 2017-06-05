@@ -1,10 +1,7 @@
-import Promise from 'bluebird';
 import mongoose from 'mongoose';
-import httpStatus from 'http-status';
 
 import createdPlugin from './plugins/created';
 import uuidRegex from '../utils/uuid';
-import APIError from '../helpers/APIError';
 
 /**
  * Access Token Storage Schema
@@ -47,28 +44,6 @@ AccessTokenSchema.plugin(createdPlugin);
  */
 AccessTokenSchema.method({
 });
-
-/**
- * Statics
- */
-AccessTokenSchema.statics = {
-  /**
-   * Get access token by id.
-   * @param {String} id - the id of the access token.
-   * @returns {Promise<AccessToken, APIError>}
-   */
-  get(id) {
-    return this.findById(id)
-      .exec()
-      .then((accessToken) => {
-        if (accessToken) {
-          return accessToken;
-        }
-        const err = new APIError('No such access token exists!', httpStatus.NOT_FOUND);
-        return Promise.reject(err);
-      });
-  }
-};
 
 /**
  * @typedef Entity

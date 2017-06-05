@@ -31,20 +31,4 @@ describe('## Misc', () => {
         .catch(done);
     });
   });
-
-  describe('# Error Handling', () => {
-    it('should handle express validation error - public key is required', (done) => {
-      request(app)
-        .post('/api/entities')
-        .send({
-          entityName: 'testuser@testdomain.xyz'
-        })
-        .expect(httpStatus.BAD_REQUEST)
-        .then((res) => {
-          expect(res.body.message).to.equal('"keypair" is required');
-          done();
-        })
-        .catch(done);
-    });
-  });
 });

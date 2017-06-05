@@ -15,7 +15,12 @@ router.route('/entities')
   .post(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.createEntity);
 
 router.route('/entities/:entityId')
+  .get(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.showEntity)
+  .post(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.updateEntity)
   .delete(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.deleteEntity);
+
+router.route('/clients/:clientId')
+  .delete(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.revokeClient);
 
 router.route('/login')
   .get(authCtrl.login)

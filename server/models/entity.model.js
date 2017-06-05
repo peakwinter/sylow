@@ -28,10 +28,7 @@ const EntitySchema = new mongoose.Schema({
     ref: 'Document'
   },
   keypair: {
-    public: {
-      type: String,
-      required: true
-    },
+    public: String,
     private: String,
     recovery: String
   },

@@ -5,15 +5,22 @@ block dashboard
   h3(class="ui dividing header")= "At A Glance"
   div(class="ui statistics")
     div(class="statistic")
-      div(class="value")= "0"
-      div(class="label")= "Documents"
+      div(class="value")= documents
+      div(class="label") Documents
     div(class="statistic")
-      div(class="value")= "0"
-      div(class="label")= "Entities"
+      div(class="value")= entities
+      div(class="label") Entities
     div(class="statistic")
-      div(class="value")= "0"
-      div(class="label")= "Clients"
-  h3(class="ui dividing header")= "Statistics"
+      div(class="value")= clients
+      div(class="label") Clients
+  h3(class="ui dividing header") Statistics
   each contentType in contentTypes
-    each val, index in contentType
-      p= index + ' : '+ val
+    table(class="ui very basic collapsing celled table")
+      thead
+        tr
+          th Content Type
+          th Count
+      tbody
+        tr
+          td #{contentType._id}
+          td #{contentType.count}

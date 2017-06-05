@@ -1,0 +1,60 @@
+extends includes/dash.pug
+
+block dashboard
+  h1(class="ui header") Entity: #{entity.entityName}
+  h3(class="ui dividing header")= "Registered Clients"
+  each client in clients
+    div(class="ui card")
+      div(class="content")
+        div(class="header")= client.clientName
+        div(class="description") #{client.deviceTypeProper} client
+      a(class="ui bottom attached negative button" data-action="showRevokeModal" data-params=client._id) Revoke
+  h3(class="ui dividing header") Edit Entity
+  form(class="ui form" id="update-form" method="POST")
+    input(type="hidden" id="passwordHash" name="passwordHash")
+    input(type="hidden" id="passwordSalt" name="passwordSalt")
+    div(class="field")
+      label= "Username"
+      input(type="text" id="username" name="username" placeholder="Username" value=entity.username)
+    div(class="field")
+      label= "New Password"
+      input(type="password" id="password" placeholder="Password")
+    div(class="field")
+      label= "Confirm Password"
+      input(type="password" id="confirm" placeholder="Confirm Password")
+    div(class="field")
+      div(class="ui checkbox")
+        input(type="checkbox" class="hidden" name="admin" checked=entity.admin)
+        label= "Admin User"
+    button(type="submit" class="ui primary button") Save
+    a(class="ui negative button" data-action="showDeleteModal" data-params=entity._id)= "Delete"
+    a(class="ui basic button" href="/entities")= "Go Back"
+    div(class="ui error message")
+
+  div(id="delete-entity-modal" class="ui basic modal")
+    div(class="ui icon header")
+      i(class="remove user icon")
+      | Delete Entity
+    div(class="content")
+      p= "Are you sure you wish to delete this entity?"
+    div(class="actions")
+      div(class="ui basic inverted button" data-action="hideModal")
+        i(class="remove icon")
+        | Cancel
+      div(class="ui red basic inverted button" data-action="deleteEntity")
+        i(class="checkmark icon")
+        | Delete
+  
+  div(id="revoke-client-modal" class="ui basic modal")
+    div(class="ui icon header")
+      i(class="remove icon")
+      | Revoke Client
+    div(class="content")
+      p= "Are you sure you wish to revoke this client?"
+    div(class="actions")
+      div(class="ui basic inverted button" data-action="hideModal")
+        i(class="remove icon")
+        | Cancel
+      div(class="ui red basic inverted button" data-action="revokeClient")
+        i(class="checkmark icon")
+        | Revoke

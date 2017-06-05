@@ -6,11 +6,11 @@ block dashboard
     each entity in entities
       div(class="ui card")
         div(class="content")
-          p(class="header")= entity.entityName
+          a(class="header" href=`/entities/${entity._id}`)= entity.entityName
           div(class="description")= "Entity"
         a(class="ui bottom attached negative button" data-action="showDeleteModal" data-params=entity._id)= "Delete"
   h3(class="ui dividing header")= "Create New Entity"
-  form(class="ui form" id="password-form" method="POST")
+  form(class="ui form" id="register-form" method="POST")
     input(type="hidden" id="passwordHash" name="passwordHash")
     input(type="hidden" id="passwordSalt" name="passwordSalt")
     div(class="field")
