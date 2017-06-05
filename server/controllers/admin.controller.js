@@ -80,7 +80,7 @@ export function updateEntity(req, res) {
   return Entity.findByIdAndUpdate(req.params.entityId, { $set: data }, { new: true })
     .then((entity) => {
       req.flash('success', 'Entity updated');
-      res.render('entity', { ctrl: 'entity', active: 'entities', entity });
+      return res.redirect(`/entities/${entity._id}`);
     })
     .catch((err) => {
       req.flash('error', err.toString());
