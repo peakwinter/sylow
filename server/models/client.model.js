@@ -12,7 +12,6 @@ import uuidRegex from '../utils/uuid';
 const ClientSchema = new mongoose.Schema({
   entityId: {
     type: String,
-    required: true,
     match: [uuidRegex, 'The value of path {PATH} ({VALUE}) is not a valid UUID.'],
     ref: 'Entity'
   },

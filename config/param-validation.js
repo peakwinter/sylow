@@ -121,7 +121,7 @@ export default {
   // POST /api/clients
   createClient: {
     body: {
-      entityId: Joi.string().uuid().required(),
+      entityId: Joi.string().uuid(),
       clientId: Joi.string().required(),
       clientSecret: Joi.string().required(),
       clientName: Joi.string().required(),
@@ -135,7 +135,7 @@ export default {
   // UPDATE /api/clients/:clientId
   updateClient: {
     body: {
-      entityId: Joi.string().uuid().required(),
+      entityId: Joi.string().uuid(),
       clientId: Joi.string().required(),
       clientSecret: Joi.string().required(),
       clientName: Joi.string().required(),
