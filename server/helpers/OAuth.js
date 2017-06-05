@@ -88,22 +88,16 @@ export function exchangePassword(client, username, passwordHash, scope, done) {
     .catch(err => done(err));
 }
 
-export function exchangeClientCredentials(client, scope, done) {
-  return Client.findOne({ clientId: client.clientId })
-    .then((localClient) => {
-      if (!localClient) return done(null, false);
-      if (localClient.clientSecret !== client.clientSecret) return done(null, false);
+export function implicitlyGrantToken(client, entity, ares, done) {
+  const token = randomStr(256);
+  const accessToken = new AccessToken({
+    token,
+    entity: entity._id,
+    client: client._id
+  });
 
-      const token = randomStr(256);
-      const accessToken = new AccessToken({
-        token,
-        client: client.clientId
-      });
-
-      return accessToken.save()
-        .then(() => done(null, token))
-        .catch(err => done(err));
-    })
+  return accessToken.save()
+    .then(() => done(null, token))
     .catch(err => done(err));
 }
 
@@ -117,9 +111,9 @@ export const authorization = [
         return done(null, client, redirectUri);
       })
       .catch(err => done(err)),
-  (client, user, done) =>
+  (client, entity, done) =>
     // if (client.isTrusted) return done(null, true);
-    AccessToken.findOne({ entity: user._id, client: client._id })
+    AccessToken.findOne({ entity: entity._id, client: client._id })
       .then((token) => {
         if (token) return done(null, true);
         return done(null, false);
@@ -139,6 +133,6 @@ oauth.serializeClient(serializeClient);
 oauth.deserializeClient(deserializeClient);
 
 oauth.grant(oauth2orize.grant.code(grantAuthorizationCode));
+oauth.grant(oauth2orize.grant.token(implicitlyGrantToken));
 oauth.exchange(oauth2orize.exchange.code(exchangeAuthorizationCode));
 oauth.exchange(oauth2orize.exchange.password(exchangePassword));
-oauth.exchange(oauth2orize.exchange.clientCredentials(exchangeClientCredentials));

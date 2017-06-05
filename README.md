@@ -42,8 +42,6 @@ Tests can be launched for the Docker version using `./bin/test.sh`, or for the m
 
 ### Notes
 
-A precommit hook runs before every commit, to make sure all tests pass and that code coverage is not too low.
-
 The development server uses a live reload system, meaning changes you make to server-side files should cause the server to restart, whether you use Docker or a manual installation.
 
-If you use both the local and the Docker versions alternately, you may also need to change the `precommit` hook in your `package.json` to use either the local method of testing or the Dockerized one.
+A precommit hook runs before every push, to make sure all tests pass and that code coverage is not too low. If you use both the local and the Docker versions alternately, you may also need to change the `prepush` hook in your `package.json` to use either the local method of testing or the Dockerized one.
