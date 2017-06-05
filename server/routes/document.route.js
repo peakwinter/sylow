@@ -2,6 +2,7 @@ import express from 'express';
 import validate from 'express-validation';
 import paramValidation from '../../config/param-validation';
 import documentCtrl from '../controllers/document.controller';
+import * as authCtrl from '../controllers/auth.controller';
 
 const router = express.Router(); // eslint-disable-line new-cap
 
@@ -17,10 +18,10 @@ router.route('/:documentId')
   .get(documentCtrl.get)
 
   /** PUT /api/documents/:documentId - Update document */
-  .put(validate(paramValidation.updateDocument), documentCtrl.update)
+  .put(authCtrl.authenticateOAuth, validate(paramValidation.updateDocument), documentCtrl.update)
 
   /** DELETE /api/documents/:documentId - Delete document */
-  .delete(documentCtrl.remove);
+  .delete(authCtrl.authenticateOAuth, documentCtrl.remove);
 
 /** Load document when API with documentId route parameter is hit */
 router.param('documentId', documentCtrl.load);
