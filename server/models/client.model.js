@@ -10,11 +10,6 @@ import uuidRegex from '../utils/uuid';
  * Client Storage Schema
  */
 const ClientSchema = new mongoose.Schema({
-  entityId: {
-    type: String,
-    match: [uuidRegex, 'The value of path {PATH} ({VALUE}) is not a valid UUID.'],
-    ref: 'Entity'
-  },
   clientName: {
     type: String,
     required: true
@@ -37,7 +32,11 @@ const ClientSchema = new mongoose.Schema({
     required: true
   },
   grantTypes: String,
-  scope: String
+  scope: String,
+  isTrusted: {
+    type: Boolean,
+    default: false
+  }
 });
 
 ClientSchema.plugin(createdPlugin);

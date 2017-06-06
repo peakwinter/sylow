@@ -70,7 +70,6 @@ describe('## Authentification', () => {
         .then(([entity1, entity2]) => {
           testEntity.username = entity1.username;
           notAdminEntity.username = entity2.username;
-          testClient.entityId = entity1._id;
           const newClient = new Client(testClient);
           return newClient.save()
             .then((client) => {

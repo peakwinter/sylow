@@ -28,16 +28,6 @@ const accessToken = {
   token: randomStr(256)
 };
 
-const documentTest = {
-  contentType: 'contentType2',
-  public: true,
-  encryption: 'plain',
-  data: {
-    content: 'This is the first test status.'
-  },
-  tags: ['1', '2', '3']
-};
-
 function beforeTest() {
   if (config.env !== 'test') {
     return Promise.reject('Not in a test environment');
@@ -50,9 +40,7 @@ function beforeTest() {
     Entity.create(entity)
       .then((entityRes) => {
         entity = entityRes;
-        client.entityId = entity._id;
         accessToken.entity = entity._id;
-        documentTest.entityId = entity._id;
         const newClient = new Client(client);
         return newClient.save()
           .then((clientRes) => {
@@ -64,4 +52,4 @@ function beforeTest() {
   );
 }
 
-export { beforeTest, accessToken, documentTest };
+export { beforeTest, accessToken };

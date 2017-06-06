@@ -8,7 +8,7 @@ import Client from '../models/client.model';
 import Entity from '../models/entity.model';
 
 
-const oauth = oauth2orize.createServer();
+const oauth = oauth2orize.createServer({ userProperty: 'oauthClient' });
 const authorizationCodes = {};
 
 export { oauth as Server };

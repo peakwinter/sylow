@@ -51,10 +51,11 @@ passport.use(new ClientPasswordStrategy((clientId, clientSecret, done) =>
 
 passport.use(new BearerStrategy((token, done) =>
   AccessToken.findOne({ token })
-    .populate('client')
+    .populate('entity client')
     .then((accessToken) => {
-      if (!accessToken || !accessToken.client) return done(null, null);
-      return done(null, accessToken.client, { scope: '*', isClient: true });
+      if (!accessToken || !accessToken.client || !accessToken.entity) return done(null, null);
+      return done(null, { client: accessToken.client, entity: accessToken.entity },
+        { scope: '*', isClient: true });
     })
     .catch(err => done(err))
 ));

@@ -25,7 +25,6 @@ function get(req, res) {
  */
 function create(req, res, next) {
   const client = new Client({
-    entityId: req.body.entityId,
     clientName: req.body.clientName,
     deviceType: req.body.deviceType,
     clientId: req.body.clientId,
@@ -46,7 +45,6 @@ function create(req, res, next) {
  */
 function update(req, res, next) {
   const client = req.client;
-  client.entityId = req.body.entityId;
   client.clientName = req.body.clientName;
   client.deviceType = req.body.deviceType;
   client.clientId = req.body.clientId;

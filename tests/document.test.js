@@ -4,7 +4,7 @@ import chai, { expect } from 'chai';
 import uuidV4 from 'uuid/v4';
 
 import app from '../index';
-import { beforeTest, accessToken, documentTest } from '../server/helpers/clean.test.js';
+import { beforeTest, accessToken } from '../server/helpers/Pretest';
 
 chai.config.includeStack = true;
 
@@ -12,7 +12,15 @@ describe('## Document APIs', () => {
   const contentType1 = 'text/vnd.sylow.status';
   const contentType2 = 'contentType2';
 
-  let document = documentTest;
+  let document = {
+    contentType: 'contentType2',
+    public: true,
+    encryption: 'plain',
+    data: {
+      content: 'This is the first test status.'
+    },
+    tags: ['1', '2', '3']
+  };
 
   let document1 = {
     entityId: uuidV4(),
@@ -29,6 +37,7 @@ describe('## Document APIs', () => {
 
   describe('# POST /api/documents', () => {
     it('should create a new document', (done) => {
+      document.entityId = accessToken.entity;
       request(app)
         .post('/api/documents')
         .send(document)

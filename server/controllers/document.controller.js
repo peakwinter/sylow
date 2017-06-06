@@ -61,8 +61,8 @@ function create(req, res, next) {
  */
 function update(req, res, next) {
   const document = req.document;
-  const user = req.user;
-  if (user.admin || user.entityId === document.entityId) {
+  const entity = req.user.entity;
+  if (entity.admin || entity._id === document.entityId) {
     document.updated = new Date();
     document.data = req.body.data;
     document.save()
@@ -81,8 +81,8 @@ function update(req, res, next) {
  */
 function remove(req, res, next) {
   const document = req.document;
-  const user = req.user;
-  if (user.entityId === document.entityId) {
+  const entity = req.user.entity;
+  if (entity.admin || entity._id === document.entityId) {
     document.remove()
       .then(deletedDocument => res.json(deletedDocument))
       .catch(e => next(e));

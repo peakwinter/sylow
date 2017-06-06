@@ -1,14 +1,12 @@
 import request from 'supertest-as-promised';
 import httpStatus from 'http-status';
-import uuidV4 from 'uuid/v4';
 import chai, { expect } from 'chai';
 import app from '../index';
 
 chai.config.includeStack = true;
 
-describe('## Device APIs', () => {
+describe('## Client APIs', () => {
   let client = {
-    entityId: uuidV4(),
     clientId: 'clientIdTest',
     clientName: 'clientNameTest',
     clientSecret: 'clientSecretTest',
@@ -24,7 +22,6 @@ describe('## Device APIs', () => {
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.clientName).to.equal(client.clientName);
-          expect(res.body.entityId).to.equal(client.entityId);
           expect(res.body.deviceType).to.equal(client.deviceType);
           client = res.body;
           done();
@@ -39,7 +36,6 @@ describe('## Device APIs', () => {
         .get(`/api/clients/${client._id}`)
         .expect(httpStatus.OK)
         .then((res) => {
-          expect(res.body.entityId).to.equal(client.entityId);
           expect(res.body.deviceType).to.equal(client.deviceType);
           expect(res.body.clientName).to.equal(client.clientName);
           done();
@@ -105,7 +101,6 @@ describe('## Device APIs', () => {
         .delete(`/api/clients/${client._id}`)
         .expect(httpStatus.OK)
         .then((res) => {
-          expect(res.body.entityId).to.equal(client.entityId);
           expect(res.body.deviceType).to.equal(client.deviceType);
           expect(res.body.clientName).to.equal('MyNewName');
           done();
