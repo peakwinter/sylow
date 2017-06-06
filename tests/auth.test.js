@@ -11,75 +11,75 @@ import Client from '../server/models/client.model';
 
 chai.config.includeStack = true;
 
-describe('## Authentification', () => {
-  const badUsernameCredentials = {
-    username: 'react',
-    passwordHash: 'xxxxxx'
-  };
+const badUsernameCredentials = {
+  username: 'react',
+  passwordHash: 'xxxxxx'
+};
 
-  const badPasswordCredentials = {
-    username: 'testuser',
-    passwordHash: 'xxxxxx'
-  };
+const badPasswordCredentials = {
+  username: 'testuser',
+  passwordHash: 'xxxxxx'
+};
 
-  const notAdminCredentials = {
-    username: 'notadmin',
-    passwordHash: 'xxxxxx'
-  };
+const notAdminCredentials = {
+  username: 'notadmin',
+  passwordHash: 'xxxxxx'
+};
 
-  const testEntity = {
-    entityName: 'testuser@testdomain.xyz',
-    passwordHash: '33f1ba50d3acdfe04fadbfcdc50edd84a3af0f9d377872003eaedbb68f8e6d7146e87c35e5f3338341d91b84c1371a6a9db054c4104797e99848f4d2d8a2b91e',
-    passwordSalt: '694658b93aa9c2f245cca37da3b4d7cc',
-    keypair: {
-      public: 'xxxxx'
-    },
-    authoritative: true,
-    admin: true
-  };
+const testClient = {
+  clientId: 'sylowTestClient',
+  clientSecret: 'sylowTestSecret',
+  clientName: 'Sylow Test Client',
+  deviceType: 'other',
+  redirectUri: 'http://localhost/cb',
+};
 
-  const notAdminEntity = Object.assign(
-    {}, testEntity, { entityName: 'notadmin@testdomain.xyz', passwordHash: 'xxxxxx', admin: false }
+const testEntity = {
+  entityName: 'testuser@testdomain.xyz',
+  passwordHash: '33f1ba50d3acdfe04fadbfcdc50edd84a3af0f9d377872003eaedbb68f8e6d7146e87c35e5f3338341d91b84c1371a6a9db054c4104797e99848f4d2d8a2b91e',
+  passwordSalt: '694658b93aa9c2f245cca37da3b4d7cc',
+  keypair: {
+    public: 'xxxxx'
+  },
+  authoritative: true,
+  admin: true
+};
+
+const notAdminEntity = Object.assign(
+  {}, testEntity, { entityName: 'notadmin@testdomain.xyz', passwordHash: 'xxxxxx', admin: false }
+);
+
+function cleanup() {
+  if (config.env !== 'test') {
+    return Promise.reject('Not in a test environment');
+  }
+  return Promise.all([
+    AccessToken.remove(),
+    Entity.remove(),
+    Client.remove()
+  ]).then(() =>
+    Entity.create([testEntity, notAdminEntity])
+      .then(([entity1, entity2]) => {
+        testEntity.username = entity1.username;
+        notAdminEntity.username = entity2.username;
+        const newClient = new Client(testClient);
+        return newClient.save();
+      })
   );
+}
 
-  let testClient = {
-    clientId: 'sylowTestClient',
-    clientSecret: 'sylowTestSecret',
-    clientName: 'Sylow Test Client',
-    deviceType: 'other',
-    redirectUri: 'http://localhost/cb',
-  };
-
-  const oauthAgent = request.agent(app);
+describe('## Authentification', () => {
   const localAgent = request.agent(app);
-
-  let testAccessCode;
-  let testAuthToken;
-  let testTransactionId;
-
-  before('Clean up test data', () => {
-    if (config.env !== 'test') {
-      return Promise.reject('Not in a test environment');
-    }
-    return Promise.all([
-      AccessToken.remove(),
-      Entity.remove(),
-      Client.remove()
-    ]).then(() =>
-      Entity.create([testEntity, notAdminEntity])
-        .then(([entity1, entity2]) => {
-          testEntity.username = entity1.username;
-          notAdminEntity.username = entity2.username;
-          const newClient = new Client(testClient);
-          return newClient.save()
-            .then((client) => {
-              testClient = client;
-            });
-        })
-    );
-  });
+  const oauthAgent = request.agent(app);
+  const implicitAgent = request.agent(app);
 
   describe('# OAuth2: Authentication Code Flow', () => {
+    let testTransactionId;
+    let testAccessCode;
+    let testAuthToken;
+
+    before('Clean up test data', cleanup);
+
     it('should fail to find a client with this ID', (done) => {
       oauthAgent.get('/api/auth/authorize')
         .query({
@@ -264,6 +264,58 @@ describe('## Authentification', () => {
         .set('Authorization', 'Bearer inValidToken')
         .expect(httpStatus.UNAUTHORIZED)
         .then(() => done())
+        .catch(done);
+    });
+  });
+
+  describe('# OAuth2: Implicit Flow', () => {
+    let testTransactionId;
+    let testAuthToken;
+
+    before('Clean up test data', cleanup);
+
+    it('should be able to get authorization page', (done) => {
+      implicitAgent.get('/api/auth/authorize')
+        .query({
+          client_id: 'sylowTestClient',
+          response_type: 'token',
+          redirect_uri: 'http://localhost/cb'
+        })
+        .auth(testEntity.username, testEntity.passwordHash)
+        .expect(httpStatus.OK)
+        .then((res) => {
+          const html = cheerio.load(res.text);
+          // cookieId = req.headers['set-cookie'][0]
+          testTransactionId = html('input[type="hidden"]').val();
+          done();
+        })
+        .catch(done);
+    });
+
+    it('should be able to retrieve an authorization code', (done) => {
+      implicitAgent.post('/api/auth/decision')
+        .auth(testEntity.username, testEntity.passwordHash)
+        .type('form')
+        .send({
+          transaction_id: testTransactionId
+        })
+        .expect(httpStatus.FOUND)
+        .then((res) => {
+          testAuthToken = res.text.split('token=')[1].split('&')[0];
+          done();
+        })
+        .catch(done);
+    });
+
+    it('should be able to use the token to access a protected endpoint', (done) => {
+      request(app)
+        .get('/api/auth/random-number')
+        .set('Authorization', `Bearer ${testAuthToken}`)
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body.num).to.be.a('number');
+          done();
+        })
         .catch(done);
     });
   });

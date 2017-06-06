@@ -4,7 +4,6 @@ import httpStatus from 'http-status';
 
 import createdPlugin from './plugins/created';
 import APIError from '../helpers/APIError';
-import uuidRegex from '../utils/uuid';
 
 /**
  * Client Storage Schema
