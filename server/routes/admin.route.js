@@ -19,8 +19,17 @@ router.route('/entities/:entityId')
   .post(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.updateEntity)
   .delete(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.deleteEntity);
 
+router.route('/clients')
+  .get(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.listClients)
+  .post(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.createClient);
+
 router.route('/clients/:clientId')
-  .delete(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.revokeClient);
+  .get(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.showClient)
+  .post(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.updateClient)
+  .delete(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.deleteClient);
+
+router.route('/tokens/:tokenId')
+  .delete(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.revokeToken);
 
 router.route('/login')
   .get(authCtrl.login)

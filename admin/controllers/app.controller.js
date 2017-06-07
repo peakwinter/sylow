@@ -5,6 +5,7 @@ import $ from 'jquery';
 export default class AppController {
   constructor() {
     $('.ui.checkbox').checkbox();
+    $('.ui.dropdown').dropdown();
   }
 
   listActions(controller = this) {

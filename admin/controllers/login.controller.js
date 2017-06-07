@@ -5,15 +5,19 @@ import $ from 'jquery';
 import Controller from './index';
 import * as scrypt from '../helpers/scrypt.helper';
 
-export default class LoginController extends Controller {
+export default class extends Controller {
   init() {
     this.form = $('#password-form');
-    this.form.submit(event => this.login(event));
+    this.initForm();
+  }
+
+  initForm() {
     this.form.form({
       fields: {
         username: 'empty',
         password: 'empty'
-      }
+      },
+      onSuccess: event => this.login(event)
     });
   }
 
@@ -29,7 +33,8 @@ export default class LoginController extends Controller {
         .done((data) => {
           scrypt.scrypt(password, data.salt, (key) => {
             this.form.find('#passwordHash').val(key);
-            this.form.trigger('submit');
+            this.initForm();
+            $(event.currentTarget).trigger('submit');
           });
         });
     }

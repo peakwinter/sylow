@@ -1,0 +1,50 @@
+extends includes/dash.pug
+
+block dashboard
+  h1(class="ui header") Client: #{client.clientName}
+  p Client secret:
+    pre #{client.clientSecret}
+  h3(class="ui dividing header") Edit Client
+  form(class="ui form" id="register-form" method="POST")
+    div(class="field")
+      label= "Client ID"
+      input(type="text" id="clientId" name="clientId" value=client.clientId)
+    div(class="field")
+      label= "Client Name"
+      input(type="text" id="clientName" name="clientName" value=client.clientName)
+    div(class="field")
+      label= "Device Type"
+      div(class="ui selection dropdown")
+        input(id="deviceType" name="deviceType" type="hidden" value=client.deviceType)
+        i(class="dropdown-icon")
+        div(class="default text") Computer
+        div(class="menu")
+          div(class="item" data-value="computer") Computer
+          div(class="item" data-value="mobile") Mobile
+          div(class="item" data-value="web") Web
+          div(class="item" data-value="gateway") Gateway
+          div(class="item" data-value="other") Other
+    div(class="field")
+      label= "Redirect URI"
+      input(type="text" id="redirectUri" name="redirectUri" value=client.redirectUri)
+    div(class="field")
+      label= "Scopes"
+      input(type="text" id="scope" name="scope" value=client.scope)
+    button(type="submit" class="ui primary button") Save
+    a(class="ui negative button" data-action="showDeleteModal" data-params=client._id)= "Delete"
+    a(class="ui basic button" href="/clients")= "Go Back"
+    div(class="ui error message")
+
+  div(id="delete-client-modal" class="ui basic modal")
+    div(class="ui icon header")
+      i(class="remove icon")
+      | Delete Client
+    div(class="content")
+      p= "Are you sure you wish to delete this client?"
+    div(class="actions")
+      div(class="ui basic inverted button" data-action="hideModal")
+        i(class="remove icon")
+        | Cancel
+      div(class="ui red basic inverted button" data-action="deleteClient")
+        i(class="checkmark icon")
+        | Delete

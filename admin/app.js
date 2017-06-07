@@ -3,6 +3,7 @@
 import $ from 'jquery';
 
 import AppController from './controllers/app.controller';
+import ClientController from './controllers/client.controller';
 import EntityController from './controllers/entity.controller';
 import LoginController from './controllers/login.controller';
 
@@ -10,6 +11,7 @@ import LoginController from './controllers/login.controller';
 import './assets/images/logo-white.svg';
 
 const controllers = {
+  client: ClientController,
   entity: EntityController,
   login: LoginController
 };
