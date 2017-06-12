@@ -212,3 +212,4 @@ export function updateSettings(req, res) {
   req.flash('success', 'Settings updated');
   return res.redirect('/settings');
 }
+

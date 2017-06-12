@@ -3,6 +3,7 @@ extends includes/dash.pug
 block dashboard
   h1(class="ui header")= "Settings"
   div(class="ui relaxed divided list")
+<<<<<<< 6f4c903547f7f728701c02ca8ef8ddacea846606
     form(id="edit_settings_form" method="POST" action="settings")
       each val, key in settings
         div(class='content dividing header field')
@@ -39,3 +40,61 @@ block dashboard
                 
         div(class="ui section divider")
       button(class="ui large basic hidden primary button" id="save_settings_btn" type="submit") Save
+=======
+    form(class="" id="edit_settings_form" method="POST")
+        each val, key in settings
+            if val !== undefined
+              div(class='content dividing header field')
+              - key = key.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) { return str.toUpperCase(); });
+
+                // looking for the the updatable fields of settings 
+                - if (key.startsWith('Sy_')) {
+                   - key = key.substring(3);
+                   - key = key.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) { return str.toUpperCase(); });
+                   h3(class="ui header")= key
+                   p(class='description alterable')= val
+                   
+                   // if is a boolean, we display it as radio checkboxes
+                   - if (typeof val === "boolean") {
+                   div(class="grouped fields")
+                     div(class="field")
+                       div(class="ui radio checkbox checkbox_radio settings_updates")
+                         input(class="hidden" tabindex="0"  value="true" name=key type="radio" checked=val )
+                         label="True"
+                     div(class="field")
+                       div(class="ui radio  checkbox checkbox_radio settings_updates")
+                         input(class="hidden" tabindex="0"  value="false" name=key type="radio" checked=!val)
+                         label="False"
+                   
+                   // if a fields can manage multiple choices, we display then as checkboxes and add a field to create a new value
+                   - } else if ( val instanceof Array) {
+                   div(class="checkbox_choice settings_updates")
+                     each v in val 
+                       div(class="field")
+                         div(class="ui checkbox")
+                           input(class="hidden" tabindex="0" value=v name=key type="checkbox" checked="true")
+                           label=v
+                       br
+                       div(class="ui input new_value")
+                         input(name=key type="text" placeholder="Add a domain")
+                   - } else {
+                   div(class="ui input")
+                     input(class="settings_updates" value=val name=key type="text" )
+                   - }
+                - } else {
+                   - if (typeof val != "object") {
+                   b(class="ui header" id=key)= key
+                   p(class='ui description' id=val)= val
+                   - } else {
+                   b(class="ui header ")= key
+                   each v, k in val
+                     h5(class="ui header")= k
+                     p(class='description')= v
+                   - }
+                - }
+              div(class="ui section divider")
+  button(class="ui button" id="edit_settings_btn" data-action="editAction")="Edit"
+  button(class="ui button primary hidden" id="save_settings_btn" data-action="saveAction")="Save"
+  button(class="ui button" id="reset_settings_btn" data-action="resetAction")="Reset"
+
+>>>>>>> Add admin setting page
