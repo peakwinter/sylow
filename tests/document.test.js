@@ -4,7 +4,8 @@ import chai, { expect } from 'chai';
 import uuidV4 from 'uuid/v4';
 
 import app from '../index';
-import { beforeTest, accessToken } from '../server/helpers/Pretest';
+import Document from '../server/models/document.model';
+import { beforeTest, accessToken, nonAdminAccessToken } from '../server/helpers/Pretest';
 
 chai.config.includeStack = true;
 
@@ -76,6 +77,27 @@ describe('## Document APIs', () => {
   });
 
   describe('# PUT /api/documents/:documentId', () => {
+    before('Create test document', () =>
+      new Document(document1).save()
+        .then((doc) => {
+          document1 = doc;
+        })
+    );
+
+    it('should fail to update document details for an unowned document', (done) => {
+      document1.data.content = 'Here is a new test status';
+      request(app)
+        .put(`/api/documents/${document1._id}`)
+        .set('Authorization', `Bearer ${nonAdminAccessToken.token}`)
+        .send(document1)
+        .expect(httpStatus.UNAUTHORIZED)
+        .then((res) => {
+          expect(res.body.message).to.equal('Unauthorized action');
+          done();
+        })
+        .catch(done);
+    });
+
     it('should update document details', (done) => {
       document.data.content = 'Here is a new test status';
       request(app)
@@ -93,14 +115,6 @@ describe('## Document APIs', () => {
 
   describe('# Filters', () => {
     it('should get all documents (with limit and skip)', (done) => {
-      request(app)
-        .post('/api/documents')
-        .send(document1)
-        .then((res) => {
-          document1 = res.body;
-        })
-        .catch(done);
-
       request(app)
         .get('/api/documents')
         .query({ limit: 10, skip: 1, contentType: contentType1 })
@@ -186,6 +200,18 @@ describe('## Document APIs', () => {
   });
 
   describe('# DELETE /api/documents/', () => {
+    it('should fail to remove an unowned document', (done) => {
+      request(app)
+        .delete(`/api/documents/${document1._id}`)
+        .set('Authorization', `Bearer ${nonAdminAccessToken.token}`)
+        .expect(httpStatus.UNAUTHORIZED)
+        .then((res) => {
+          expect(res.body.message).to.equal('Unauthorized action');
+          done();
+        })
+        .catch(done);
+    });
+
     it('should delete document', (done) => {
       request(app)
         .delete(`/api/documents/${document.id}`)

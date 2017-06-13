@@ -110,10 +110,8 @@ function getActions(req, res, next) {
   const filter = {};
   const finder = {};
   const query = req.query;
+  filter.contentType = query.contentType;
 
-  if ('contentType' in query) {
-    filter.contentType = query.contentType;
-  }
   if ('skip' in query) {
     finder.skip = query.skip;
   }
