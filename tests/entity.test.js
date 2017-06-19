@@ -5,6 +5,7 @@ import chai, { expect } from 'chai';
 
 import config from '../config/config';
 import app from '../index';
+import createTokens from '../server/helpers/Pretest';
 
 chai.config.includeStack = true;
 
@@ -21,7 +22,7 @@ after((done) => {
 
 describe('## Entity APIs', () => {
   let entity = {
-    entityName: 'testuser@testdomain.xyz',
+    entityName: 'testuser1@testdomain.xyz',
     passwordHash: '33f1ba50d3acdfe04fadbfcdc50edd84a3af0f9d377872003eaedbb68f8e6d7146e87c35e5f3338341d91b84c1371a6a9db054c4104797e99848f4d2d8a2b91e',
     passwordSalt: '694658b93aa9c2f245cca37da3b4d7cc',
     keypair: {
@@ -31,7 +32,7 @@ describe('## Entity APIs', () => {
   };
 
   let entity2 = {
-    username: 'testuser',
+    username: 'testuser2',
     domain: 'testdomain.xyz',
     passwordHash: '33f1ba50d3acdfe04fadbfcdc50edd84a3af0f9d377872003eaedbb68f8e6d7146e87c35e5f3338341d91b84c1371a6a9db054c4104797e99848f4d2d8a2b91e',
     passwordSalt: '694658b93aa9c2f245cca37da3b4d7cc',
@@ -41,11 +42,20 @@ describe('## Entity APIs', () => {
     authoritative: true
   };
 
+  let accessToken;
+
+  before('Clean up test data', () =>
+    createTokens().then(({ adminAccessToken }) => {
+      accessToken = adminAccessToken;
+    })
+  );
+
   describe('# POST /api/entities', () => {
     it('should fail to create a new entity due to server restriction', (done) => {
       config.allowSignups = false;
       request(app)
         .post('/api/entities')
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .send(entity)
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
@@ -59,6 +69,7 @@ describe('## Entity APIs', () => {
     it('should create a new entity with entityName parameter', (done) => {
       request(app)
         .post('/api/entities')
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .send(entity)
         .expect(httpStatus.OK)
         .then((res) => {
@@ -73,6 +84,7 @@ describe('## Entity APIs', () => {
     it('should create a new entity with username and domain parameters', (done) => {
       request(app)
         .post('/api/entities')
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .send(entity2)
         .expect(httpStatus.OK)
         .then((res) => {
@@ -90,6 +102,7 @@ describe('## Entity APIs', () => {
     it('should get entity details', (done) => {
       request(app)
         .get(`/api/entities/${entity.id}`)
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.entityName).to.equal(entity.entityName);
@@ -102,6 +115,7 @@ describe('## Entity APIs', () => {
     it('should report error with message - Not found, when entity does not exists', (done) => {
       request(app)
         .get('/api/entities/xxxxx')
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .expect(httpStatus.NOT_FOUND)
         .then((res) => {
           expect(res.body.message).to.equal('Not Found');
@@ -116,6 +130,7 @@ describe('## Entity APIs', () => {
       entity.entityName = 'newtest@newdomain.xyz';
       request(app)
         .put(`/api/entities/${entity.id}`)
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .send(entity)
         .expect(httpStatus.OK)
         .then((res) => {
@@ -131,6 +146,7 @@ describe('## Entity APIs', () => {
     it('should get all entities', (done) => {
       request(app)
         .get('/api/entities')
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body).to.be.an('array');
@@ -142,6 +158,7 @@ describe('## Entity APIs', () => {
     it('should get all entities (with limit and skip)', (done) => {
       request(app)
         .get('/api/entities')
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .query({ limit: 10, skip: 1 })
         .expect(httpStatus.OK)
         .then((res) => {
@@ -156,6 +173,7 @@ describe('## Entity APIs', () => {
     it('should delete entity', (done) => {
       request(app)
         .delete(`/api/entities/${entity.id}`)
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.entityName).to.equal('newtest@newdomain.xyz');
@@ -167,6 +185,7 @@ describe('## Entity APIs', () => {
     it('should delete entity2', (done) => {
       request(app)
           .delete(`/api/entities/${entity2.id}`)
+          .set('Authorization', `Bearer ${accessToken.token}`)
           .expect(httpStatus.OK)
           .then((res) => {
             expect(res.body.id).to.equal(entity2.id);

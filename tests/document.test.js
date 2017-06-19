@@ -5,7 +5,7 @@ import uuidV4 from 'uuid/v4';
 
 import app from '../index';
 import Document from '../server/models/document.model';
-import { beforeTest, accessToken, nonAdminAccessToken } from '../server/helpers/Pretest';
+import createTokens from '../server/helpers/Pretest';
 
 chai.config.includeStack = true;
 
@@ -34,13 +34,24 @@ describe('## Document APIs', () => {
     tags: ['3', '4', '5']
   };
 
-  before('Clean up test data', beforeTest);
+  let entity;
+  let accessToken;
+  let nonAdminToken;
+
+  before('Clean up test data', () =>
+    createTokens().then(({ adminEntity, adminAccessToken, nonAdminAccessToken }) => {
+      entity = adminEntity;
+      accessToken = adminAccessToken;
+      nonAdminToken = nonAdminAccessToken;
+    })
+  );
 
   describe('# POST /api/documents', () => {
     it('should create a new document', (done) => {
-      document.entityId = accessToken.entity;
+      document.entityId = entity._id;
       request(app)
         .post('/api/documents')
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .send(document)
         .expect(httpStatus.OK)
         .then((res) => {
@@ -56,6 +67,7 @@ describe('## Document APIs', () => {
     it('should get document details', (done) => {
       request(app)
         .get(`/api/documents/${document.id}`)
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.data.content).to.equal(document.data.content);
@@ -67,6 +79,7 @@ describe('## Document APIs', () => {
     it('should report error with message - Not found, when document does not exists', (done) => {
       request(app)
         .get('/api/documents/xxxxx')
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .expect(httpStatus.NOT_FOUND)
         .then((res) => {
           expect(res.body.message).to.equal('Not Found');
@@ -88,7 +101,7 @@ describe('## Document APIs', () => {
       document1.data.content = 'Here is a new test status';
       request(app)
         .put(`/api/documents/${document1._id}`)
-        .set('Authorization', `Bearer ${nonAdminAccessToken.token}`)
+        .set('Authorization', `Bearer ${nonAdminToken.token}`)
         .send(document1)
         .expect(httpStatus.UNAUTHORIZED)
         .then((res) => {
@@ -117,6 +130,7 @@ describe('## Document APIs', () => {
     it('should get all documents (with limit and skip)', (done) => {
       request(app)
         .get('/api/documents')
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .query({ limit: 10, skip: 1, contentType: contentType1 })
         .expect(httpStatus.OK)
         .then((res) => {
@@ -129,6 +143,7 @@ describe('## Document APIs', () => {
     it('should get document list according to the contentType', (done) => {
       request(app)
         .get('/api/documents')
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .query({ contentType: contentType2 })
         .expect(httpStatus.OK)
         .then((res) => {
@@ -148,6 +163,7 @@ describe('## Document APIs', () => {
 
       request(app)
         .get('/api/documents')
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .query({ createdStart, createdEnd, contentType: contentType1 })
         .expect(httpStatus.OK)
         .then((res) => {
@@ -168,6 +184,7 @@ describe('## Document APIs', () => {
 
       request(app)
         .get('/api/documents')
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .query({ updatedStart, updatedEnd, contentType: contentType1 })
         .expect(httpStatus.OK)
         .then((res) => {
@@ -186,6 +203,7 @@ describe('## Document APIs', () => {
 
       request(app)
         .get('/api/documents')
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .query({ tags: testTags, contentType: contentType1 })
         .expect(httpStatus.OK)
         .then((res) => {
@@ -203,7 +221,7 @@ describe('## Document APIs', () => {
     it('should fail to remove an unowned document', (done) => {
       request(app)
         .delete(`/api/documents/${document1._id}`)
-        .set('Authorization', `Bearer ${nonAdminAccessToken.token}`)
+        .set('Authorization', `Bearer ${nonAdminToken.token}`)
         .expect(httpStatus.UNAUTHORIZED)
         .then((res) => {
           expect(res.body.message).to.equal('Unauthorized action');
