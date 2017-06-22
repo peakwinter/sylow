@@ -5,7 +5,7 @@ import Client from '../models/client.model';
 import Document from '../models/document.model';
 import Entity from '../models/entity.model';
 
-import { default as config, unvariableConfig } from '../../config/config';
+import config, { unvariableConfig } from '../../config/config';
 import APIError from '../helpers/APIError';
 import { randomStr } from '../utils/random';
 
