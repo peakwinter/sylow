@@ -36,6 +36,10 @@ cp .env.example .env
 ./bin/development.sh
 ```
 
+### Creating a test entity
+
+You will need to create an admin entity before you can start using the Sylow server and its administration interface. To do so, run `cli/sylow new-entity [name] [domain]` with your desired username and domain name. The command will ask you for your password, and will encrypt and save it along with the entity.
+
 ### Testing
 
 Tests can be launched for the Docker version using `./bin/test.sh`, or for the manual version using `yarn test`.
