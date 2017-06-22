@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+/* eslint-env node */
+/* eslint-disable newline-per-chained-call */
+
+const program = require('commander');
+const packageData = require('../package.json');
+
+const newEntity = require('./new-entity');
+
+
+program
+  .version(packageData.version)
+  .option('-v, --verbose', 'verbose logging');
+
+program
+  .command('new-entity [name] [domain]').alias('entity')
+    .option('-a, --admin', 'make this an admin entity')
+    .action(newEntity);
+
+program
+  .command('new-client [name]').alias('client')
+    .action();
+
+program
+  .parse(process.argv);
