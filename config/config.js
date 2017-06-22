@@ -51,9 +51,9 @@ const config = {
     host: envVars.MONGO_HOST,
     port: envVars.MONGO_PORT
   },
-  sy_domain: envVars.SY_DOMAIN,
-  sy_allowSignups: envVars.SY_ALLOW_SIGNUPS,
-  sy_schemaDomainWhitelist: envVars.SY_SCHEMA_DOMAIN_WHITELIST
+  domain: envVars.SY_DOMAIN,
+  allowSignups: envVars.SY_ALLOW_SIGNUPS,
+  schemaDomainWhitelist: envVars.SY_SCHEMA_DOMAIN_WHITELIST
 };
 
 const unvariableConfig = ['env', 'port', 'mongooseDebug', 'jwtSecret', 'mongo'];
