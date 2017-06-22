@@ -47,4 +47,8 @@ router.route('/decision')
 router.route('/token')
   .all([authCtrl.authenticateClient, OAuth.Server.token(), OAuth.Server.errorHandler()]);
 
+router.route('/settings')
+  .get(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.listSettings)
+  .post(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.updateSettings);
+
 export default router;

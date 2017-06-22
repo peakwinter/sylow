@@ -5,7 +5,7 @@ import Client from '../models/client.model';
 import Document from '../models/document.model';
 import Entity from '../models/entity.model';
 
-import config from '../../config/config';
+import config, { unvariableConfig } from '../../config/config';
 import APIError from '../helpers/APIError';
 import { randomStr } from '../utils/random';
 
@@ -192,4 +192,23 @@ export function revokeToken(req, res, next) {
       return res.sendStatus(httpStatus.NO_CONTENT);
     })
     .catch(next);
+}
+
+export function listSettings(req, res) {
+  const settableConfig = {};
+  Object.keys(config).forEach((i) => {
+    if (!unvariableConfig.includes(i)) {
+      settableConfig[i] = config[i];
+    }
+  });
+  return res.render('setting', { ctrl: 'setting', active: 'settings', settings: settableConfig });
+}
+
+export function updateSettings(req, res) {
+  const datas = req.body;
+  const schemaDomain = datas.schemaDomainWhitelist.filter(n => n !== '');
+  datas.schemaDomainWhitelist = schemaDomain;
+  const updatedConfig = Object.assign(config, datas); // eslint-disable-line no-unused-vars
+  req.flash('success', 'Settings updated');
+  return res.redirect('/settings');
 }

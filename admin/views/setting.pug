@@ -1,0 +1,41 @@
+extends includes/dash.pug
+
+block dashboard
+  h1(class="ui header")= "Settings"
+  div(class="ui relaxed divided list")
+    form(id="edit_settings_form" method="POST" action="settings")
+      each val, key in settings
+        div(class='content dividing header field')
+          - key_label = key.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) { return str.toUpperCase(); });
+          h3(class="ui header")= key_label
+                   
+          // if is a boolean, we display it as radio checkboxes
+          - if (typeof val === "boolean") {
+            div(class="grouped fields")
+              div(class="field")
+                div(class="ui radio checkbox checkbox_radio settings_updates")
+                  input(class="hidden" tabindex="0"  value="true" name=key type="radio" checked=val )
+                  label="True"
+              div(class="field")
+                div(class="ui radio  checkbox checkbox_radio settings_updates")
+                  input(class="hidden" tabindex="0"  value="false" name=key type="radio" checked=!val)
+                  label="False"
+                   
+          // if a fields can manage multiple choices, we display then as checkboxes and add a field to create a new value
+          - } else if ( val instanceof Array) {
+            div(class="checkbox_choice settings_updates")
+              each v in val 
+                div(class="field")
+                  div(class="ui checkbox")
+                    input(class="hidden" tabindex="0" value=v name=key type="checkbox" checked="true")
+                    label=v
+              br
+              div(class="ui input new_value")
+                input(name=key type="text" placeholder="Add a domain")
+          - } else {
+            div(class="ui input")
+              input(class="settings_updates" value=val name=key type="text" )
+          - }
+                
+        div(class="ui section divider")
+      button(class="ui button primary hidden" id="save_settings_btn" type="submit") Save
