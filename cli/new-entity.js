@@ -29,9 +29,13 @@ function rlFactory(prompt) {
 
 function createEntity(username, domain, password, admin) {
   const passwordSalt = utils.generateSalt();
-  return utils.scrypt(password, passwordSalt, (passwordHash) => {
-    const Entity = mongoose.model('Entity', entitySchema);
-    return Entity.create({ username, domain, passwordSalt, passwordHash, admin });
+  return new Promise((fulfill) => {
+    utils.scrypt(password, passwordSalt, (passwordHash) => {
+      const Entity = mongoose.model('Entity', entitySchema);
+      fulfill(
+        Entity.create({ username, domain, passwordSalt, passwordHash, admin, authoritative: true })
+      );
+    });
   });
 }
 
