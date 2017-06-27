@@ -2,7 +2,7 @@ extends includes/dash.pug
 
 block dashboard
   h1(class="ui header")= "Dashboard"
-  h3(class="ui dividing header")= "At A Glance"
+  h2(class="ui dividing header")= "At A Glance"
   div(class="ui statistics")
     div(class="statistic")
       div(class="value")= documents
@@ -13,7 +13,7 @@ block dashboard
     div(class="statistic")
       div(class="value")= clients
       div(class="label") Clients
-  h3(class="ui dividing header") Statistics
+  h2(class="ui dividing header") Statistics
   each contentType in contentTypes
     table(class="ui very basic collapsing celled table")
       thead

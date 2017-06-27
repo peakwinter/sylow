@@ -9,7 +9,8 @@ block dashboard
           a(class="header" href=`/entities/${entity._id}`)= entity.entityName
           div(class="description")= "Entity"
         a(class="ui bottom attached negative button" data-action="showDeleteModal" data-params=entity._id)= "Delete"
-  h3(class="ui dividing header")= "Create New Entity"
+  div(class="ui hidden divider")
+  h2(class="ui header")= "Create New Entity"
   form(class="ui form" id="register-form" method="POST")
     input(type="hidden" id="passwordHash" name="passwordHash")
     input(type="hidden" id="passwordSalt" name="passwordSalt")
@@ -26,7 +27,8 @@ block dashboard
       div(class="ui checkbox")
         input(type="checkbox" class="hidden" name="admin")
         label= "Admin User"
-    button(type="submit" class="ui positive button") Register
+    div(class="ui hidden divider")
+    button(type="submit" class="ui large basic positive button") Register
     div(class="ui error message")
 
   div(id="delete-entity-modal" class="ui basic modal")

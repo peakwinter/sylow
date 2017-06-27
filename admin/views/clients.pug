@@ -9,7 +9,8 @@ block dashboard
           a(class="header" href=`/clients/${client._id}`)= client.clientName
           div(class="description")= "Client"
         a(class="ui bottom attached negative button" data-action="showDeleteModal" data-params=client._id)= "Delete"
-  h3(class="ui dividing header")= "Create New Client"
+  div(class="ui hidden divider")
+  h2(class="ui header")= "Create New Client"
   form(class="ui form" id="register-form" method="POST")
     div(class="field")
       label= "Client ID"
@@ -35,7 +36,8 @@ block dashboard
     div(class="field")
       label= "Scopes"
       input(type="text" id="scope" name="scope" placeholder="read_documents write_documents")
-    button(type="submit" class="ui positive button") Register
+    div(class="ui hidden divider")
+    button(type="submit" class="ui large basic positive button") Register
     div(class="ui error message")
 
   div(id="delete-client-modal" class="ui basic modal")

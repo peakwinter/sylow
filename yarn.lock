@@ -6558,6 +6558,14 @@ typedarray@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
 
+typeface-khula@0.0.28:
+  version "0.0.28"
+  resolved "https://registry.yarnpkg.com/typeface-khula/-/typeface-khula-0.0.28.tgz#47cbd7df8fa732edcb652dbb2d945dc284523a37"
+
+typeface-roboto@0.0.29:
+  version "0.0.29"
+  resolved "https://registry.yarnpkg.com/typeface-roboto/-/typeface-roboto-0.0.29.tgz#079a6f347512ee94524459a3b203aa55228f6129"
+
 uglify-js@^2.6, uglify-js@^2.6.1, uglify-js@^2.8.27:
   version "2.8.27"
   resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-2.8.27.tgz#47787f912b0f242e5b984343be8e35e95f694c9c"

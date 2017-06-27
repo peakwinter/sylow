@@ -1,10 +1,32 @@
+$sylow-purple: #25064c;
+
 body {
   margin: 0;
-  background: linear-gradient(to bottom, #7B52AB 0%, #553285 33%, #36175e 66%, #25064c 100%) fixed;
-  background-attachment: fixed;
+  font-family: 'Roboto', sans-serif;
 
   > .grid {
     height: 100%;
+  }
+}
+
+h1, h2, h3, h4, h5, h6, .ui.header {
+  color: $sylow-purple;
+  font-family: 'Khula', sans-serif;
+}
+
+h1 {
+  font-size: 2.5rem;
+
+  &.ui.header {
+    font-size: 4rem;
+  }
+}
+
+h2 {
+  font-size: 2rem;
+
+  &.ui.header {
+    font-size: 2.5rem;
   }
 }
 
@@ -19,7 +41,7 @@ body {
   }
 
   > h1, > .column > h1 {
-    color: #FFF;
+    color: $sylow-purple;
   }
 }
 

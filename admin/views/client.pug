@@ -4,7 +4,7 @@ block dashboard
   h1(class="ui header") Client: #{client.clientName}
   p Client secret:
     pre #{client.clientSecret}
-  h3(class="ui dividing header") Edit Client
+  h2(class="ui header") Edit Client
   form(class="ui form" id="register-form" method="POST")
     div(class="field")
       label= "Client ID"
@@ -30,9 +30,10 @@ block dashboard
     div(class="field")
       label= "Scopes"
       input(type="text" id="scope" name="scope" value=client.scope)
-    button(type="submit" class="ui primary button") Save
-    a(class="ui negative button" data-action="showDeleteModal" data-params=client._id)= "Delete"
-    a(class="ui basic button" href="/clients")= "Go Back"
+    div(class="ui hidden divider")
+    button(type="submit" class="ui large basic primary button") Save
+    a(class="ui large basic negative button" data-action="showDeleteModal" data-params=client._id)= "Delete"
+    a(class="ui large basic button" href="/clients")= "Go Back"
     div(class="ui error message")
 
   div(id="delete-client-modal" class="ui basic modal")

@@ -4,16 +4,17 @@ block content
   div(id="sy-narrow-form" class="ui middle aligned center aligned grid")
     div(class="column")
       form(method="POST" action="./decision" class="ui form")
-        div(class="ui top attached segment")
-          h1= "Authorize"
-          input(type="hidden" name="transaction_id" value=transactionId)
-          if client.scope
-            p #{client.clientName} is requesting permission to access your Sylow server using the following scopes:
-            ul
-              each scope in client.scope.split(' ')
-                li= scope
-          else
-            p #{client.clientName} is requesting permission to access your Sylow server using all scopes.
-        div(class="ui bottom attached buttons")
+        h1(class="ui header") Authorize
+        input(type="hidden" name="transaction_id" value=transactionId)
+        if client.scope
+          p #{client.clientName} is requesting permission to access your Sylow server using the following scopes:
+          ul
+            each scope in client.scope.split(' ')
+              li= scope
+        else
+          p #{client.clientName} is requesting permission to access your Sylow server using all scopes.
+        div(class="ui hidden divider")
+        div(class="ui large buttons")
           button(type="submit" name="success" value="success" class="ui positive button") Accept
+          div(class="or")
           button(type="submit" name="cancel" value="cancel" class="ui negative button") Reject
