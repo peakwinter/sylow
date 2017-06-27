@@ -3,7 +3,7 @@ extends includes/dash.pug
 block dashboard
   h1(class="ui header") Entity: #{entity.entityName}
   if tokens.length
-    h2(class="ui header")= "Associated Clients"
+    h2(class="ui header") Associated Clients
     div(class="ui four cards")
       each token in tokens
         div(class="ui card")
@@ -11,6 +11,7 @@ block dashboard
             div(class="header")= token.client.clientName
             div(class="description") #{token.client.deviceTypeProper} client
           a(class="ui bottom attached negative button" data-action="showRevokeModal" data-params=token._id) Revoke
+    div(class="ui hidden divider")
   h2(class="ui header") Edit Entity
   form(class="ui form" id="update-form" method="POST")
     input(type="hidden" id="passwordHash" name="passwordHash")
