@@ -57,7 +57,7 @@
     "jquery": "3.2.1",
     "lodash.snakecase": "4.1.1",
     "method-override": "^2.3.5",
-    "mongoose": "4.7.4",
+    "mongoose": "4.11.0",
     "morgan": "1.7.0",
     "node-sass": "4.5.3",
     "oauth2orize": "1.8.0",
