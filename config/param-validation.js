@@ -44,7 +44,8 @@ export default {
 
   // POST /api/documents
   createDocument: {
-    body: {
+    body: Joi.array().items(Joi.object({
+      id: Joi.string().uuid(),
       entityId: Joi.string(),
       contentType: Joi.string().required(),
       version: Joi.number(),
@@ -60,7 +61,10 @@ export default {
       references: Joi.object(),
       mentions: Joi.object(),
       tags: Joi.array(),
-      key: Joi.string()
+      key: Joi.string().allow('')
+    })).single(),
+    options: {
+      contextRequest: true
     }
   },
 
@@ -96,7 +100,7 @@ export default {
       references: Joi.object(),
       mentions: Joi.object(),
       tags: Joi.array(),
-      key: Joi.string()
+      key: Joi.string().allow('')
     },
     params: {
       documentId: Joi.string().uuid().required()

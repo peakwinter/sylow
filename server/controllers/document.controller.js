@@ -31,24 +31,37 @@ function get(req, res) {
  * @returns {Document}
  */
 function create(req, res, next) {
-  const document = new Document({
-    id: uuidV4(),
-    entityId: req.body.entityId,
-    contentType: req.body.contentType,
-    version: req.body.version,
-    public: req.body.public,
-    diffed: req.body.diffed,
-    encryption: req.body.encryption,
-    summary: req.body.summary || {},
-    data: req.body.data || {},
-    references: req.body.references || {},
-    mentions: req.body.mentions || {},
-    tags: req.body.tags || [],
-    key: req.body.key
+  let newDocuments = req.body;
+  const docPromises = [];
+
+  if (!Array.isArray(newDocuments)) {
+    newDocuments = [newDocuments];
+  }
+
+  newDocuments.forEach((doc) => {
+    const docId = doc.id || uuidV4();
+    const docPromise = Document.findByIdAndUpdate(docId, {
+      id: docId,
+      entityId: doc.entityId,
+      contentType: doc.contentType,
+      version: doc.version || 1,
+      public: doc.public || false,
+      diffed: doc.diffed || false,
+      encryption: doc.encryption || 'base64',
+      summary: doc.summary || {},
+      data: doc.data || {},
+      references: doc.references || {},
+      mentions: doc.mentions || {},
+      tags: doc.tags || [],
+      key: doc.key || ''
+    }, {
+      new: true, upsert: true, setDefaultsOnInsert: true
+    });
+    docPromises.push(docPromise);
   });
 
-  document.save()
-    .then(savedDocument => res.json(savedDocument))
+  return Promise.all(docPromises)
+    .then(savedDocs => res.json(savedDocs.length === 1 ? savedDocs[0] : savedDocs))
     .catch(e => next(e));
 }
 
