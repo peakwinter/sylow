@@ -27,20 +27,20 @@ function generateClient() {
   };
 }
 
-const adminAccessToken = {
-  tokenType: 'access',
-  token: randomStr(256)
-};
-
-const nonAdminAccessToken = {
-  tokenType: 'access',
-  token: randomStr(256)
-};
+function generateAccessToken(entity) {
+  return {
+    entity,
+    tokenType: 'access',
+    token: randomStr(256)
+  };
+}
 
 function beforeTest() {
   let client;
   let adminEntity;
   let nonAdminEntity;
+  let adminAccessToken;
+  let nonAdminAccessToken;
 
   if (config.env !== 'test') {
     return Promise.reject('Not in a test environment');
@@ -50,8 +50,8 @@ function beforeTest() {
     .then(([adminRes, nonAdminRes]) => {
       adminEntity = adminRes;
       nonAdminEntity = nonAdminRes;
-      adminAccessToken.entity = adminRes._id;
-      nonAdminAccessToken.entity = nonAdminRes._id;
+      adminAccessToken = generateAccessToken(adminRes._id);
+      nonAdminAccessToken = generateAccessToken(nonAdminRes._id);
       return Client.create(generateClient());
     })
     .then((clientRes) => {

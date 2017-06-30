@@ -4,6 +4,7 @@ import chai, { expect } from 'chai';
 import uuidV4 from 'uuid/v4';
 
 import app from '../index';
+import Document from '../server/models/document.model';
 import createTokens from '../server/helpers/Pretest';
 
 chai.config.includeStack = true;
@@ -23,12 +24,21 @@ describe('## Document APIs', () => {
   };
 
   let document1 = {
-    entityId: uuidV4(),
     contentType: contentType2,
     public: true,
     encryption: 'plain',
     data: {
       content: 'This is the second test status.'
+    },
+    tags: ['3', '4', '5']
+  };
+
+  let document2 = {
+    contentType: contentType2,
+    public: true,
+    encryption: 'plain',
+    data: {
+      content: 'This is the third test status.'
     },
     tags: ['3', '4', '5']
   };
@@ -46,6 +56,14 @@ describe('## Document APIs', () => {
   );
 
   describe('# POST /api/documents', () => {
+    before('Create test document', () => {
+      document2.entityId = entity._id;
+      return new Document(document2).save()
+        .then((doc) => {
+          document2 = doc;
+        });
+    });
+
     it('should create a new document', (done) => {
       document.entityId = entity._id;
       request(app)
@@ -61,15 +79,31 @@ describe('## Document APIs', () => {
         .catch(done);
     });
 
-    it('should upsert new documents', (done) => {
+    it('should fail to upsert because of incorrect document entity ID', (done) => {
+      const failDoc = Object.assign({}, document);
+      failDoc.entityId = uuidV4();
       request(app)
         .post('/api/documents')
         .set('Authorization', `Bearer ${accessToken.token}`)
-        .send([document, document1])
+        .send(failDoc)
+        .expect(httpStatus.BAD_REQUEST)
+        .then((res) => {
+          expect(res.body.message).to.equal('You do not have the right to modify this document');
+          done();
+        })
+        .catch(done);
+    });
+
+    it('should upsert and remove new documents', (done) => {
+      request(app)
+        .post('/api/documents')
+        .set('Authorization', `Bearer ${accessToken.token}`)
+        .send([document, document1, { id: document2.id, deleted: true }])
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body[0].data.content).to.equal(document.data.content);
           expect(res.body[1].data.content).to.equal(document1.data.content);
+          expect(res.body[2].deleted).to.be.true;  // eslint-disable-line no-unused-expressions
           [document, document1] = res.body;
           done();
         })
@@ -105,17 +139,21 @@ describe('## Document APIs', () => {
 
   describe('# PUT /api/documents/:documentId', () => {
     it('should fail to update document details for an unowned document', (done) => {
+      document1.entityId = uuidV4();
       document1.data.content = 'Here is a new test status';
-      request(app)
-        .put(`/api/documents/${document1._id}`)
-        .set('Authorization', `Bearer ${nonAdminToken.token}`)
-        .send(document1)
-        .expect(httpStatus.UNAUTHORIZED)
-        .then((res) => {
-          expect(res.body.message).to.equal('Unauthorized action');
-          done();
-        })
-        .catch(done);
+      Document.findByIdAndUpdate(document1._id, { entityId: document1.entityId })
+        .then(() =>
+          request(app)
+            .put(`/api/documents/${document1._id}`)
+            .set('Authorization', `Bearer ${nonAdminToken.token}`)
+            .send(document1)
+            .expect(httpStatus.UNAUTHORIZED)
+            .then((res) => {
+              expect(res.body.message).to.equal('Unauthorized action');
+              done();
+            })
+            .catch(done)
+        );
     });
 
     it('should update document details', (done) => {

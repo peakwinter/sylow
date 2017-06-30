@@ -26,12 +26,11 @@ function get(req, res) {
 
 /**
  * Create new document
- * @property {string} req.body.documentname - The documentname of document.
- * @property {string} req.body.mobileNumber - The mobileNumber of document.
  * @returns {Document}
  */
 function create(req, res, next) {
   let newDocuments = req.body;
+  const entity = req.user.entity;
   const docPromises = [];
 
   if (!Array.isArray(newDocuments)) {
@@ -39,24 +38,39 @@ function create(req, res, next) {
   }
 
   newDocuments.forEach((doc) => {
+    let docPromise;
     const docId = doc.id || uuidV4();
-    const docPromise = Document.findByIdAndUpdate(docId, {
-      id: docId,
-      entityId: doc.entityId,
-      contentType: doc.contentType,
-      version: doc.version || 1,
-      public: doc.public || false,
-      diffed: doc.diffed || false,
-      encryption: doc.encryption || 'base64',
-      summary: doc.summary || {},
-      data: doc.data || {},
-      references: doc.references || {},
-      mentions: doc.mentions || {},
-      tags: doc.tags || [],
-      key: doc.key || ''
-    }, {
-      new: true, upsert: true, setDefaultsOnInsert: true
-    });
+
+    if (doc.entityId && entity._id !== doc.entityId) {
+      docPromises.push(Promise.reject(
+        new APIError('You do not have the right to modify this document', httpStatus.BAD_REQUEST, true)
+      ));
+    }
+
+    if (doc.id && doc.deleted) {
+      docPromise = Document.findOneAndRemove({ _id: docId, entityId: entity._id })
+        .then(deletedDoc => ({ id: deletedDoc._id, deleted: true }));
+    } else {
+      docPromise = Document.findOneAndUpdate({
+        _id: docId, entityId: doc.entityId
+      }, {
+        id: docId,
+        entityId: doc.entityId,
+        contentType: doc.contentType,
+        version: doc.version || 1,
+        public: doc.public || false,
+        diffed: doc.diffed || false,
+        encryption: doc.encryption || 'base64',
+        summary: doc.summary || {},
+        data: doc.data || {},
+        references: doc.references || {},
+        mentions: doc.mentions || {},
+        tags: doc.tags || [],
+        key: doc.key || ''
+      }, {
+        new: true, upsert: true, setDefaultsOnInsert: true
+      });
+    }
     docPromises.push(docPromise);
   });
 

@@ -8,6 +8,7 @@ export default function idPlugin(schema) {
       type: String,
       required: true,
       default: uuidV4,
+      unique: true,
       match: [uuidRegex, 'The value of path {PATH} ({VALUE}) is not a valid UUID.']
     }
   });

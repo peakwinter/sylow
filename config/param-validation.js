@@ -47,7 +47,7 @@ export default {
     body: Joi.array().items(Joi.object({
       id: Joi.string().uuid(),
       entityId: Joi.string(),
-      contentType: Joi.string().required(),
+      contentType: Joi.string().when('deleted', { is: true, otherwise: Joi.required() }),
       version: Joi.number(),
       public: Joi.boolean(),
       diffed: Joi.boolean(),
@@ -61,7 +61,8 @@ export default {
       references: Joi.object(),
       mentions: Joi.object(),
       tags: Joi.array(),
-      key: Joi.string().allow('')
+      key: Joi.string().allow(''),
+      deleted: Joi.boolean()
     })).single(),
     options: {
       contextRequest: true
@@ -82,7 +83,7 @@ export default {
     }
   },
 
-  // POST /api/documents
+  // PUT /api/documents
   updateDocument: {
     body: {
       entityId: Joi.string(),
