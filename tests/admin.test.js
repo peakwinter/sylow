@@ -380,4 +380,44 @@ describe('## Admin Interface', () => {
         .catch(done);
     });
   });
+
+  describe('# GET /settings', () => {
+    it('should show the settings page', (done) => {
+      adminSesh.get('/settings')
+        .expect(httpStatus.OK)
+        .then((res) => {
+          const html = cheerio.load(res.text);
+          const title = html('.ui.sy-dashboard h1.ui.header').first().html();
+          const domain = html('.settings_updates').first().attr('value');
+          expect(title).to.equal('Settings');
+          expect(domain).to.equal('sylow.dev');
+          done();
+        })
+        .catch(done);
+    });
+  });
+
+  describe('# POST /settings', () => {
+    it('should update settings', (done) => {
+      const updSettings = {
+        domain: 'testdomain.xyz',
+        allowSignups: true,
+        schemaDomainWhitelist: ['sylow.network']
+      };
+      adminSesh.post('/settings')
+        .redirects(1)
+        .send(updSettings)
+        .type('form')
+        .expect(httpStatus.OK)
+        .then((res) => {
+          const html = cheerio.load(res.text);
+          const title = html('.ui.sy-dashboard h1.ui.header').first().html();
+          const domain = html('.settings_updates').first().attr('value');
+          expect(title).to.equal('Settings');
+          expect(domain).to.equal('testdomain.xyz');
+          done();
+        })
+        .catch(done);
+    });
+  });
 });

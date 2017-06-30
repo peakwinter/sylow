@@ -4,7 +4,6 @@ import chai, { expect } from 'chai';
 import uuidV4 from 'uuid/v4';
 
 import app from '../index';
-import Document from '../server/models/document.model';
 import createTokens from '../server/helpers/Pretest';
 
 chai.config.includeStack = true;
@@ -61,6 +60,21 @@ describe('## Document APIs', () => {
         })
         .catch(done);
     });
+
+    it('should upsert new documents', (done) => {
+      request(app)
+        .post('/api/documents')
+        .set('Authorization', `Bearer ${accessToken.token}`)
+        .send([document, document1])
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body[0].data.content).to.equal(document.data.content);
+          expect(res.body[1].data.content).to.equal(document1.data.content);
+          [document, document1] = res.body;
+          done();
+        })
+        .catch(done);
+    });
   });
 
   describe('# GET /api/documents/:documentId', () => {
@@ -90,13 +104,6 @@ describe('## Document APIs', () => {
   });
 
   describe('# PUT /api/documents/:documentId', () => {
-    before('Create test document', () =>
-      new Document(document1).save()
-        .then((doc) => {
-          document1 = doc;
-        })
-    );
-
     it('should fail to update document details for an unowned document', (done) => {
       document1.data.content = 'Here is a new test status';
       request(app)
