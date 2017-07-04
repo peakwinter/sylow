@@ -3,18 +3,11 @@ extends includes/dash.pug
 block dashboard
   h1(class="ui header")= "Settings"
   div(class="ui relaxed divided list")
-    form(class="" id="edit_settings_form" method="POST")
-        each val, key in settings
-            if val !== undefined
-              div(class='content dividing header field')
-              - key = key.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) { return str.toUpperCase(); });
-
-                // looking for the the updatable fields of settings 
-                - if (key.startsWith('Sy_')) {
-                   - key = key.substring(3);
-                   - key = key.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) { return str.toUpperCase(); });
-                   h3(class="ui header")= key
-                   p(class='description alterable')= val
+    form(id="edit_settings_form" method="POST" action="settings")
+      each val, key in settings
+        div(class='content dividing header field')
+          - key_label = key.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) { return str.toUpperCase(); });
+          h3(class="ui header")= key_label
                    
           // if is a boolean, we display it as radio checkboxes
           - if (typeof val === "boolean") {
@@ -29,7 +22,7 @@ block dashboard
                   label="False"
                    
           // if a fields can manage multiple choices, we display then as checkboxes and add a field to create a new value
-          - } else if ( val instanceof Array) {
+          - } else if (val instanceof Array) {
             div(class="checkbox_choice settings_updates")
               each v in val 
                 div(class="field")
@@ -41,8 +34,8 @@ block dashboard
                 input(name=key type="text" placeholder="Add a domain")
           - } else {
             div(class="ui input")
-              input(class="settings_updates" value=val name=key type="text" )
+              input(class="settings_updates" value=val name=key type="text")
           - }
                 
         div(class="ui section divider")
-      button(class="ui button primary hidden" id="save_settings_btn" type="submit") Save
+      button(class="ui large basic primary hidden button" id="save_settings_btn" type="submit") Save
