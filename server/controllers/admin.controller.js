@@ -1,4 +1,7 @@
 import httpStatus from 'http-status';
+import fs from 'fs';
+import path from 'path';
+import decamelize from 'decamelize';
 
 import AccessToken from '../models/accessToken.model';
 import Client from '../models/client.model';
@@ -8,7 +11,6 @@ import Entity from '../models/entity.model';
 import config, { unvariableConfig } from '../../config/config';
 import APIError from '../helpers/APIError';
 import { randomStr } from '../utils/random';
-
 
 export function index(req, res, next) {
   const docTypes = Document.aggregate([{ $sortByCount: '$contentType' }]);
@@ -205,11 +207,49 @@ export function listSettings(req, res) {
 }
 
 export function updateSettings(req, res) {
-  const datas = req.body;
-  const schemaDomain = datas.schemaDomainWhitelist.filter(n => n !== '');
-  datas.schemaDomainWhitelist = schemaDomain;
-  const updatedConfig = Object.assign(config, datas); // eslint-disable-line no-unused-vars
-  req.flash('success', 'Settings updated');
+  const envFile = path.join(__dirname, '../../.env');
+  if (fs.existsSync(envFile)) {
+    const datas = req.body;
+    datas.schemaDomainWhitelist = datas.schemaDomainWhitelist.filter(n => n !== '');
+    const settableConfig = formatSettableConfig(datas);
+    const newConfig = getNewConfig(envFile, settableConfig);
+
+    Object.assign(config, datas);
+    if (process.env.NODE_ENV !== 'test') {
+      fs.writeFileSync('.env', newConfig.join('\n'), 'utf8');
+    }
+    req.flash('success', 'The configuration file has been updated !');
+  } else {
+    req.flash('error', 'No file found...');
+  }
   return res.redirect('/settings');
 }
 
+function formatSettableConfig(datas) {
+  const newConfig = {};
+  const keys = Object.keys(datas);
+  for (let i = 0; i < keys.length; i += 1) {
+    const key = keys[i];
+    const newKey = ('sy_'.concat(decamelize(key))).toUpperCase();
+    newConfig[newKey] = datas[key];
+  }
+  return newConfig;
+}
+
+function getNewConfig(envFile, settableConfig) {
+  const newConfig = [];
+  const fileDatas = fs.readFileSync(envFile, 'utf8');
+  const lines = fileDatas.split('\n');
+
+  for (let i = 0; i < lines.length; i += 1) {
+    if (lines[i] !== '') {
+      const values = lines[i].split('=');
+      if (Object.keys(settableConfig).includes(values[0])) {
+        values[1] = settableConfig[values[0]];
+      }
+      const line = values.join('=');
+      newConfig.push(line);
+    }
+  }
+  return newConfig;
+}
