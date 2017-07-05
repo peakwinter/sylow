@@ -211,6 +211,7 @@ export function updateSettings(req, res) {
   if (fs.existsSync(envFile)) {
     const datas = req.body;
     datas.schemaDomainWhitelist = datas.schemaDomainWhitelist.filter(n => n !== '');
+    datas.allowSignups = (datas.allowSignups === 'true');
     const settableConfig = formatSettableConfig(datas);
     const newConfig = getNewConfig(envFile, settableConfig);
 
