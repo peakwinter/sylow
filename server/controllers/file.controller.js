@@ -1,13 +1,23 @@
 import fs from 'fs';
 import path from 'path';
+import multer from 'multer';
 import uuidV4 from 'uuid/v4';
-import httpStatus from 'http-status';
 
-import APIError from '../helpers/APIError';
 import config from '../../config/config';
 
 const fileCodes = {};
 
+
+function createMulterStorage() {
+  return multer.diskStorage({
+    destination(req, file, cb) {
+      cb(null, path.join(config.fileSystemPath, req.user.entity._id));
+    },
+    filename(req, file, cb) {
+      cb(null, uuidV4());
+    }
+  });
+}
 
 function authorizeFile(entity) {
   const code = uuidV4();
@@ -41,4 +51,9 @@ function createFile(req, res) {
   return res.json({ url: `https://${config.domain}/${req.user.entity._id}/${code}` });
 }
 
-export { authorizeFile, deauthorizeFile, createFile };
+function uploadFileComplete(req, res) {
+  deauthorizeFile(req.params.fileCode);
+  return res.sendStatus(200);
+}
+
+export { createMulterStorage, authorizeFile, deauthorizeFile, createFile, uploadFileComplete };
