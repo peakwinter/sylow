@@ -208,7 +208,17 @@ export function listSettings(req, res) {
 
 export function updateSettings(req, res) {
   const envFile = path.join(__dirname, '../../.env');
-  if (fs.existsSync(envFile)) {
+
+  fs.open(envFile, fs.constants.R_OK || fs.constants.W_OK, (err) => {
+    if (err) {
+      if (err.code === 'ENOENT') {
+        req.flash('error', 'File not found...');
+      } else {
+        req.flash('error', err.message);
+      }
+      return res.redirect('/settings');
+    }
+
     const datas = req.body;
     datas.schemaDomainWhitelist = datas.schemaDomainWhitelist.filter(n => n !== '');
     datas.allowSignups = (datas.allowSignups === 'true');
@@ -220,10 +230,8 @@ export function updateSettings(req, res) {
       fs.writeFileSync('.env', newConfig.join('\n'), 'utf8');
     }
     req.flash('success', 'The configuration file has been updated !');
-  } else {
-    req.flash('error', 'No file found...');
-  }
-  return res.redirect('/settings');
+    return res.redirect('/settings');
+  });
 }
 
 function formatSettableConfig(datas) {
