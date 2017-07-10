@@ -179,7 +179,7 @@ export default {
   // UPDATE /api/servers/:serverId
   updateServer: {
     body: {
-      domain: Joi.string().required(),
+      domain: Joi.string(),
       name: Joi.string(),
       description: Joi.string(),
       keypair: Joi.object({
