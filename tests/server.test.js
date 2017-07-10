@@ -3,12 +3,11 @@ import request from 'supertest-as-promised';
 import httpStatus from 'http-status';
 import chai, { expect } from 'chai';
 
-import config from '../config/config';
 import app from '../index';
 
 chai.config.includeStack = true;
 
-after((done) =>  {
+after((done) => {
   mongoose.models = {};
   mongoose.modelSchemas = {};
   mongoose.connection.close();
@@ -24,7 +23,7 @@ describe('## Server APIs', () => {
       public: 'xxxxxx'
     },
     authoritative: true
-  }
+  };
 
   let server2 = {
     domain: 'testdomain2.xyz',
@@ -34,37 +33,36 @@ describe('## Server APIs', () => {
       public: 'xxxxxx'
     },
     authoritative: true
-  }
+  };
 
   describe('# POST /api/servers', () => {
     it('should create a new server', (done) => {
-     request(app)
-       .post('/api/servers')
-       .send(server)
-       .expect(httpStatus.OK)
-       .then((res) => {
-         expect(res.body.name).to.equal(server.name);
-         server = res.body;
-       })
-       .catch(done);
+      request(app)
+        .post('/api/servers')
+        .send(server)
+        .expect(httpStatus.OK)
+        .then((res) => {
+           expect(res.body.name).to.equal(server.name);
+           server = res.body;
+         })
+         .catch(done);
 
-     request(app)
-       .post('/api/servers')
-       .send(server2)
-       .expect(httpStatus.OK)
-       .then((res) => {
-         expect(res.body.name).to.equal(server2.name);
-         server2 = res.body;
-         done();
-       })
-       .catch(done);
-
+      request(app)
+        .post('/api/servers')
+        .send(server2)
+        .expect(httpStatus.OK)
+        .then((res) => {
+           expect(res.body.name).to.equal(server2.name);
+           server2 = res.body;
+           done();
+         })
+         .catch(done);
     });
   });
-  
+
   describe('# GET /api/servers/:serverId', () => {
     it('should get server details', (done) => {
-     request(app)
+      request(app)
         .get(`/api/servers/${server.id}`)
         .expect(httpStatus.OK)
         .then((res) => {
@@ -103,7 +101,7 @@ describe('## Server APIs', () => {
           .catch(done);
       });
     });
-    
+ 
     describe('# DELETE /api/servers/:serverId', () => {
       it('should delete server', (done) => {
         request(app)
@@ -128,5 +126,4 @@ describe('## Server APIs', () => {
       });
     });
   });
-
 });
