@@ -208,30 +208,30 @@ export function listSettings(req, res) {
 
 export function updateSettings(req, res) {
   const envFile = path.join(__dirname, '../../.env');
+  const datas = req.body;
 
-  fs.open(envFile, fs.constants.R_OK || fs.constants.W_OK, (err) => {
-    if (err) {
-      if (err.code === 'ENOENT') {
+  datas.schemaDomainWhitelist = datas.schemaDomainWhitelist.filter(n => n !== '');
+  datas.allowSignups = (datas.allowSignups === 'true');
+  const settableConfig = formatSettableConfig(datas);
+  const newConfig = getNewConfig(envFile, settableConfig);
+
+  Object.assign(config, datas);
+
+  if (config.env !== 'test') {
+    fs.open(envFile, fs.constants.R_OK || fs.constants.W_OK, (err) => {
+      if (err && err.code === 'ENOENT') {
         req.flash('error', 'File not found...');
-      } else {
+      } else if (err) {
         req.flash('error', err.message);
+        return res.redirect('/settings');
       }
-      return res.redirect('/settings');
-    }
 
-    const datas = req.body;
-    datas.schemaDomainWhitelist = datas.schemaDomainWhitelist.filter(n => n !== '');
-    datas.allowSignups = (datas.allowSignups === 'true');
-    const settableConfig = formatSettableConfig(datas);
-    const newConfig = getNewConfig(envFile, settableConfig);
-
-    Object.assign(config, datas);
-    if (process.env.NODE_ENV !== 'test') {
       fs.writeFileSync('.env', newConfig.join('\n'), 'utf8');
-    }
-    req.flash('success', 'The configuration file has been updated !');
-    return res.redirect('/settings');
-  });
+      req.flash('success', 'The configuration file has been updated !');
+      return res.redirect('/settings');
+    });
+  }
+  return res.redirect('/settings');
 }
 
 function formatSettableConfig(datas) {
