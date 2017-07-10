@@ -160,5 +160,36 @@ export default {
       username: Joi.string().required(),
       password: Joi.string().required()
     }
+  },
+
+  // POST /api/servers
+  createServer: {
+    body: {
+      domain: Joi.string().required(),
+      name: Joi.string(),
+      description: Joi.string(),
+      keypair: Joi.object({
+        public: Joi.string().when('authoritative', { is: true, then: Joi.required() }),
+        private: Joi.string()
+      }),
+      authoritative: Joi.boolean().default(false)
+    }
+  },
+
+  // UPDATE /api/servers/:serverId
+  updateServer: {
+    body: {
+      domain: Joi.string().required(),
+      name: Joi.string(),
+      description: Joi.string(),
+      keypair: Joi.object({
+        public: Joi.string().when('authoritative', { is: true, then: Joi.required() }),
+        private: Joi.string()
+      }),
+      authoritative: Joi.boolean().default(false)
+    },
+    params: {
+      serverId: Joi.string().required()
+    }
   }
 };
