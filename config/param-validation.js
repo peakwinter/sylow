@@ -169,8 +169,8 @@ export default {
       name: Joi.string(),
       description: Joi.string(),
       keypair: Joi.object({
-        public: Joi.string().when('authoritative', { is: true, then: Joi.required() }),
-        private: Joi.string()
+        public: Joi.string(),
+        private: Joi.string().when('authoritative', { is: true, then: Joi.required() })
       }),
       authoritative: Joi.boolean().default(false)
     }
@@ -183,8 +183,8 @@ export default {
       name: Joi.string(),
       description: Joi.string(),
       keypair: Joi.object({
-        public: Joi.string().when('authoritative', { is: true, then: Joi.required() }),
-        private: Joi.string()
+        public: Joi.string(),
+        private: Joi.string().when('authoritative', { is: true, then: Joi.required() })
       }),
       authoritative: Joi.boolean().default(false)
     },

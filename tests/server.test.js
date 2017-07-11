@@ -42,21 +42,21 @@ describe('## Server APIs', () => {
         .send(server)
         .expect(httpStatus.OK)
         .then((res) => {
-           expect(res.body.name).to.equal(server.name);
-           server = res.body;
-         })
-         .catch(done);
+          expect(res.body.name).to.equal(server.name);
+          server = res.body;
+        })
+        .catch(done);
 
       request(app)
         .post('/api/servers')
         .send(server2)
         .expect(httpStatus.OK)
         .then((res) => {
-           expect(res.body.name).to.equal(server2.name);
-           server2 = res.body;
-           done();
-         })
-         .catch(done);
+          expect(res.body.name).to.equal(server2.name);
+          server2 = res.body;
+          done();
+        })
+        .catch(done);
     });
   });
 
@@ -101,7 +101,7 @@ describe('## Server APIs', () => {
           .catch(done);
       });
     });
- 
+
     describe('# DELETE /api/servers/:serverId', () => {
       it('should delete server', (done) => {
         request(app)
@@ -122,7 +122,6 @@ describe('## Server APIs', () => {
             done();
           })
           .catch(done);
-
       });
     });
   });

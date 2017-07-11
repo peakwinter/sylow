@@ -6,7 +6,7 @@ import Server from '../models/server.model';
 function load(req, res, next, id) {
   Server.get(id)
     .then((server) => {
-      req.server = server; // eslint-disable-line no-paran-reassign
+      req.server = server; // eslint-disable-line no-param-reassign
       return next();
     })
     .catch(e => next(e));
@@ -34,13 +34,12 @@ function create(req, res, next) {
   }
   const server = new Server({
     domain: req.body.domain,
-    name: req.body.name,
+    name: req.body.name !== undefined ? req.body.name : req.body.domain,
     description: req.body.description,
     keypair,
     authoritative: req.body.authoritative,
-    contacted: req.body.contacted
+    contacted: new Date()
   });
-
   server.save()
     .then(savedServer => res.json(savedServer))
     .catch(e => next(e));
@@ -61,8 +60,7 @@ function update(req, res, next) {
   server.description = req.body.description;
   server.updated = new Date();
   server.authoritative = req.body.authoritative;
-  server.contacted = req.body.contacted;
-
+  server.contacted = new Date();
   server.save()
     .then(savedServer => res.json(savedServer))
     .catch(e => next(e));
