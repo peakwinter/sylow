@@ -1,4 +1,7 @@
 import httpStatus from 'http-status';
+import fs from 'fs';
+import path from 'path';
+import decamelize from 'decamelize';
 
 import AccessToken from '../models/accessToken.model';
 import Client from '../models/client.model';
@@ -8,7 +11,6 @@ import Entity from '../models/entity.model';
 import config, { unvariableConfig } from '../../config/config';
 import APIError from '../helpers/APIError';
 import { randomStr } from '../utils/random';
-
 
 export function index(req, res, next) {
   const docTypes = Document.aggregate([{ $sortByCount: '$contentType' }]);
@@ -205,10 +207,62 @@ export function listSettings(req, res) {
 }
 
 export function updateSettings(req, res) {
-  const datas = req.body;
-  const schemaDomain = datas.schemaDomainWhitelist.filter(n => n !== '');
-  datas.schemaDomainWhitelist = schemaDomain;
-  const updatedConfig = Object.assign(config, datas); // eslint-disable-line no-unused-vars
-  req.flash('success', 'Settings updated');
+  const envFile = path.join(__dirname, '../../.env');
+  const inputDatas = req.body;
+
+  inputDatas.schemaDomainWhitelist = inputDatas.schemaDomainWhitelist.filter(n => n !== '');
+  inputDatas.allowSignups = (inputDatas.allowSignups === 'true');
+  const settableConfig = formatSettableConfig(inputDatas);
+
+  Object.assign(config, inputDatas);
+
+  if (config.env !== 'test') {
+    return fs.open(envFile, fs.constants.R_OK || fs.constants.W_OK, (errOpen) => {
+      if (errOpen) {
+        req.flash('error', errOpen.message);
+        return res.redirect('/settings');
+      }
+
+      return fs.readFile(envFile, 'utf8', (errRead, datas) => {
+        const newConfig = getNewConfig(datas, settableConfig);
+        fs.writeFile('.env', newConfig.join('\n'), 'utf8', (err) => {
+          if (err) {
+            req.flash('error', err);
+          } else {
+            req.flash('success', 'The configuration file has been updated !');
+          }
+          return res.redirect('/settings');
+        });
+      });
+    });
+  }
   return res.redirect('/settings');
+}
+
+function formatSettableConfig(datas) {
+  const newConfig = {};
+  const keys = Object.keys(datas);
+  for (let i = 0; i < keys.length; i += 1) {
+    const key = keys[i];
+    const newKey = ('sy_'.concat(decamelize(key))).toUpperCase();
+    newConfig[newKey] = datas[key];
+  }
+  return newConfig;
+}
+
+function getNewConfig(datas, settableConfig) {
+  const lines = datas.split('\n');
+  const newConfig = [];
+
+  for (let i = 0; i < lines.length; i += 1) {
+    if (lines[i] !== '') {
+      const values = lines[i].split('=');
+      if (Object.keys(settableConfig).includes(values[0])) {
+        values[1] = settableConfig[values[0]];
+      }
+      const line = values.join('=');
+      newConfig.push(line);
+    }
+  }
+  return newConfig;
 }
