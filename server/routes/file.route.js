@@ -1,5 +1,4 @@
 import express from 'express';
-import multer from 'multer';
 
 import * as authCtrl from '../controllers/auth.controller';
 import * as fileCtrl from '../controllers/file.controller';
@@ -13,7 +12,6 @@ router.route('/')
 
 router.route('/:entityId/:fileCode')
   /** PUT /api/files/:entityId/:fileCode - Upload locally stored file */
-  .post(authCtrl.authenticateOAuth, multer({ storage: fileCtrl.createMulterStorage() }),
-    fileCtrl.uploadFileComplete);
+  .post(authCtrl.authenticateOAuth, fileCtrl.uploadFile);
 
 export default router;

@@ -36,7 +36,7 @@ app.use(compress());
 app.use(methodOverride());
 
 app.use(expressSession({
-  secret: config.jwtSecret,
+  secret: config.sessionSecret,
   resave: false,
   saveUninitialized: true,
 }));
