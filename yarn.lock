@@ -1882,7 +1882,7 @@ debug@^2.4.5:
   dependencies:
     ms "0.7.2"
 
-decamelize@^1.0.0, decamelize@^1.1.1, decamelize@^1.1.2:
+decamelize@^1.0.0, decamelize@^1.1.1, decamelize@^1.1.2, decamelize@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/decamelize/-/decamelize-1.2.0.tgz#f6534d15148269b20352e7bee26f501f9a191290"
 
@@ -4578,6 +4578,10 @@ nested-error-stacks@^1.0.0:
 nocache@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/nocache/-/nocache-2.0.0.tgz#202b48021a0c4cbde2df80de15a17443c8b43980"
+
+node-forge@0.7.1:
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-0.7.1.tgz#9da611ea08982f4b94206b3beb4cc9665f20c300"
 
 node-gyp@^3.3.1:
   version "3.6.1"
