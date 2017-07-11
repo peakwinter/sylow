@@ -208,27 +208,32 @@ export function listSettings(req, res) {
 
 export function updateSettings(req, res) {
   const envFile = path.join(__dirname, '../../.env');
-  const datas = req.body;
+  const inputDatas = req.body;
 
-  datas.schemaDomainWhitelist = datas.schemaDomainWhitelist.filter(n => n !== '');
-  datas.allowSignups = (datas.allowSignups === 'true');
-  const settableConfig = formatSettableConfig(datas);
-  const newConfig = getNewConfig(envFile, settableConfig);
+  inputDatas.schemaDomainWhitelist = inputDatas.schemaDomainWhitelist.filter(n => n !== '');
+  inputDatas.allowSignups = (inputDatas.allowSignups === 'true');
+  const settableConfig = formatSettableConfig(inputDatas);
 
-  Object.assign(config, datas);
+  Object.assign(config, inputDatas);
 
   if (config.env !== 'test') {
-    fs.open(envFile, fs.constants.R_OK || fs.constants.W_OK, (err) => {
-      if (err && err.code === 'ENOENT') {
-        req.flash('error', 'File not found...');
-      } else if (err) {
-        req.flash('error', err.message);
+    return fs.open(envFile, fs.constants.R_OK || fs.constants.W_OK, (errOpen) => {
+      if (errOpen) {
+        req.flash('error', errOpen.message);
         return res.redirect('/settings');
       }
 
-      fs.writeFileSync('.env', newConfig.join('\n'), 'utf8');
-      req.flash('success', 'The configuration file has been updated !');
-      return res.redirect('/settings');
+      return fs.readFile(envFile, 'utf8', (errRead, datas) => {
+        const newConfig = getNewConfig(datas, settableConfig);
+        fs.writeFile('.env', newConfig.join('\n'), 'utf8', (err) => {
+          if (err) {
+            req.flash('error', err);
+          } else {
+            req.flash('success', 'The configuration file has been updated !');
+          }
+          return res.redirect('/settings');
+        });
+      });
     });
   }
   return res.redirect('/settings');
@@ -245,10 +250,9 @@ function formatSettableConfig(datas) {
   return newConfig;
 }
 
-function getNewConfig(envFile, settableConfig) {
+function getNewConfig(datas, settableConfig) {
+  const lines = datas.split('\n');
   const newConfig = [];
-  const fileDatas = fs.readFileSync(envFile, 'utf8');
-  const lines = fileDatas.split('\n');
 
   for (let i = 0; i < lines.length; i += 1) {
     if (lines[i] !== '') {
