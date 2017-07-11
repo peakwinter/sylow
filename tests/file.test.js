@@ -24,6 +24,8 @@ after((done) => {
 });
 
 describe('## Local File Storage APIs', () => {
+  const fileCodes = [];
+
   let entity;
   let accessToken;
   let fileCode;
@@ -46,6 +48,7 @@ describe('## Local File Storage APIs', () => {
           expect(entityId).to.equal(entity._id);
           expect(newFileCode).to.match(uuidRegex);
           fileCode = newFileCode;
+          fileCodes.push(fileCode);
           done();
         })
         .catch(done);
@@ -65,13 +68,26 @@ describe('## Local File Storage APIs', () => {
         })
         .catch(done);
     });
+
+    it('should fail to upload a file that is not authorized', (done) => {
+      request(app)
+        .post(`/api/files/${entity._id}/xxxxxx`)
+        .set('Authorization', `Bearer ${accessToken.token}`)
+        .attach('file', path.join(__dirname, '../package.json'))
+        .expect(httpStatus.BAD_REQUEST)
+        .then((res) => {
+          expect(res.body.message).to.equal('Upload not authorized');
+          done();
+        })
+        .catch(done);
+    });
   });
 
-  after('Clean up test files', () => {
-    fs.unlink(path.join(config.fileSystemPath, entity._id, fileCode), (err) => {
-      if (!err) {
-        fs.rmdirSync(path.join(config.fileSystemPath, entity._id));
-      }
+  after('Clean up test files', (done) => {
+    fileCodes.forEach((codeToRemove) => {
+      fs.unlinkSync(path.join(config.fileSystemPath, entity._id, codeToRemove));
     });
+    fs.rmdirSync(path.join(config.fileSystemPath, entity._id));
+    done();
   });
 });

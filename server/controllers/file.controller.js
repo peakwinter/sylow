@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import multer from 'multer';
 import uuidV4 from 'uuid/v4';
+import httpStatus from 'http-status';
 
 import config from '../../config/config';
 import APIError from '../helpers/APIError';
@@ -45,20 +46,12 @@ function authorizeFile(entity) {
   return code;
 }
 
-function deauthorizeFile(code, remove = false) {
-  if (code in fileCodes) {
-    const fileData = fileCodes[code];
-    delete fileCodes[code];
+function isFileAuthorized(code) {
+  return code in fileCodes;
+}
 
-    if (remove) {
-      const fullPath = path.join(config.fileSystemPath, fileData.entityId, code);
-      fs.access(fullPath, fs.constants.F_OK, (err) => {
-        if (!err) {
-          fs.unlinkSync(fullPath);
-        }
-      });
-    }
-  }
+function deauthorizeFile(code) {
+  delete fileCodes[code];
 }
 
 
@@ -68,8 +61,13 @@ function createFile(req, res) {
 }
 
 function uploadFile(req, res, next) {
+  if (!isFileAuthorized(req.params.fileCode)) {
+    const err = new APIError('Upload not authorized', httpStatus.BAD_REQUEST, true);
+    return next(err);
+  }
+
   deauthorizeFile(req.params.fileCode);
-  upload(req, res, (err) => {
+  return upload(req, res, (err) => {
     if (err) {
       next(err);
     }
