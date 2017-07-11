@@ -1,4 +1,5 @@
 import Joi from 'joi';
+import path from 'path';
 import dotenv from 'dotenv';
 import dotenvExpand from 'dotenv-expand';
 
@@ -8,6 +9,10 @@ const envConfig = Object.create(myEnv.parsed);
 
 if (envConfig.SY_SCHEMA_DOMAIN_WHITELIST && typeof envConfig.SY_SCHEMA_DOMAIN_WHITELIST === 'string') {
   envConfig.SY_SCHEMA_DOMAIN_WHITELIST = envConfig.SY_SCHEMA_DOMAIN_WHITELIST.split(' ');
+}
+
+if (envConfig.SY_FILE_SYSTEM_PATH && envConfig.SY_FILE_SYSTEM_PATH.startsWith('.')) {
+  envConfig.SY_FILE_SYSTEM_PATH = path.join(__dirname, '..', envConfig.SY_FILE_SYSTEM_PATH);
 }
 
 // define validation for all the env vars
@@ -23,8 +28,8 @@ const envVarsSchema = Joi.object({
       then: Joi.boolean().default(true),
       otherwise: Joi.boolean().default(false)
     }),
-  JWT_SECRET: Joi.string().required()
-    .description('JWT Secret required to sign'),
+  SESSION_SECRET: Joi.string().required()
+    .description('Session secret required to secure'),
   MONGO_HOST: Joi.string().required()
     .description('Mongo DB host url'),
   MONGO_PORT: Joi.number()
@@ -32,6 +37,8 @@ const envVarsSchema = Joi.object({
   SY_DOMAIN: Joi.string().required()
     .description('Domain on which entities should be based'),
   SY_ALLOW_SIGNUPS: Joi.boolean().default(true),
+  SY_FILE_SYSTEM_PATH: Joi.string().regex(/^(\/[^/ ]*)+\/?$/).required()
+    .default('./files'),
   SY_SCHEMA_DOMAIN_WHITELIST: Joi.array()
     .items(Joi.string().valid('sylow.network').required(), Joi.string().hostname())
 }).unknown()
@@ -46,16 +53,17 @@ const config = {
   env: envVars.NODE_ENV,
   port: envVars.PORT,
   mongooseDebug: envVars.MONGOOSE_DEBUG,
-  jwtSecret: envVars.JWT_SECRET,
+  sessionSecret: envVars.SESSION_SECRET,
   mongo: {
     host: envVars.MONGO_HOST,
     port: envVars.MONGO_PORT
   },
   domain: envVars.SY_DOMAIN,
   allowSignups: envVars.SY_ALLOW_SIGNUPS,
+  fileSystemPath: envVars.SY_FILE_SYSTEM_PATH,
   schemaDomainWhitelist: envVars.SY_SCHEMA_DOMAIN_WHITELIST
 };
 
-const unvariableConfig = ['env', 'port', 'mongooseDebug', 'jwtSecret', 'mongo'];
+const unvariableConfig = ['env', 'port', 'mongooseDebug', 'sessionSecret', 'mongo'];
 
 export { config as default, unvariableConfig };
