@@ -6,6 +6,7 @@ const program = require('commander');
 const packageData = require('../package.json');
 
 const newEntity = require('./new-entity');
+const { newServer } = require('./server');
 
 program
   .version(packageData.version)
@@ -19,6 +20,14 @@ program
 program
   .command('new-client [name]').alias('client')
     .action();
+
+program
+  .command('new-server <domain> <publicKeyFile>')
+    .option('-n, --name [name]', 'server\'s name')
+    .option('-d, --description [description]', 'server\'s description')
+    .option('-a, --authoritative', 'Make this server authoritative')
+    .option('-p, --privateKeyFile [privateKeyFile]', 'Private key file')
+    .action(newServer);
 
 program
   .parse(process.argv);
