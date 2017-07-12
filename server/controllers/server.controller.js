@@ -34,12 +34,13 @@ function create(req, res, next) {
   }
   const server = new Server({
     domain: req.body.domain,
-    name: req.body.name !== undefined ? req.body.name : req.body.domain,
+    name: req.body.name || req.body.domain,
     description: req.body.description,
     keypair,
     authoritative: req.body.authoritative,
     contacted: new Date()
   });
+
   server.save()
     .then(savedServer => res.json(savedServer))
     .catch(e => next(e));
