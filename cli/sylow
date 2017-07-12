@@ -7,13 +7,12 @@ const packageData = require('../package.json');
 
 const newEntity = require('./new-entity');
 
-
 program
   .version(packageData.version)
   .option('-v, --verbose', 'verbose logging');
 
 program
-  .command('new-entity [name] [domain]').alias('entity')
+  .command('new-entity <name> <domain>').alias('entity')
     .option('-a, --admin', 'make this an admin entity')
     .action(newEntity);
 
