@@ -35,6 +35,52 @@ function createServer(datas) {
   });
 }
 
+function getAuthoritative() {
+  return new Promise((fulfill, error) => {
+    const Server = mongoose.model('Server', serverSchema);
+    fulfill(
+      Server
+        .find({authoritative: true})
+        .exec()
+        .then((server) => {
+          if (server) {
+            return Promise.resolve(server);
+          }
+          const err = new APIError('No authoritative server was found...', httpStatus.NOT_FOUND);
+          return Promise.reject(err);
+        })
+        .catch((err) => {
+          console.log(err);
+          process.exit(1);
+        })
+    );
+  });
+}
+
+module.exports.exportServer = function(options) {
+  utils.mongooseConnect();
+  let targetFile = options.file ? options.file : 'server.json';
+  if(options.file) {
+    targetFile = targetFile.endsWith('.json') ? targetFile : targetFile.concat('.json');
+  } else {
+    targetFile = 'server.json'
+  }
+  getAuthoritative()
+    .then((server) => {
+      fs.writeFile(targetFile, JSON.stringify(server), (err) => {
+        if (err) {
+          console.log(err);
+          process.exit(1);
+        }
+        console.log(`Server records saved in ${targetFile}`);
+        process.exit(0);
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+
 module.exports.newServer = function (domain, publicKeyFile, options) {
   utils.mongooseConnect();
   const validOptions = ['name', 'description', 'authoritative', 'privateKeyFile'];

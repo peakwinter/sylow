@@ -6,7 +6,7 @@ const program = require('commander');
 const packageData = require('../package.json');
 
 const newEntity = require('./new-entity');
-const { newServer } = require('./server');
+const { newServer, exportServer } = require('./server');
 
 program
   .version(packageData.version)
@@ -28,6 +28,11 @@ program
     .option('-a, --authoritative', 'Make this server authoritative')
     .option('-p, --privateKeyFile [privateKeyFile]', 'Private key file')
     .action(newServer);
+
+program
+  .command('export-server')
+    .option('-f, --file [file]', 'The target file to export to')
+    .action(exportServer);
 
 program
   .parse(process.argv);
