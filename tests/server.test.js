@@ -4,6 +4,7 @@ import httpStatus from 'http-status';
 import chai, { expect } from 'chai';
 
 import app from '../index';
+import createTokens from '../server/helpers/Pretest';
 
 chai.config.includeStack = true;
 
@@ -35,10 +36,19 @@ describe('## Server APIs', () => {
     authoritative: true
   };
 
+  let accessToken;
+
+  before('Clean up test data', () => 
+    createTokens().then(({ adminAccessToken }) => {
+      accessToken = adminAccessToken;
+    })
+  );
+
   describe('# POST /api/servers', () => {
     it('should create a new server', (done) => {
       request(app)
         .post('/api/servers')
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .send(server)
         .expect(httpStatus.OK)
         .then((res) => {
@@ -49,6 +59,7 @@ describe('## Server APIs', () => {
 
       request(app)
         .post('/api/servers')
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .send(server2)
         .expect(httpStatus.OK)
         .then((res) => {
@@ -64,6 +75,7 @@ describe('## Server APIs', () => {
     it('should get server details', (done) => {
       request(app)
         .get(`/api/servers/${server.id}`)
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.name).to.equal(server.name);
@@ -79,6 +91,7 @@ describe('## Server APIs', () => {
       server.name = 'New Server name';
       request(app)
         .put(`/api/servers/${server.id}`)
+        .set('Authorization', `Bearer ${accessToken.token}`)
         .send(server)
         .expect(httpStatus.OK)
         .then((res) => {
@@ -93,6 +106,7 @@ describe('## Server APIs', () => {
       it('should get all servers', (done) => {
         request(app)
           .get('/api/servers')
+          .set('Authorization', `Bearer ${accessToken.token}`)
           .expect(httpStatus.OK)
           .then((res) => {
             expect(res.body).to.be.an('array');
@@ -106,6 +120,7 @@ describe('## Server APIs', () => {
       it('should delete server', (done) => {
         request(app)
           .delete(`/api/servers/${server.id}`)
+          .set('Authorization', `Bearer ${accessToken.token}`)
           .expect(httpStatus.OK)
           .then((res) => {
             expect(res.body.name).to.equal(server.name);
@@ -115,6 +130,7 @@ describe('## Server APIs', () => {
 
         request(app)
           .delete(`/api/servers/${server2.id}`)
+          .set('Authorization', `Bearer ${accessToken.token}`)
           .expect(httpStatus.OK)
           .then((res) => {
             expect(res.body.name).to.equal(server2.name);
