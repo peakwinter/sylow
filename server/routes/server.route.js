@@ -5,7 +5,7 @@ import paramValidation from '../../config/param-validation';
 import serverCtrl from '../controllers/server.controller';
 import * as authCtrl from '../controllers/auth.controller';
 
-const router = express.Router(); // esling-disable-line new-cap
+const router = express.Router();  // eslint-disable-line new-cap
 
 router.route('/')
   /** GET /api/servers - Get list of servers */

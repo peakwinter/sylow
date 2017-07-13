@@ -61,8 +61,9 @@ describe('## Local File Storage APIs', () => {
         .attach('file', path.join(__dirname, '../package.json'))
         .expect(httpStatus.OK)
         .then(() => {
+          const fsROK = fs.R_OK !== undefined ? fs.R_OK : fs.constants.R_OK;
           const filePath = path.join(config.fileSystemPath, entity._id, fileCode);
-          const checkFile = () => fs.accessSync(filePath, fs.constants.R_OK);
+          const checkFile = () => fs.accessSync(filePath, fsROK);
           expect(checkFile).to.not.throw();
           done();
         })
