@@ -4,6 +4,7 @@ import documentRoutes from './document.route';
 import authRoutes from './auth.route';
 import fileRoutes from './file.route';
 import clientRoutes from './client.route';
+import serverRoutes from './server.route';
 
 const router = express.Router(); // eslint-disable-line new-cap
 
@@ -26,5 +27,8 @@ router.use('/clients', clientRoutes);
 
 // mount files routes at /files
 router.use('/files', fileRoutes);
+
+// mount servers routes at /servers
+router.use('/servers', serverRoutes);
 
 export default router;
