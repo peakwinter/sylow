@@ -24,15 +24,25 @@ const serverSchema = {
 };
 
 function createServer(datas) {
-  const Server = mongoose.model('Server', serverSchema);
-  return Server.create(datas);
+  return new Promise((resolve, reject) => {
+    const Server = mongoose.model('Server', serverSchema);
+    Server
+      .findOne({ authoritative: true })
+      .exec()      
+      . then((server) => {
+        if (server) {
+          return reject('An authoritative server already exists...');
+        }
+        return resolve(Server.create(datas));
+      });
+  });
 }
 
 function getAuthoritative() {
   return new Promise((resolve, reject) => {
     const Server = mongoose.model('Server', serverSchema);
     Server
-      .find({ authoritative: true })
+      .findOne({ authoritative: true })
       .exec()
       .then((server) => {
         if (server) {
@@ -65,19 +75,21 @@ module.exports.exportServer = function (options) {
     });
 };
 
-module.exports.newServer = function (domain, publicKeyFile, options) {
+module.exports.newServer = function (domain, publicKeyFile, privateKeyFile, options) {
   utils.mongooseConnect();
-  const validOptions = ['name', 'description', 'privateKeyFile'];
+  const validOptions = ['name', 'description'];
   if (!domain) {
     console.error('Domain missing');
     process.exit(1);
   } else if (!publicKeyFile) {
     console.error('Public key file path missing');
     process.exit(1);
+  } else if (!privateKeyFile) {
+    console.error('Private key file path missing');
   }
 
   const publicKey = fs.readFileSync(publicKeyFile, 'utf8');
-  const privateKey = options.privateKeyFile ? fs.readFileSync(options.privateKeyFile, 'utf8') : null;
+  const privateKey = fs.readFileSync(privateKeyFile, 'utf8');
 
   const keypair = {
     public: publicKey,
