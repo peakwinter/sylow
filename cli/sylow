@@ -25,7 +25,6 @@ program
   .command('new-server <domain> <publicKeyFile>')
     .option('-n, --name [name]', 'server\'s name')
     .option('-d, --description [description]', 'server\'s description')
-    .option('-a, --authoritative', 'Make this server authoritative')
     .option('-p, --privateKeyFile [privateKeyFile]', 'Private key file')
     .action(newServer);
 

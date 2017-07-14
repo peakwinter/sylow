@@ -101,44 +101,44 @@ describe('## Server APIs', () => {
         })
         .catch(done);
     });
+  });
 
-    describe('# GET /api/servers', () => {
-      it('should get all servers', (done) => {
-        request(app)
-          .get('/api/servers')
-          .set('Authorization', `Bearer ${accessToken.token}`)
-          .expect(httpStatus.OK)
-          .then((res) => {
-            expect(res.body).to.be.an('array');
-            done();
-          })
-          .catch(done);
-      });
+  describe('# GET /api/servers', () => {
+    it('should get all servers', (done) => {
+      request(app)
+        .get('/api/servers')
+        .set('Authorization', `Bearer ${accessToken.token}`)
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body).to.be.an('array');
+          done();
+        })
+        .catch(done);
     });
+  });
 
-    describe('# DELETE /api/servers/:serverId', () => {
-      it('should delete server', (done) => {
-        request(app)
-          .delete(`/api/servers/${server.id}`)
-          .set('Authorization', `Bearer ${accessToken.token}`)
-          .expect(httpStatus.OK)
-          .then((res) => {
-            expect(res.body.name).to.equal(server.name);
-            expect(res.body.domain).to.equal(server.domain);
-          })
-          .catch(done);
+  describe('# DELETE /api/servers/:serverId', () => {
+    it('should delete server', (done) => {
+      request(app)
+        .delete(`/api/servers/${server.id}`)
+        .set('Authorization', `Bearer ${accessToken.token}`)
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body.name).to.equal(server.name);
+          expect(res.body.domain).to.equal(server.domain);
+        })
+        .catch(done);
 
-        request(app)
-          .delete(`/api/servers/${server2.id}`)
-          .set('Authorization', `Bearer ${accessToken.token}`)
-          .expect(httpStatus.OK)
-          .then((res) => {
-            expect(res.body.name).to.equal(server2.name);
-            expect(res.body.domain).to.equal(server2.domain);
-            done();
-          })
-          .catch(done);
-      });
+      request(app)
+        .delete(`/api/servers/${server2.id}`)
+        .set('Authorization', `Bearer ${accessToken.token}`)
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body.name).to.equal(server2.name);
+          expect(res.body.domain).to.equal(server2.domain);
+          done();
+        })
+        .catch(done);
     });
   });
 });
