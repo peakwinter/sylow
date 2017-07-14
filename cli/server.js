@@ -28,7 +28,7 @@ function createServer(datas) {
     const Server = mongoose.model('Server', serverSchema);
     Server
       .findOne({ authoritative: true })
-      .exec()      
+      .exec()
       . then((server) => {
         if (server) {
           return reject('An authoritative server already exists...');
@@ -50,9 +50,9 @@ function getAuthoritative() {
         }
         return reject('No authoritative server was found...');
       })
-      .catch(err => reject(err))
+      .catch(err => reject(err));
   });
-};
+}
 
 module.exports.exportServer = function (options) {
   utils.mongooseConnect();
@@ -86,6 +86,7 @@ module.exports.newServer = function (domain, publicKeyFile, privateKeyFile, opti
     process.exit(1);
   } else if (!privateKeyFile) {
     console.error('Private key file path missing');
+    process.exit(1);
   }
 
   const publicKey = fs.readFileSync(publicKeyFile, 'utf8');
