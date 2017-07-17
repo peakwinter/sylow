@@ -6,20 +6,31 @@ const program = require('commander');
 const packageData = require('../package.json');
 
 const newEntity = require('./new-entity');
-
+const { newServer, exportServer } = require('./server');
 
 program
   .version(packageData.version)
   .option('-v, --verbose', 'verbose logging');
 
 program
-  .command('new-entity [name] [domain]').alias('entity')
+  .command('new-entity <name> <domain>').alias('entity')
     .option('-a, --admin', 'make this an admin entity')
     .action(newEntity);
 
 program
   .command('new-client [name]').alias('client')
     .action();
+
+program
+  .command('new-server <domain> <publicKeyFile> <privateKeyFile>')
+    .option('-n, --name [name]', 'server\'s name')
+    .option('-d, --description [description]', 'server\'s description')
+    .action(newServer);
+
+program
+  .command('export-server')
+    .option('-f, --file [file]', 'The target file to export to')
+    .action(exportServer);
 
 program
   .parse(process.argv);
