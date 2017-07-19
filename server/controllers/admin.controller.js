@@ -7,6 +7,7 @@ import AccessToken from '../models/accessToken.model';
 import Client from '../models/client.model';
 import Document from '../models/document.model';
 import Entity from '../models/entity.model';
+import Server from '../models/server.model';
 
 import config, { unvariableConfig } from '../../config/config';
 import APIError from '../helpers/APIError';
@@ -91,7 +92,6 @@ export function updateEntity(req, res) {
       return res.redirect('/entities');
     });
 }
-
 export function deleteEntity(req, res, next) {
   const _id = req.params.entityId;
   return Entity.remove({ _id })
@@ -265,4 +265,102 @@ function getNewConfig(datas, settableConfig) {
     }
   }
   return newConfig;
+}
+
+export function listServers(req, res) {
+  return Server.find()
+    .then((servers) => {
+      let authServer;
+      const otherServers = [];
+
+      for (let i = 0; i < servers.length; i += 1) {
+        if (servers[i].authoritative === true) {
+          authServer = servers[i];
+        } else {
+          otherServers.push(servers[i]);
+        }
+      }
+
+      const sortedServers = {
+        authServer,
+        otherServers
+      };
+      res.render('servers', { ctrl: 'server', active: 'servers', sortedServers });
+    })
+    .catch((err) => {
+      req.flash('error', err.toString());
+      return res.render('servers', { ctrl: 'server', active: 'servers', servers: [] });
+    });
+}
+
+export function createServer(req, res) {
+  if (!req.body.domain || !req.body.publicKey) {
+    req.flash('error', 'Missing values');
+    return res.redirect('/servers');
+  }
+
+  const keys = {
+    public: req.body.publicKey,
+    private: req.body.privateKey
+  };
+
+  const server = new Server({
+    name: req.body.name,
+    domain: req.body.domain,
+    description: req.body.description,
+    keypair: keys
+  });
+
+  return server.save()
+    .then(() => {
+      req.flash('success', 'Server created');
+      return res.redirect('/servers');
+    })
+    .catch((err) => {
+      req.flash('error', err.toString());
+      return res.redirect('/servers');
+    });
+}
+
+export function showServer(req, res) {
+  return Server.get(req.params.serverId)
+    .then(server => res.render('server', {
+      ctrl: 'server', active: 'servers', server
+    }))
+    .catch((err) => {
+      req.flash('error', err.toString());
+      return res.redirect('/servers');
+    });
+}
+
+export function deleteServer(req, res, next) {
+  const _id = req.params.serverId;
+  return Server.remove({ _id })
+    .then((server) => {
+      if (!server || !server.result.n) {
+        const err = new APIError('Server does not exist', httpStatus.NOT_FOUND, true);
+        return next(err);
+      }
+      return res.sendStatus(httpStatus.NO_CONTENT);
+    })
+    .catch(next);
+}
+
+export function updateServer(req, res) {
+  const datas = {
+    name: req.body.name,
+    description: req.body.description
+  };
+
+  const id = req.body.id;
+
+  return Server.findByIdAndUpdate(id, { $set: datas })
+    .then(() => {
+      req.flash('success', 'Server updated');
+      return res.redirect(`/servers/${id}`);
+    })
+    .catch((err) => {
+      req.flash('error', err.toString());
+      return res.redirect(`/server/${id}`);
+    });
 }

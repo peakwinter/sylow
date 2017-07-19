@@ -51,4 +51,13 @@ router.route('/settings')
   .get(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.listSettings)
   .post(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.updateSettings);
 
+router.route('/servers')
+  .get(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.listServers)
+  .post(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.createServer);
+
+router.route('/servers/:serverId')
+  .get(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.showServer)
+  .post(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.updateServer)
+  .delete(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.deleteServer);
+
 export default router;
