@@ -103,7 +103,24 @@ ServerSchema.statics = {
       .skip(+skip)
       .limit(+limit)
       .exec();
+  },
+
+  /**
+   * Return the server marked as authoritative
+   * @returns {Promise<Server>}
+   */
+  getAuthoritative() {
+    return this.findOne({ authoritative: true })
+      .exec()
+      .then((server) => {
+        if (server) {
+          return server;
+        }
+        const err = new APIError('No authoritative server found...', httpStatus.NOT_FOUND);
+        return Promise.reject(err);
+      });
   }
+
 };
 
 /**

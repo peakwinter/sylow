@@ -13,12 +13,14 @@ import expressValidation from 'express-validation';
 import passport from 'passport';
 import helmet from 'helmet';
 import path from 'path';
+
 import winstonInstance from './winston';
 import routes from '../server/routes/index.route';
 import adminRoutes from '../server/routes/admin.route';
 import config from './config';
 import APIError from '../server/helpers/APIError';
 import ExtendableError from '../server/helpers/ExtendableError';
+import Server from '../server/models/server.model';
 
 const app = express();
 
@@ -122,5 +124,14 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
     message: err.isPublic ? err.message : httpStatus[err.status]
   });
 });
+
+Server
+  .getAuthoritative()
+  .then((server) => {
+    Object.assign(app, { sylowServer: server.domain });
+  })
+  .catch((err) => {
+    console.error(err); // eslint-disable-line no-console
+  });
 
 export { app as default };
