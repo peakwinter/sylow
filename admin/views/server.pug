@@ -1,0 +1,33 @@
+extends includes/dash.pug
+
+block dashboard
+  h1(class="ui header") Server: #{server.domain}
+  h2(class="ui header") Edit Server  
+  form(class="ui form" id="update-form" method="POST")
+    div(class="field")
+      label= "Name"
+      input(type="text" id="servername" name="name" placeholder="Name"  value=server.name)
+    div(class="field")
+      label= "Description"
+      textarea(id="serverdescription" name="description" placeholder="Description")=server.description
+    div(class="ui hidden divider")
+    button(type="submit" class="ui large basic primary button") Save
+  
+    a(class="ui large basic negative button" data-action="showDeleteModal" data-params=server._id)= "Delete"
+    a(class="ui large basic button" href="/servers")= "Go Back"
+  - if (server.authoritative === true) {
+    button(class="ui large basic secondary button" data-action="exportServer" data-name=server.name data-domain=server.domain data-description=server.description data-pubkey=server.keypair.public data-privkey=server.keypair.private id="exportButton") Export
+  - }
+  div(id="delete-server-modal" class="ui basic modal")
+    div(class="ui icon header")
+      i(class="remove tasks icon")
+      | Delete Entity
+    div(class="content")
+      p= "Are you sure you wish to delete this server?"
+    div(class="actions")
+      div(class="ui basic inverted button" data-action="hideModal")
+        i(class="remove icon")
+        | Cancel
+      div(class="ui red basic inverted button" data-action="deleteServer")
+        i(class="checkmark icon")
+        | Delete
