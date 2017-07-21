@@ -268,28 +268,27 @@ function getNewConfig(datas, settableConfig) {
 }
 
 export function listServers(req, res) {
-  return Server.find()
-    .then((servers) => {
-      let authServer;
-      const otherServers = [];
-
-      for (let i = 0; i < servers.length; i += 1) {
-        if (servers[i].authoritative === true) {
-          authServer = servers[i];
-        } else {
-          otherServers.push(servers[i]);
-        }
-      }
-
-      const sortedServers = {
-        authServer,
-        otherServers
-      };
-      res.render('servers', { ctrl: 'server', active: 'servers', sortedServers });
+  Promise.all([
+    Server.find({ authoritative: true }), Server.find({ authoritative: false })
+  ])
+    .then(([authoritativeServers, otherServers]) => {
+      const authoritativeServer = authoritativeServers[0];
+      res.render('servers', {
+        ctrl: 'server', active: 'server', authoritativeServer, otherServers
+      });
     })
     .catch((err) => {
       req.flash('error', err.toString());
-      return res.render('servers', { ctrl: 'server', active: 'servers', servers: [] });
+      return res.redirect('/servers');
+    });
+}
+
+export function exportServer(req, res) {
+  return Server.get(req.params.serverId)
+    .then(server => res.json(server))
+    .catch((err) => {
+      req.flash('error', err.toString());
+      return res.redirect(`/servers/${req.params.serverId}`);
     });
 }
 
@@ -335,7 +334,7 @@ export function showServer(req, res) {
 
 export function deleteServer(req, res, next) {
   const _id = req.params.serverId;
-  return Server.remove({ _id })
+  return Server.remove({ _id, authoritative: false })
     .then((server) => {
       if (!server || !server.result.n) {
         const err = new APIError('Server does not exist', httpStatus.NOT_FOUND, true);

@@ -60,4 +60,6 @@ router.route('/servers/:serverId')
   .post(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.updateServer)
   .delete(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.deleteServer);
 
+router.route('/servers/:serverId/export')
+  .get(adminCtrl.exportServer);
 export default router;

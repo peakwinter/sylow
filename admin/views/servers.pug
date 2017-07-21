@@ -12,13 +12,13 @@ block dashboard
         th(class="two wide")="Action"
     tbody
       tr(class='authoritative')
-          td= sortedServers.authServer.domain
-          td= sortedServers.authServer.name
-          td= sortedServers.authServer.description
+          td= authoritativeServer.domain
+          td= authoritativeServer.name
+          td= authoritativeServer.description
           td 
-            a(href=`/servers/${sortedServers.authServer._id}` class="ui basic icon button")
+            a(href=`/servers/${authoritativeServer._id}` class="ui basic icon button")
               i(class="large setting icon")
-      each server in sortedServers.otherServers 
+      each server in otherServers 
         tr
           td= server.domain
           td= server.name
