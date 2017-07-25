@@ -4,6 +4,7 @@ import config from '../config/config';
 import AccessToken from '../server/models/accessToken.model';
 import Client from '../server/models/client.model';
 import Entity from '../server/models/entity.model';
+import Server from '../server/models/server.model';
 
 chai.config.includeStack = true;
 
@@ -14,6 +15,7 @@ before('Clean up test data', () => {
   return Promise.all([
     AccessToken.remove(),
     Client.remove(),
-    Entity.remove()
+    Entity.remove(),
+    Server.remove()
   ]);
 });

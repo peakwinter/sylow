@@ -128,10 +128,13 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
 Server
   .getAuthoritative()
   .then((server) => {
-    Object.assign(app, { sylowServer: server.domain });
+    if (server) {
+      Object.assign(app, { sylowServer: server.domain });
+    }
   })
   .catch((err) => {
-    console.error(err); // eslint-disable-line no-console
+    console.error(err.message); // eslint-disable-line no-console
+    process.exit(1);
   });
 
 export { app as default };
