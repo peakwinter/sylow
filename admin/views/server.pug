@@ -1,7 +1,7 @@
 extends includes/dash.pug
 
 block dashboard
-  h1(class="ui header") Server: #{server.domain}
+  h1(class="ui header") #{server.domain}
   h2(class="ui header") Edit Server  
   form(class="ui form" id="update-form" method="POST")
     div(class="field")
@@ -13,6 +13,6 @@ block dashboard
     div(class="ui hidden divider")
     button(type="submit" class="ui large basic primary button") Save
   
-  button(class="ui large basic secondary button" data-action="exportServer" data-params=server._id data-name=server.name data-domain=server.domain data-description=server.description data-pubkey=server.keypair.public data-privkey=server.keypair.private id="exportButton") Export
+  button(class="ui large basic secondary button" data-action="exportServer" data-params=server._id id="exportButton") Export
   
   a(class="ui large basic button" href="/servers")= "Go Back"

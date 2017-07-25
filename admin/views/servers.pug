@@ -19,7 +19,7 @@ block dashboard
             a(href=`/servers/${authoritativeServer._id}` class="ui basic icon button")
               i(class="large setting icon")
       each server in otherServers 
-        tr
+        tr(class="non-authoritative")
           td= server.domain
           td= server.name
           td= server.description

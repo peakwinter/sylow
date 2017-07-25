@@ -351,7 +351,7 @@ export function updateServer(req, res) {
     description: req.body.description
   };
 
-  const id = req.body.id;
+  const id = req.params.serverId;
 
   return Server.findByIdAndUpdate(id, { $set: datas })
     .then(() => {
