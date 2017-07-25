@@ -9,6 +9,7 @@ import app from '../index';
 import AccessToken from '../server/models/accessToken.model';
 import Client from '../server/models/client.model';
 import Entity from '../server/models/entity.model';
+import Server from '../server/models/server.model';
 import { randomStr } from '../server/utils/random';
 
 chai.config.includeStack = true;
@@ -55,6 +56,25 @@ const testAccessToken = {
   token: randomStr(256)
 };
 
+const authoritativeServer = {
+   domain: 'serverDomainTest',
+   name: 'serverNameTest',
+   description: 'serverDescriptionTest',
+   keypair: {
+     public: 'xxxxx',
+     private: 'xxxxx'
+   },
+   authoritative: true
+};
+
+const superfluousServer = {
+   domain: 'newServer',
+   name: 'New Server',
+   description: 'New Server\'s description',
+   keypair: {
+     public: 'xxxxx',
+   }
+};
 
 describe('## Admin Interface', () => {
   before('Create and use test entity', () => {
@@ -415,6 +435,91 @@ describe('## Admin Interface', () => {
           const domain = html('.settings_updates').first().attr('value');
           expect(title).to.equal('Settings');
           expect(domain).to.equal('testdomain.xyz');
+          done();
+        })
+        .catch(done);
+    });
+  });
+
+  
+  describe('# GET /servers', () => {
+    before('Create and use test servers', () => {
+      if ( config.env !== 'test') {
+        return Promise.reject('Not in a test environment');
+      }
+      
+      return Server.remove()
+        .then(() => new Server(authoritativeServer).save())
+        .then((server) => authoritativeServer.id = server.id)
+        .then(() => new Server(superfluousServer).save())
+        .then((server) => superfluousServer.id = server.id)
+    });
+
+    it('should show the servers admin page', (done) => {
+      adminSesh.get('/servers')
+        .expect(httpStatus.OK)
+        .then((res) => {
+           const html = cheerio.load(res.text);
+           const title = html('.ui.sy-dashboard h1.ui.header').first().html();
+           const authoritativeServerDomain = html('tr.authoritative td').first().html();
+           const simpleServerDomain = html('tr.non-authoritative td').html();
+           expect(title).to.equal('Servers');
+           expect(authoritativeServerDomain).to.equal('serverDomainTest');
+           expect(simpleServerDomain).to.equal('newServer');
+           done();
+        })
+        .catch(done);
+    }); 
+
+    it('should show the authoritative server\'s update form', (done) => {
+      adminSesh.get(`/servers/${authoritativeServer.id}`)
+        .expect(httpStatus.OK)
+        .then((res) => {
+          const html = cheerio.load(res.text);
+          const title = html('.ui.sy-dashboard h1.ui.header').first().html();
+          const name = html('form input[type="text"]').val();
+          expect(title).to.equal(authoritativeServer.domain);
+          expect(name).to.equal(authoritativeServer.name);
+          done();
+        })
+        .catch(done);
+    });
+  });
+
+  describe('# POST /servers/:id', (done) => {
+    it('should update authoritative server', (done) => {
+      authoritativeServer.name = 'newName';
+      adminSesh.post(`/servers/${authoritativeServer.id}`)
+        .redirects(1)
+        .send(authoritativeServer)
+        .type('form')
+        .expect(httpStatus.OK)
+        .then((res) => {
+          const html = cheerio.load(res.text);
+          const name = html('form input[type="text"]').val();
+          expect(name).to.equal(authoritativeServer.name);
+          done()
+        })
+        .catch(done);
+    });
+  });
+
+  describe('# DELETE /servers/:id', (done) => {
+    it('should fail to delete an authoritative server', (done) => {
+      adminSesh.delete(`/servers/${authoritativeServer.id}`)
+        .expect(httpStatus.NOT_FOUND)
+        .then((res) => {
+          expect(res.body.message).to.equal('Server does not exist');
+          done();
+        })
+        .catch(done);
+    });
+
+    it('should successfully delete a non-authoritative server', (done) => {
+      adminSesh.delete(`/servers/${superfluousServer.id}`)
+        .expect(httpStatus.NO_CONTENT)
+        .then((res) => {
+          expect(res.text).to.equal('');
           done();
         })
         .catch(done);
