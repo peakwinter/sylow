@@ -12,7 +12,5 @@ block dashboard
       textarea(id="serverdescription" name="description" placeholder="Description")=server.description
     div(class="ui hidden divider")
     button(type="submit" class="ui large basic primary button") Save
-  
-  button(class="ui large basic secondary button" data-action="exportServer" data-params=server._id id="exportButton") Export
-  
-  a(class="ui large basic button" href="/servers")= "Go Back"
+    a(class="ui large basic button" href="/servers")= "Go Back"
+    a(class="ui large basic secondary button" data-action="exportServer" data-params=server._id id="exportButton") Export

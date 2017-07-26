@@ -269,10 +269,9 @@ function getNewConfig(datas, settableConfig) {
 
 export function listServers(req, res) {
   Promise.all([
-    Server.find({ authoritative: true }), Server.find({ authoritative: false })
+    Server.findOne({ authoritative: true }), Server.find({ authoritative: false })
   ])
-    .then(([authoritativeServers, otherServers]) => {
-      const authoritativeServer = authoritativeServers[0];
+    .then(([authoritativeServer, otherServers]) => {
       res.render('servers', {
         ctrl: 'server', active: 'server', authoritativeServer, otherServers
       });
