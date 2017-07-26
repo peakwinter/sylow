@@ -1,0 +1,41 @@
+extends includes/dash.pug
+
+block dashboard
+  h1(class="ui header")= "Servers"
+  
+  table(class="ui table" id="serverTable")
+    thead
+      tr
+        th(class="four wide")="Domain"
+        th(class="four wide")="Name"
+        th(class="six wide")="Description"
+        th(class="two wide")="Action"
+    tbody
+      tr(class='authoritative')
+          td= authoritativeServer.domain
+          td= authoritativeServer.name
+          td= authoritativeServer.description
+          td 
+            a(href=`/servers/${authoritativeServer._id}` class="ui basic icon button")
+              i(class="large setting icon")
+      each server in otherServers 
+        tr(class="non-authoritative")
+          td= server.domain
+          td= server.name
+          td= server.description
+          td 
+            a(data-action="showDeleteModal" data-params=server._id class="ui basic icon button")
+              i(class="large remove icon")
+  div(id="delete-server-modal" class="ui basic modal")
+    div(class="ui icon header")
+      i(class="remove tasks icon")
+      | Delete Server
+    div(class="content")
+      p= "Are you sure you wish to delete this server?"
+    div(class="actions")
+      div(class="ui basic inverted button" data-action="hideModal")
+        i(class="remove icon")
+        | Cancel
+      div(class="ui red basic inverted button" data-action="deleteServer")
+        i(class="checkmark icon")
+        | Delete
