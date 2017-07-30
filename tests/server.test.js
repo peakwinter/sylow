@@ -38,7 +38,7 @@ describe('## Server APIs', () => {
 
   let accessToken;
 
-  before('Clean up test data', () => 
+  before('Clean up test data', () =>
     createTokens().then(({ adminAccessToken }) => {
       accessToken = adminAccessToken;
     })

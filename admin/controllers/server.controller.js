@@ -6,9 +6,6 @@ import FileSaver from 'file-saver';
 import Controller from './index';
 
 export default class extends Controller {
-  init() {
-  } 
-
   showDeleteModal(event, serverId) {
     this.serverToDelete = serverId;
     this.app.showModal(event, 'delete-server-modal');
@@ -26,9 +23,8 @@ export default class extends Controller {
       url: `/servers/${serverId}/export`,
       method: 'GET'
     }).done((datas) => {
-      const name = `${datas.domain}.json`;
-      let blob = new Blob([JSON.stringify(datas, null, 2)], {type: "application/json; charset=utf-8"});
-      FileSaver.saveAs(blob, name);
+      const blob = new Blob([JSON.stringify(datas, null, 2)], { type: 'application/json; charset=utf-8' });
+      FileSaver.saveAs(blob, `${datas.domain}.json`);
     });
   }
-} 
+}

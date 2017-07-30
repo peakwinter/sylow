@@ -57,23 +57,23 @@ const testAccessToken = {
 };
 
 const authoritativeServer = {
-   domain: 'serverDomainTest',
-   name: 'serverNameTest',
-   description: 'serverDescriptionTest',
-   keypair: {
-     public: 'xxxxx',
-     private: 'xxxxx'
-   },
-   authoritative: true
+  domain: 'serverDomainTest',
+  name: 'serverNameTest',
+  description: 'serverDescriptionTest',
+  keypair: {
+    public: 'xxxxx',
+    private: 'xxxxx'
+  },
+  authoritative: true
 };
 
 const superfluousServer = {
-   domain: 'newServer',
-   name: 'New Server',
-   description: 'New Server\'s description',
-   keypair: {
-     public: 'xxxxx',
-   }
+  domain: 'newServer',
+  name: 'New Server',
+  description: 'New Server\'s description',
+  keypair: {
+    public: 'xxxxx',
+  }
 };
 
 describe('## Admin Interface', () => {
@@ -441,35 +441,35 @@ describe('## Admin Interface', () => {
     });
   });
 
-  
   describe('# GET /servers', () => {
     before('Create and use test servers', () => {
-      if ( config.env !== 'test') {
+      if (config.env !== 'test') {
         return Promise.reject('Not in a test environment');
       }
-      
+
       return Server.remove()
-        .then(() => new Server(authoritativeServer).save())
-        .then((server) => authoritativeServer.id = server.id)
-        .then(() => new Server(superfluousServer).save())
-        .then((server) => superfluousServer.id = server.id)
+        .then(() => Server.create([authoritativeServer, superfluousServer]))
+        .then(([newAuthServer, newExtraServer]) => {
+          authoritativeServer.id = newAuthServer.id;
+          superfluousServer.id = newExtraServer.id;
+        });
     });
 
     it('should show the servers admin page', (done) => {
       adminSesh.get('/servers')
         .expect(httpStatus.OK)
         .then((res) => {
-           const html = cheerio.load(res.text);
-           const title = html('.ui.sy-dashboard h1.ui.header').first().html();
-           const authoritativeServerDomain = html('tr.authoritative td').first().html();
-           const simpleServerDomain = html('tr.non-authoritative td').html();
-           expect(title).to.equal('Servers');
-           expect(authoritativeServerDomain).to.equal('serverDomainTest');
-           expect(simpleServerDomain).to.equal('newServer');
-           done();
+          const html = cheerio.load(res.text);
+          const title = html('.ui.sy-dashboard h1.ui.header').first().html();
+          const authoritativeServerDomain = html('tr.authoritative td').first().html();
+          const simpleServerDomain = html('tr.non-authoritative td').html();
+          expect(title).to.equal('Servers');
+          expect(authoritativeServerDomain).to.equal('serverDomainTest');
+          expect(simpleServerDomain).to.equal('newServer');
+          done();
         })
         .catch(done);
-    }); 
+    });
 
     it('should show the authoritative server\'s update form', (done) => {
       adminSesh.get(`/servers/${authoritativeServer.id}`)
@@ -486,7 +486,7 @@ describe('## Admin Interface', () => {
     });
   });
 
-  describe('# POST /servers/:id', (done) => {
+  describe('# POST /servers/:id', () => {
     it('should update authoritative server', (done) => {
       authoritativeServer.name = 'newName';
       adminSesh.post(`/servers/${authoritativeServer.id}`)
@@ -498,13 +498,13 @@ describe('## Admin Interface', () => {
           const html = cheerio.load(res.text);
           const name = html('form input[type="text"]').val();
           expect(name).to.equal(authoritativeServer.name);
-          done()
+          done();
         })
         .catch(done);
     });
   });
 
-  describe('# DELETE /servers/:id', (done) => {
+  describe('# DELETE /servers/:id', () => {
     it('should fail to delete an authoritative server', (done) => {
       adminSesh.delete(`/servers/${authoritativeServer.id}`)
         .expect(httpStatus.NOT_FOUND)

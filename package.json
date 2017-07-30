@@ -14,7 +14,7 @@
     "start": "gulp serve",
     "start:debug": "cross-env DEBUG=sylow:* yarn start",
     "build": "gulp",
-    "lint": "esw *.js server config --color",
+    "lint": "esw *.js admin server cli config tests --color",
     "lint:watch": "yarn lint -- --watch",
     "prepush": "yarn lint && yarn test",
     "test": "cross-env NODE_ENV=test ./node_modules/.bin/mocha --ui bdd --reporter spec --colors --compilers js:babel-core/register tests --recursive",

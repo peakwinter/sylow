@@ -13,6 +13,7 @@ import expressValidation from 'express-validation';
 import passport from 'passport';
 import helmet from 'helmet';
 import path from 'path';
+
 import winstonInstance from './winston';
 import routes from '../server/routes/index.route';
 import adminRoutes from '../server/routes/admin.route';
