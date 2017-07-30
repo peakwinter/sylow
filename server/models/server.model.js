@@ -6,6 +6,7 @@ import idPlugin from './plugins/id';
 import createdPlugin from './plugins/created';
 import updatedPlugin from './plugins/updated';
 import APIError from '../helpers/APIError';
+import config from '../../config/config';
 
 /**
  * Server Storage Schema
@@ -103,6 +104,43 @@ ServerSchema.statics = {
       .skip(+skip)
       .limit(+limit)
       .exec();
+  },
+
+  /**
+   * Return the server marked as authoritative
+   * @returns {Promise<Server>}
+   */
+  getAuthoritative() {
+    return this.findOne({ authoritative: true })
+      .exec()
+      .then((server) => {
+        let promise;
+        if (server) {
+          return server;
+        }
+
+        if (config.env !== 'test') {
+          const err = new APIError('No authoritative server found...', httpStatus.NOT_FOUND);
+          promise = Promise.reject(err);
+        } else {
+          const datas = {
+            name: 'Sylow Test Server',
+            domain: 'sylow.dev',
+            keypair: {
+              public: 'xxxxx',
+              private: 'xxxxx'
+            }
+          };
+          const newServer = new this(datas);
+          newServer.save()
+            .then((savedServer) => {
+              newServer.id = savedServer.id;
+            })
+            .catch(err => Promise.reject(err));
+          promise = newServer;
+        }
+        return promise;
+      });
   }
 };
 
