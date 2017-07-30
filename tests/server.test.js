@@ -84,6 +84,18 @@ describe('## Server APIs', () => {
         })
         .catch(done);
     });
+
+    it('should fail to get a nonexistent server', (done) => {
+      request(app)
+        .get('/api/servers/xxxxxx')
+        .set('Authorization', `Bearer ${accessToken.token}`)
+        .expect(httpStatus.NOT_FOUND)
+        .then((res) => {
+          expect(res.body.message).to.equal('Not Found');
+          done();
+        })
+        .catch(done);
+    });
   });
 
   describe('# PUT /api/servers/:serverId', () => {

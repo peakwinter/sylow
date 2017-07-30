@@ -16,8 +16,10 @@ const upload = multer({
       const fsOK = fs.F_OK !== undefined ? fs.F_OK : fs.constants.F_OK;
       const newPath = path.join(config.fileSystemPath, req.user.entity._id);
       fs.access(newPath, fsOK, (err) => {
+        /* istanbul ignore else */
         if (err && err.code === 'ENOENT') {
           fs.mkdir(newPath, 0o760, (mkerr) => {
+            /* istanbul ignore if */
             if (mkerr) {
               throw new APIError('File system error, path could not be created.');
             }
@@ -69,6 +71,7 @@ function uploadFile(req, res, next) {
 
   deauthorizeFile(req.params.fileCode);
   return upload(req, res, (err) => {
+    /* istanbul ignore if */
     if (err) {
       next(err);
     }

@@ -25,13 +25,16 @@ function get(req, res) {
  * @returns {server}
  */
 function create(req, res, next) {
-  let keypair = {};
+  let keypair = { public: null, private: null };
+
+  /* istanbul ignore else */
   if (req.body.keypair) {
     keypair = {
       public: req.body.keypair.public,
       private: req.body.keypair.private
     };
   }
+
   const server = new Server({
     domain: req.body.domain,
     name: req.body.name || req.body.domain,

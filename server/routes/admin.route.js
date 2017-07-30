@@ -52,8 +52,7 @@ router.route('/settings')
   .post(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.updateSettings);
 
 router.route('/servers')
-  .get(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.listServers)
-  .post(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.createServer);
+  .get(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.listServers);
 
 router.route('/servers/:serverId')
   .get(authCtrl.authenticateUser, authCtrl.ensureAdmin, adminCtrl.showServer)

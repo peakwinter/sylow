@@ -19,6 +19,7 @@ export function serializeClient(client, done) {
 export function deserializeClient(clientId, done) {
   return Client.findOne({ clientId })
     .then((client) => {
+      /* istanbul ignore if */
       if (!client) {
         const err = new APIError('Client not found', httpStatus.NOT_FOUND, true);
         return done(err);
@@ -42,6 +43,7 @@ export function grantAuthorizationCode(client, redirectUri, entity, ares, done) 
 export function exchangeAuthorizationCode(client, code, redirectUri, done) {
   if (code in authorizationCodes) {
     const authCode = authorizationCodes[code];
+    /* istanbul ignore if */
     if (client.id !== authCode.clientId.toHexString()) return done(null, false);
     if (redirectUri !== authCode.redirectUri) return done(null, false);
 

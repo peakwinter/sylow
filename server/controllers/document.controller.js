@@ -149,6 +149,7 @@ function getActions(req, res, next) {
     filter.created = { $gt: query.createdStart };
   }
   if ('createdEnd' in query) {
+    /* istanbul ignore else */
     if (filter.created) {
       filter.created.$lt = query.createdEnd;
     } else {
@@ -159,6 +160,7 @@ function getActions(req, res, next) {
     filter.updated = { $gt: query.updatedStart };
   }
   if ('updatedEnd' in query) {
+    /* istanbul ignore else */
     if (filter.updated) {
       filter.updated.$lt = query.updatedEnd;
     } else {
@@ -168,6 +170,7 @@ function getActions(req, res, next) {
   if ('tags' in query) {
     filter.tags = { $in: query.tags };
   }
+  /* istanbul ignore if */
   if ('page' in query && finder.limit) {
     finder.skip = (finder.limit * (query.page - 1));
   }
