@@ -114,32 +114,24 @@ ServerSchema.statics = {
     return this.findOne({ authoritative: true })
       .exec()
       .then((server) => {
-        let promise;
         if (server) {
           return server;
-        }
-
-        if (config.env !== 'test') {
-          const err = new APIError('No authoritative server found...', httpStatus.NOT_FOUND);
-          promise = Promise.reject(err);
-        } else {
+        } else if (config.env === 'test') {
           const datas = {
             name: 'Sylow Test Server',
             domain: 'sylow.dev',
+            authoritative: true,
             keypair: {
               public: 'xxxxx',
               private: 'xxxxx'
             }
           };
           const newServer = new this(datas);
-          newServer.save()
-            .then((savedServer) => {
-              newServer.id = savedServer.id;
-            })
+          return newServer.save()
+            .then(savedServer => savedServer)
             .catch(err => Promise.reject(err));
-          promise = newServer;
         }
-        return promise;
+        return null;
       });
   }
 };

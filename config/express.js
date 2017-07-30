@@ -20,7 +20,6 @@ import adminRoutes from '../server/routes/admin.route';
 import config from './config';
 import APIError from '../server/helpers/APIError';
 import ExtendableError from '../server/helpers/ExtendableError';
-import Server from '../server/models/server.model';
 
 const app = express();
 
@@ -124,17 +123,5 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
     message: err.isPublic ? err.message : httpStatus[err.status]
   });
 });
-
-Server
-  .getAuthoritative()
-  .then((server) => {
-    if (server) {
-      Object.assign(app, { sylowServer: server.domain });
-    }
-  })
-  .catch((err) => {
-    console.error(err.message); // eslint-disable-line no-console
-    process.exit(1);
-  });
 
 export { app as default };
