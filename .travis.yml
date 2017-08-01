@@ -18,7 +18,7 @@ branches:
     - develop
     - patch
 script:
-  - yarn test:check-coverage
+  - yarn test:coverage
 after_script:
   - yarn report-coverage
 addons:
