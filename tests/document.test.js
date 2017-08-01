@@ -271,6 +271,22 @@ describe('## Document APIs', () => {
         })
         .catch(done);
     });
+
+    it('should get documents list without the data key', (done) => {
+      request(app)
+        .get('/api/documents')
+        .set('Authorization', `Bearer ${accessToken.token}`)
+        .query({ contentType: contentType2, summary: true })
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body).to.be.an('array');
+          for (let i = 0; i < res.body.length; i += 1) {
+            expect(res.body[i]).to.not.have.property('data');
+          }
+          done();
+        })
+        .catch(done);
+    });
   });
 
   describe('# DELETE /api/documents/', () => {

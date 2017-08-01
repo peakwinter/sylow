@@ -179,9 +179,17 @@ function getActions(req, res, next) {
   if ('page' in query && finder.limit) {
     finder.skip = (finder.limit * (query.page - 1));
   }
-  Document.find(filter, null, finder)
-    .then(documents => res.json(documents))
-    .catch(e => next(e));
+
+  if ('summary' in query && query.summary) {
+    Document.find(filter, null, finder)
+      .select('-data')
+      .then(documents => res.json(documents))
+      .catch(e => next(e));
+  } else {
+    Document.find(filter, null, finder)
+      .then(documents => res.json(documents))
+      .catch(e => next(e));
+  }
 }
 
 export default { load, get, create, update, remove, getActions };
