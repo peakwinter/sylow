@@ -60,7 +60,7 @@ export default {
       data: Joi.object(),
       references: Joi.object(),
       mentions: Joi.object(),
-      tags: Joi.array(),
+      tags: Joi.object(),
       key: Joi.string().allow(''),
       deleted: Joi.boolean()
     })).single(),
@@ -78,7 +78,6 @@ export default {
       createdEnd: Joi.date(),
       updatedStart: Joi.date(),
       updatedEnd: Joi.date(),
-      tags: Joi.array(),
       page: Joi.number()
     }
   },
@@ -100,8 +99,8 @@ export default {
       data: Joi.object(),
       references: Joi.object(),
       mentions: Joi.object(),
-      tags: Joi.array(),
-      key: Joi.string().allow('')
+      key: Joi.string().allow(''),
+      tags: Joi.object(),
     },
     params: {
       documentId: Joi.string().uuid().required()

@@ -55,7 +55,7 @@ const DocumentSchema = new mongoose.Schema({
   data: Object,
   references: Object,
   mentions: Object,
-  tags: Array,
+  tags: Object,
   key: String
 });
 

@@ -14,13 +14,17 @@ describe('## Document APIs', () => {
   const contentType2 = 'contentType2';
 
   let document = {
-    contentType: 'contentType2',
+    contentType: contentType2,
     public: true,
     encryption: 'plain',
     data: {
       content: 'This is the first test status.'
     },
-    tags: ['1', '2', '3']
+    tags: {
+      tagkey1: 'tagvalue1',
+      tagkey2: 'tagvalue2',
+      tagkey3: 'tagvalue3'
+    }
   };
 
   let document1 = {
@@ -30,17 +34,25 @@ describe('## Document APIs', () => {
     data: {
       content: 'This is the second test status.'
     },
-    tags: ['3', '4', '5']
+    tags: {
+      tagkey3: 'tagvalue3',
+      tagkey4: 'tagvalue4',
+      tagkey5: 'tagvalue5'
+    }
   };
 
   let document2 = {
-    contentType: contentType2,
+    contentType: contentType1,
     public: true,
     encryption: 'plain',
     data: {
       content: 'This is the third test status.'
     },
-    tags: ['3', '4', '5']
+    tags: {
+      tagkey3: 'tagvalue3',
+      tagkey4: 'tagvalue4',
+      tagkey5: 'tagvalue5'
+    }
   };
 
   let entity;
@@ -176,10 +188,11 @@ describe('## Document APIs', () => {
       request(app)
         .get('/api/documents')
         .set('Authorization', `Bearer ${accessToken.token}`)
-        .query({ limit: 10, skip: 1, contentType: contentType1 })
+        .query({ limit: 2, skip: 1, contentType: contentType2 })
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body).to.be.an('array');
+          expect(res.body.length).to.be.equal(1);
           done();
         })
         .catch(done);
@@ -209,7 +222,7 @@ describe('## Document APIs', () => {
       request(app)
         .get('/api/documents')
         .set('Authorization', `Bearer ${accessToken.token}`)
-        .query({ createdStart, createdEnd, contentType: contentType1 })
+        .query({ createdStart, createdEnd, contentType: contentType2 })
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body).to.be.an('array');
@@ -230,7 +243,7 @@ describe('## Document APIs', () => {
       request(app)
         .get('/api/documents')
         .set('Authorization', `Bearer ${accessToken.token}`)
-        .query({ updatedStart, updatedEnd, contentType: contentType1 })
+        .query({ updatedStart, updatedEnd, contentType: contentType2 })
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body).to.be.an('array');
@@ -244,18 +257,16 @@ describe('## Document APIs', () => {
     });
 
     it('should get documents list according to the document tags', (done) => {
-      const testTags = ['1', '5'];
+      const tags = { tagkey4: 'tagvalue4' };
 
       request(app)
         .get('/api/documents')
         .set('Authorization', `Bearer ${accessToken.token}`)
-        .query({ tags: testTags, contentType: contentType1 })
+        .query({ tags, contentType: contentType2 })
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body).to.be.an('array');
-          for (let i = 0; i < res.body.length; i += 1) {
-            expect(res.body[i].tags.some(e => testTags.indexOf(e) >= 0));
-          }
+          expect(res.body.length).to.equal(1);
           done();
         })
         .catch(done);
