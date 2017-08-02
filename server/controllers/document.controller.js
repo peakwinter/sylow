@@ -180,16 +180,13 @@ function getActions(req, res, next) {
     finder.skip = (finder.limit * (query.page - 1));
   }
 
-  if ('summary' in query && query.summary) {
-    Document.find(filter, null, finder)
-      .select('-data')
-      .then(documents => res.json(documents))
-      .catch(e => next(e));
-  } else {
-    Document.find(filter, null, finder)
-      .then(documents => res.json(documents))
-      .catch(e => next(e));
+  const findDocs = Document.find(filter, null, finder);
+
+  if (query.summary) {
+    findDocs.select('-data');
   }
+  findDocs.then(documents => res.json(documents))
+    .catch(e => next(e));
 }
 
 export default { load, get, create, update, remove, getActions };
