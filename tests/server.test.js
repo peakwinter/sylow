@@ -32,11 +32,11 @@ describe('## Server APIs', () => {
     description: 'The second server\'s description',
     keypair: {
       public: 'xxxxxx'
-    },
-    authoritative: true
+    }
   };
 
   let accessToken;
+
 
   before('Clean up test data', () =>
     createTokens().then(({ adminAccessToken }) => {
