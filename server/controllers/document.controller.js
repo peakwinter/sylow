@@ -179,8 +179,13 @@ function getActions(req, res, next) {
   if ('page' in query && finder.limit) {
     finder.skip = (finder.limit * (query.page - 1));
   }
-  Document.find(filter, null, finder)
-    .then(documents => res.json(documents))
+
+  const findDocs = Document.find(filter, null, finder);
+
+  if (query.summary) {
+    findDocs.select('-data');
+  }
+  findDocs.then(documents => res.json(documents))
     .catch(e => next(e));
 }
 
