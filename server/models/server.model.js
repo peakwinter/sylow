@@ -7,6 +7,7 @@ import createdPlugin from './plugins/created';
 import updatedPlugin from './plugins/updated';
 import APIError from '../helpers/APIError';
 import config from '../../config/config';
+import generateRsa from '../helpers/Encrypt';
 
 /**
  * Server Storage Schema
@@ -29,8 +30,7 @@ const ServerSchema = new mongoose.Schema({
   keypair: {
     private: String,
     public: {
-      type: String,
-      required: true
+      type: String
     }
   },
   authoritative: {
@@ -50,6 +50,22 @@ ServerSchema.set('toJSON', { virtuals: true });
  * - validations
  * - virtuals
  */
+
+/* eslint-disable func-names */
+ServerSchema.pre('save', function (next, done) {
+  const self = this;
+  if (self.authoritative && (self.keypair.public === null && self.keypair.private === null)) {
+    generateRsa((err, keypair) => {
+      if (err) {
+        next(new Error(err));
+      }
+      Object.assign(this.keypair, keypair);
+      done();
+    });
+  }
+  next();
+});
+/* eslint-enable */
 
 /**
  * Methods

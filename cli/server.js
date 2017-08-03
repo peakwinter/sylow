@@ -8,8 +8,12 @@
 const fs = require('fs');
 const mongoose = require('mongoose');
 const uuidV4 = require('uuid/v4');
+const forge = require('node-forge');
 
 const utils = require('./util');
+
+const forgePki = forge.pki;
+const forgeRsa = forge.pki.rsa;
 
 const serverSchema = {
   _id: { type: String, required: true, default: uuidV4 },
@@ -19,12 +23,24 @@ const serverSchema = {
   contacted: { type: Date, default: Date.now },
   keypair: {
     private: { type: String },
-    public: { type: String, required: true }
+    public: { type: String }
   },
   authoritative: { type: Boolean, default: false },
   created: { type: Date, default: Date.now, required: true },
   updated: { type: Date, default: Date.now }
 };
+
+function generateRsa(cb) {
+  return forgeRsa.generateKeyPair({ bits: 2048, workers: -1 }, function (err, keypair) {
+    if (err) {
+      return cb(err);
+    }
+    return cb(null, {
+      private: forgePki.privateKeyToPem(keypair.privateKey),
+      public: forgePki.publicKeyToPem(keypair.publicKey)
+    });
+  });
+}
 
 function createServer(datas) {
   return new Promise((resolve, reject) => {
@@ -32,7 +48,7 @@ function createServer(datas) {
     Server
       .findOne({ authoritative: true })
       .exec()
-      . then((server) => {
+      .then((server) => {
         if (server) {
           return reject('An authoritative server already exists...');
         }
@@ -57,49 +73,52 @@ function getAuthoritative() {
   });
 }
 
-
 module.exports = {
-  newServer: function (domain, publicKeyFile, privateKeyFile, options) {
+  newServer: function (domain, options) {
     utils.mongooseConnect();
     const validOptions = ['name', 'description'];
     if (!domain) {
       console.error('Domain missing');
       process.exit(1);
-    } else if (!publicKeyFile) {
-      console.error('Public key file path missing');
-      process.exit(1);
-    } else if (!privateKeyFile) {
-      console.error('Private key file path missing');
-      process.exit(1);
     }
 
-    const publicKey = fs.readFileSync(publicKeyFile, 'utf8');
-    const privateKey = fs.readFileSync(privateKeyFile, 'utf8');
-
-    const keypair = {
-      public: publicKey,
-      private: privateKey
-    };
-
     const finalDatas = {
-      domain, publicKeyFile, keypair
+      domain,
+      keypair: {
+        public: null,
+        private: null
+      }
     };
 
-    validOptions.forEach(function (i) {
-      if (options[i] && typeof options[i] !== 'function') {
-        finalDatas[i] = options[i];
-      }
-    });
-    finalDatas.authoritative = true;
-    createServer(finalDatas)
-      .then(() => {
-        console.log('Success!');
-        process.exit(0);
-      })
-      .catch((e) => {
-        console.error(e);
-        process.exit(1);
+    if (options.publickeyFile && options.privatekeyFile) {
+      finalDatas.keypair = {
+        public: fs.readFileSync(options.publickeyFile, 'utf8'),
+        private: fs.readFileSync(options.privatekeyFile, 'utf8')
+      };
+    } else {
+      generateRsa(function (err, keypair) {
+        if (err) {
+          console.error(err);
+          process.exit(1);
+        }
+        finalDatas.keypair = keypair;
+        validOptions.forEach(function (i) {
+          if (options[i] && typeof options[i] !== 'function') {
+            finalDatas[i] = options[i];
+          }
+        });
+        finalDatas.authoritative = true;
+        createServer(finalDatas)
+          .then(() => {
+            console.log('Success!');
+            process.exit(0);
+          })
+          .catch((e) => {
+            console.error(e);
+            process.exit(1);
+          });
       });
+    }
   },
 
   exportServer: function (options) {
