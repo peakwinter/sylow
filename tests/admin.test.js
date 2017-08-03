@@ -116,6 +116,8 @@ describe('## Admin Interface', () => {
           const html = cheerio.load(res.text);
           const contents = html('.ui.sy-dashboard h1.ui.header').html();
           expect(contents).to.equal('Dashboard');
+          expect(res.headers).to.have.property('sylow-serverid');
+          expect(res.headers['sylow-serverid']).to.equal('testDomain');
           done();
         })
         .catch(done);

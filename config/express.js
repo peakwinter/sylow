@@ -45,6 +45,11 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
+app.use((req, res, next) => {
+  res.setHeader('Sylow-ServerID', app.sylowServer);
+  next();
+});
+
 // secure apps by setting various HTTP headers
 app.use(helmet());
 

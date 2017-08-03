@@ -51,6 +51,8 @@ if (!module.parent) {
       console.error(err.message); // eslint-disable-line no-console
       process.exit(1);
     });
+} else {
+  Object.assign(app, { sylowServer: 'testDomain' });
 }
 
 export default app;
