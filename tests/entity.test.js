@@ -150,19 +150,21 @@ describe('## Entity APIs', () => {
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body).to.be.an('array');
+          expect(res.body[0]).to.not.have.property('keypair');
           done();
         })
         .catch(done);
     });
 
-    it('should get all entities (with limit and skip)', (done) => {
+    it('should get all entities (with limit, skip and keypair)', (done) => {
       request(app)
         .get('/api/entities')
         .set('Authorization', `Bearer ${accessToken.token}`)
-        .query({ limit: 10, skip: 1 })
+        .query({ limit: 10, skip: 1, showKeys: true })
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body).to.be.an('array');
+          expect(res.body[0]).to.have.property('keypair');
           done();
         })
         .catch(done);

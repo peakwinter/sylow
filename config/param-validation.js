@@ -20,6 +20,13 @@ export default {
     }
   },
 
+  // GET /api/entities
+  listEntities: {
+    query: {
+      showKeys: Joi.boolean()
+    }
+  },
+
   // UPDATE /api/entities/:entityId
   updateEntity: {
     body: {
