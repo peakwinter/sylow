@@ -89,12 +89,27 @@ module.exports = {
         private: null
       }
     };
+    validOptions.forEach(function (i) {
+      if (options[i] && typeof options[i] !== 'function') {
+        finalDatas[i] = options[i];
+      }
+    });
+    finalDatas.authoritative = true;
 
     if (options.publickeyFile && options.privatekeyFile) {
       finalDatas.keypair = {
         public: fs.readFileSync(options.publickeyFile, 'utf8'),
         private: fs.readFileSync(options.privatekeyFile, 'utf8')
       };
+      createServer(finalDatas)
+        .then(() => {
+          console.log('Success!');
+          process.exit(0);
+        })
+        .catch((e) => {
+          console.error(e);
+          process.exit(1);
+        });
     } else {
       generateRsa(function (err, keypair) {
         if (err) {
@@ -102,12 +117,6 @@ module.exports = {
           process.exit(1);
         }
         finalDatas.keypair = keypair;
-        validOptions.forEach(function (i) {
-          if (options[i] && typeof options[i] !== 'function') {
-            finalDatas[i] = options[i];
-          }
-        });
-        finalDatas.authoritative = true;
         createServer(finalDatas)
           .then(() => {
             console.log('Success!');

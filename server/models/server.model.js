@@ -29,9 +29,7 @@ const ServerSchema = new mongoose.Schema({
   },
   keypair: {
     private: String,
-    public: {
-      type: String
-    }
+    public: String
   },
   authoritative: {
     type: Boolean,
@@ -52,18 +50,16 @@ ServerSchema.set('toJSON', { virtuals: true });
  */
 
 /* eslint-disable func-names */
-ServerSchema.pre('save', function (next, done) {
-  const self = this;
-  if (self.authoritative && (self.keypair.public === null && self.keypair.private === null)) {
+ServerSchema.pre('save', function (done) {
+  if (this.authoritative && !this.keypair.public && !this.keypair.private) {
     generateRsa((err, keypair) => {
       if (err) {
-        next(new Error(err));
+        done(new Error(err));
       }
       Object.assign(this.keypair, keypair);
-      done();
     });
   }
-  next();
+  done();
 });
 /* eslint-enable */
 
