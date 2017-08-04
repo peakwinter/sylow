@@ -109,12 +109,15 @@ EntitySchema.statics = {
    * @param {number} limit - Limit number of entities to be returned.
    * @returns {Promise<Entity[]>}
    */
-  list({ skip = 0, limit = 50 } = {}) {
-    return this.find()
+  list({ skip = 0, limit = 50, showKeys = false } = {}) {
+    const findEntities = this.find()
       .sort({ created: -1 })
       .skip(+skip)
-      .limit(+limit)
-      .exec();
+      .limit(+limit);
+    if (!showKeys) {
+      findEntities.select('-keypair');
+    }
+    return findEntities.exec();
   }
 };
 

@@ -20,6 +20,13 @@ export default {
     }
   },
 
+  // GET /api/entities
+  listEntities: {
+    query: {
+      showKeys: Joi.boolean()
+    }
+  },
+
   // UPDATE /api/entities/:entityId
   updateEntity: {
     body: {
@@ -169,9 +176,16 @@ export default {
       description: Joi.string(),
       keypair: Joi.object({
         public: Joi.string(),
-        private: Joi.string().when('authoritative', { is: true, then: Joi.required() })
+        private: Joi.string()
       }),
       authoritative: Joi.boolean().default(false)
+    }
+  },
+
+  // GET /api/servers
+  listServer: {
+    query: {
+      show_keys: Joi.boolean()
     }
   },
 

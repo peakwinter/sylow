@@ -7,6 +7,7 @@ import createdPlugin from './plugins/created';
 import updatedPlugin from './plugins/updated';
 import APIError from '../helpers/APIError';
 import config from '../../config/config';
+import generateRsa from '../helpers/Encrypt';
 
 /**
  * Server Storage Schema
@@ -28,10 +29,7 @@ const ServerSchema = new mongoose.Schema({
   },
   keypair: {
     private: String,
-    public: {
-      type: String,
-      required: true
-    }
+    public: String
   },
   authoritative: {
     type: Boolean,
@@ -50,6 +48,21 @@ ServerSchema.set('toJSON', { virtuals: true });
  * - validations
  * - virtuals
  */
+
+/* eslint-disable func-names */
+ServerSchema.pre('save', function (done) {
+  if (this.authoritative && !this.keypair.public && !this.keypair.private) {
+    generateRsa((err, keypair) => {
+      if (err) {
+        done(new Error(err));
+      }
+      Object.assign(this.keypair, keypair);
+    });
+  } else {
+    done();
+  }
+});
+/* eslint-enable */
 
 /**
  * Methods
@@ -98,12 +111,16 @@ ServerSchema.statics = {
    * @param {number} limit - Limit number of servers to be returned.
    * @returns {Promise<Server[]>}
    */
-  list({ skip = 0, limit = 50 } = {}) {
-    return this.find()
+  list({ skip = 0, limit = 50, showKeys = false } = {}) {
+    const findServers = this.find()
       .sort({ created: -1 })
       .skip(+skip)
-      .limit(+limit)
-      .exec();
+      .limit(+limit);
+
+    if (!showKeys) {
+      findServers.select('-keypair');
+    }
+    return findServers.exec();
   },
 
   /**
@@ -112,6 +129,7 @@ ServerSchema.statics = {
    */
   getAuthoritative() {
     return this.findOne({ authoritative: true })
+      .select('-keypair.private')
       .exec()
       .then((server) => {
         if (server) {

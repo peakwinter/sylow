@@ -103,8 +103,8 @@ function update(req, res, next) {
  * @returns {Entity[]}
  */
 function list(req, res, next) {
-  const { limit = 50, skip = 0 } = req.query;
-  Entity.list({ limit, skip })
+  const { limit = 50, skip = 0, showKeys = false } = req.query;
+  Entity.list({ limit, skip, showKeys })
     .then(entities => res.json(entities))
     .catch(e => next(e));
 }
