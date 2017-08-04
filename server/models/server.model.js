@@ -58,8 +58,9 @@ ServerSchema.pre('save', function (done) {
       }
       Object.assign(this.keypair, keypair);
     });
+  } else {
+    done();
   }
-  done();
 });
 /* eslint-enable */
 
