@@ -29,12 +29,20 @@ export function index(req, res, next) {
     .catch(next);
 }
 
+export function exportEntity(req, res) {
+  return Entity.get(req.params.entityId)
+    .then(entity => res.json(entity))
+    .catch(err => handleMongooseError(req, res, err, '/entities'));
+}
+
 export function showEntity(req, res) {
   return Promise.all([
-    Entity.get(req.params.entityId), AccessToken.find({ entity: req.params.entityId }).populate('client')
+    Entity.get(req.params.entityId),
+    AccessToken.find({ entity: req.params.entityId }).populate('client'),
+    Document.count({ entityId: req.params.entityId })
   ])
-    .then(([entity, tokens]) => res.render('entity', {
-      ctrl: 'entity', active: 'entities', entity, tokens
+    .then(([entity, tokens, docCount]) => res.render('entity', {
+      ctrl: 'entity', active: 'entities', entity, tokens, docCount
     }))
     .catch(err => handleMongooseError(req, res, err, '/entities'));
 }

@@ -12,6 +12,8 @@ block dashboard
             div(class="description") #{token.client.deviceTypeProper} client
           a(class="ui bottom attached negative button" data-action="showRevokeModal" data-params=token._id) Revoke
     div(class="ui hidden divider")
+  div Related documents: #{docCount}
+  div= `Created the ${moment(entity.create).format('ll')}` 
   h2(class="ui header") Edit Entity
   form(class="ui form" id="update-form" method="POST")
     input(type="hidden" id="passwordHash" name="passwordHash")
@@ -33,6 +35,7 @@ block dashboard
     button(type="submit" class="ui large basic primary button") Save
     a(class="ui large basic negative button" data-action="showDeleteModal" data-params=entity._id)= "Delete"
     a(class="ui large basic button" href="/entities")= "Go Back"
+    a(class="ui large basic secondary button" data-action="exportEntity" data-params=entity._id id="exportButton") Export
     div(class="ui error message")
 
   div(id="delete-entity-modal" class="ui basic modal")
