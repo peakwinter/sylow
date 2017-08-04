@@ -9,7 +9,7 @@ const router = express.Router();  // eslint-disable-line new-cap
 
 router.route('/')
   /** GET /api/servers - Get list of servers */
-  .get(authCtrl.authenticateOAuth, serverCtrl.list)
+  .get(authCtrl.authenticateOAuth, validate(paramValidation.listServer), serverCtrl.list)
 
   /** POST /api/servers - Create new server */
   .post(authCtrl.authenticateOAuth, validate(paramValidation.createServer), serverCtrl.create);

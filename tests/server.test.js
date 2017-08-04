@@ -123,9 +123,23 @@ describe('## Server APIs', () => {
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body).to.be.an('array');
+          expect(res.body[0]).to.not.have.property('keypair');
           done();
         })
         .catch(done);
+    });
+
+    it('should get all servers (with keypairs)', (done) => {
+      request(app)
+        .get('/api/servers')
+        .set('Authorization', `Bearer ${accessToken.token}`)
+        .query({ showKeys: true })
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body).to.be.an('array');
+          expect(res.body[0]).to.have.property('keypair');
+          done();
+        });
     });
   });
 

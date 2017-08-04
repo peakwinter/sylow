@@ -182,6 +182,13 @@ export default {
     }
   },
 
+  // GET /api/servers
+  listServer: {
+    query: {
+      show_keys: Joi.boolean()
+    }
+  },
+
   // UPDATE /api/servers/:serverId
   updateServer: {
     body: {

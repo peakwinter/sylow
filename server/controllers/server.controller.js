@@ -86,8 +86,8 @@ function remove(req, res, next) {
  * @returns {Server[]}
  */
 function list(req, res, next) {
-  const { limit = 50, skip = 0 } = req.query;
-  Server.list({ limit, skip })
+  const { skip = 0, limit = 50, showKeys = false } = req.query;
+  Server.list({ skip, limit, showKeys })
     .then(servers => res.json(servers))
     .catch(e => next(e));
 }

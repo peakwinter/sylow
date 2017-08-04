@@ -111,12 +111,16 @@ ServerSchema.statics = {
    * @param {number} limit - Limit number of servers to be returned.
    * @returns {Promise<Server[]>}
    */
-  list({ skip = 0, limit = 50 } = {}) {
-    return this.find()
+  list({ skip = 0, limit = 50, showKeys = false } = {}) {
+    const findServers = this.find()
       .sort({ created: -1 })
       .skip(+skip)
-      .limit(+limit)
-      .exec();
+      .limit(+limit);
+
+    if (!showKeys) {
+      findServers.select('-keypair');
+    }
+    return findServers.exec();
   },
 
   /**
@@ -125,6 +129,7 @@ ServerSchema.statics = {
    */
   getAuthoritative() {
     return this.findOne({ authoritative: true })
+      .select('-keypair.private')
       .exec()
       .then((server) => {
         if (server) {
