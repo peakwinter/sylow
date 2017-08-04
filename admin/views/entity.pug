@@ -12,6 +12,8 @@ block dashboard
             div(class="description") #{token.client.deviceTypeProper} client
           a(class="ui bottom attached negative button" data-action="showRevokeModal" data-params=token._id) Revoke
     div(class="ui hidden divider")
+  h3(class="ui header") Related documents: #{docCount}
+  h3(class="ui header" id="creation-date") #{entity.created}
   h2(class="ui header") Edit Entity
   form(class="ui form" id="update-form" method="POST")
     input(type="hidden" id="passwordHash" name="passwordHash")

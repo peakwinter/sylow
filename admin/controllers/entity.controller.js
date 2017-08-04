@@ -1,6 +1,7 @@
 /* eslint-env browser */
 
 import $ from 'jquery';
+import moment from 'moment';
 
 import Controller from './index';
 import * as scrypt from '../helpers/scrypt.helper';
@@ -53,6 +54,10 @@ export default class extends Controller {
         }
       };
     }
+
+    const createdText = new Date($('#creation-date').text());
+    const created = moment(createdText).format('lll');
+    $('#creation-date').text(`Created the ${created}`);
 
     this.form.submit(formSubmit);
     this.form.form(formValidate);
