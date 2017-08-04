@@ -22,7 +22,9 @@ program
     .action();
 
 program
-  .command('new-server <domain> <publicKeyFile> <privateKeyFile>')
+  .command('new-server <domain>')
+    .option('-u, --publickeyFile [publicKeyFile]', 'Public key file path')
+    .option('-r, --privatekeyFile [privateKeyFile]', 'Private key file path')
     .option('-n, --name [name]', 'server\'s name')
     .option('-d, --description [description]', 'server\'s description')
     .action(newServer);
