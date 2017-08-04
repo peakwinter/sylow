@@ -29,6 +29,12 @@ export function index(req, res, next) {
     .catch(next);
 }
 
+export function exportEntity(req, res) {
+  return Entity.get(req.params.entityId)
+    .then(entity => res.json(entity))
+    .catch(err => handleMongooseError(req, res, err, '/entities'));
+}
+
 export function showEntity(req, res) {
   return Promise.all([
     Entity.get(req.params.entityId),

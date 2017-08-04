@@ -35,6 +35,7 @@ block dashboard
     button(type="submit" class="ui large basic primary button") Save
     a(class="ui large basic negative button" data-action="showDeleteModal" data-params=entity._id)= "Delete"
     a(class="ui large basic button" href="/entities")= "Go Back"
+    a(class="ui large basic secondary button" data-action="exportEntity" data-params=entity._id id="exportButton") Export
     div(class="ui error message")
 
   div(id="delete-entity-modal" class="ui basic modal")

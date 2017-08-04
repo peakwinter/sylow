@@ -61,4 +61,7 @@ router.route('/servers/:serverId')
 
 router.route('/servers/:serverId/export')
   .get(adminCtrl.exportServer);
+
+router.route('/entities/:entityId/export')
+  .get(adminCtrl.exportEntity);
 export default router;
