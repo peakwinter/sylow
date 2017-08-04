@@ -1,7 +1,6 @@
 /* eslint-env browser */
 
 import $ from 'jquery';
-import moment from 'moment';
 import FileSaver from 'file-saver';
 
 import Controller from './index';
@@ -55,10 +54,6 @@ export default class extends Controller {
         }
       };
     }
-
-    const createdText = new Date($('#creation-date').text());
-    const created = moment(createdText).format('lll');
-    $('#creation-date').text(`Created the ${created}`);
 
     this.form.submit(formSubmit);
     this.form.form(formValidate);
