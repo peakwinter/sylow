@@ -176,7 +176,7 @@ export default {
       description: Joi.string(),
       keypair: Joi.object({
         public: Joi.string(),
-        private: Joi.string().when('authoritative', { is: true, then: Joi.required() })
+        private: Joi.string()
       }),
       authoritative: Joi.boolean().default(false)
     }
