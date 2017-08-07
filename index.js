@@ -38,6 +38,9 @@ if (!module.parent) {
     .getAuthoritative()
     .then((server) => {
       if (server) {
+        if (config.domain) {
+          console.log('\x1b[33m', 'SY_DOMAIN was set, but I already have an authoritative server that I must use. To edit the autoritative server, please use the CLI.');
+        }
         Object.assign(app, { sylowServer: server.domain });
         // listen on port config.port
         app.listen(config.port, () => {
