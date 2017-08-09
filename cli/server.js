@@ -30,6 +30,8 @@ const serverSchema = {
   updated: { type: Date, default: Date.now }
 };
 
+const Server = mongoose.model('Server', serverSchema);
+
 function generateRsa(cb) {
   return forgeRsa.generateKeyPair({ bits: 2048, workers: -1 }, function (err, keypair) {
     if (err) {
@@ -44,7 +46,6 @@ function generateRsa(cb) {
 
 function createServer(datas) {
   return new Promise((resolve, reject) => {
-    const Server = mongoose.model('Server', serverSchema);
     Server
       .findOne({ authoritative: true })
       .exec()
@@ -59,7 +60,6 @@ function createServer(datas) {
 
 function getAuthoritative() {
   return new Promise((resolve, reject) => {
-    const Server = mongoose.model('Server', serverSchema);
     Server
       .findOne({ authoritative: true })
       .exec()
@@ -149,5 +149,46 @@ module.exports = {
         console.log(err);
         process.exit(1);
       });
+  },
+
+  editServer: function (options) {
+    utils.mongooseConnect();
+    const validOptions = ['name', 'domain'];
+
+    const finalDatas = {};
+    validOptions.forEach(function (i) {
+      if (options[i] && typeof options[i] !== 'function') {
+        finalDatas[i] = options[i];
+      }
+    });
+    if (options.publickeyFile || options.privatekeyFile) {
+      finalDatas.keypair = {};
+      if (options.publickeyFile) {
+        const pk = fs.readFileSync(options.publickeyFile, 'utf-8');
+        Object.assign(finalDatas.keypair, { public: pk });
+      }
+      if (options.privatekeyFile) {
+        const pk = fs.readFileSync(options.privatekeyFile, 'utf-8');
+        Object.assign(finalDatas.keypair, { private: pk });
+      }
+    }
+
+    getAuthoritative()
+      .then((server) => {
+        Server
+          .findOneAndUpdate({ _id: server._id }, finalDatas, { new: true })
+          .then(() => {
+            console.log('The server has been updated');
+            process.exit(0);
+          })
+          .catch((err) => {
+            console.error(err);
+            process.exit(1);
+          });
+      })
+    .catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
   }
 };
