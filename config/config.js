@@ -64,6 +64,6 @@ const config = {
   schemaDomainWhitelist: envVars.SY_SCHEMA_DOMAIN_WHITELIST
 };
 
-const unvariableConfig = ['env', 'port', 'mongooseDebug', 'sessionSecret', 'mongo'];
+const unvariableConfig = ['domain', 'env', 'port', 'mongooseDebug', 'sessionSecret', 'mongo'];
 
 export { config as default, unvariableConfig };
