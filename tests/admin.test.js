@@ -410,7 +410,7 @@ describe('## Admin Interface', () => {
         .then((res) => {
           const html = cheerio.load(res.text);
           const title = html('.ui.sy-dashboard h1.ui.header').first().html();
-          const domain = html('.settings_updates').first().attr('value');
+          const domain = html('.field.six.wide input').first().attr('value');
           expect(title).to.equal('Settings');
           expect(domain).to.equal('sylow.dev');
           done();
@@ -423,7 +423,7 @@ describe('## Admin Interface', () => {
     it('should update settings', (done) => {
       const updSettings = {
         domain: 'testdomain.xyz',
-        allowSignups: true,
+        allowSignups: 'on',
         schemaDomainWhitelist: ['sylow.network']
       };
       adminSesh.post('/settings')
@@ -434,7 +434,7 @@ describe('## Admin Interface', () => {
         .then((res) => {
           const html = cheerio.load(res.text);
           const title = html('.ui.sy-dashboard h1.ui.header').first().html();
-          const domain = html('.settings_updates').first().attr('value');
+          const domain = html('.field.six.wide input').first().attr('value');
           expect(title).to.equal('Settings');
           expect(domain).to.equal('testdomain.xyz');
           done();
