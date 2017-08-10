@@ -6,12 +6,12 @@ block dashboard
     each val, key in settings
       - key_label = key.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) { return str.toUpperCase(); });
       - if (typeof val === "boolean") {
-        div(class='inline field')
+        div(class=`inline field ${key}`)
           div(class="ui checkbox")
             label= key_label
             input(class="hidden" tabindex="0" type="checkbox"  name=key checked=val)      
       - } else if (val instanceof Array) {
-        div(class="field")
+        div(class=`field ${key}`)
           label= key_label
           each v in val 
             div(class="inline field")
@@ -21,7 +21,7 @@ block dashboard
           div(class="field six wide")
             input(name=key type="text" placeholder="Add a domain")
       - } else {
-        div(class="field six wide")
+        div(class=`field six wide ${key}`)
           label= key_label
           input(value=val name=key type="text")
       - }
