@@ -269,7 +269,7 @@ export function listServers(req, res) {
   ])
     .then(([authoritativeServer, otherServers]) => {
       res.render('servers', {
-        ctrl: 'server', active: 'server', authoritativeServer, otherServers
+        ctrl: 'server', active: 'servers', authoritativeServer, otherServers
       });
     })
     .catch(err => handleMongooseError(req, res, err, '/servers'));
