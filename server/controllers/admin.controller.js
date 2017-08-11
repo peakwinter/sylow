@@ -206,7 +206,7 @@ export function updateSettings(req, res) {
   const inputDatas = req.body;
 
   inputDatas.schemaDomainWhitelist = inputDatas.schemaDomainWhitelist.filter(n => n !== '');
-  inputDatas.allowSignups = (inputDatas.allowSignups === 'true');
+  inputDatas.allowSignups = (inputDatas.allowSignups === 'on');
   const settableConfig = formatSettableConfig(inputDatas);
 
   Object.assign(config, inputDatas);
