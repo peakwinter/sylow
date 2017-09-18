@@ -424,7 +424,7 @@ describe('## Admin Interface', () => {
       const updSettings = {
         domain: 'testdomain.xyz',
         allowSignups: 'on',
-        schemaDomainWhitelist: ['sylow.network', 'test']
+        schemaDomainWhitelist: ['sylow.network']
       };
       adminSesh.post('/settings')
         .redirects(1)
@@ -436,7 +436,7 @@ describe('## Admin Interface', () => {
           const title = html('.ui.sy-dashboard h1.ui.header').first().html();
           const domainWhiteListInputs = html('.schemaDomainWhitelist input').get().length;
           expect(title).to.equal('Settings');
-          expect(domainWhiteListInputs).to.equal(3);
+          expect(domainWhiteListInputs).to.equal(2);
           done();
         })
         .catch(done);
