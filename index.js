@@ -39,7 +39,7 @@ if (!module.parent) {
     .then((server) => {
       if (server) {
         if (config.domain) {
-          console.log('SY_DOMAIN was set, but I already have an authoritative server that I must use. To edit the autoritative server, please use the CLI.'); // eslint-disable-line no-console
+          console.warn('SY_DOMAIN was set, but I already have an authoritative server that I must use. To edit the autoritative server, please use the CLI.'); // eslint-disable-line no-console
         }
         Object.assign(app, { sylowServer: server.domain });
         // listen on port config.port

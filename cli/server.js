@@ -174,18 +174,14 @@ module.exports = {
     }
 
     getAuthoritative()
-      .then((server) => {
+      .then(server =>
         Server
-          .findOneAndUpdate({ _id: server._id }, finalDatas, { new: true })
+          .findOneAndUpdate({ _id: server._id }, { $set: finalDatas }, { new: true })
           .then(() => {
             console.log('The server has been updated');
             process.exit(0);
           })
-          .catch((err) => {
-            console.error(err);
-            process.exit(1);
-          });
-      })
+      )
     .catch((err) => {
       console.error(err);
       process.exit(1);
