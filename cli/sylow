@@ -6,7 +6,7 @@ const program = require('commander');
 const packageData = require('../package.json');
 
 const newEntity = require('./new-entity');
-const { newServer, exportServer } = require('./server');
+const { newServer, exportServer, editServer } = require('./server');
 
 program
   .version(packageData.version)
@@ -34,5 +34,13 @@ program
     .option('-f, --file [file]', 'The target file to export to')
     .action(exportServer);
 
+program
+  .command('edit-server')
+    .option('-n, --name [name]', 'New name')
+    .option('-d, --domain [domain]', 'New domain')
+    .option('-u, --publickeyFile [publicKeyFile]', 'New public key file path')
+    .option('-r, --privatekeyFile [privateKeyFile]', 'New private key file path')
+    .action(editServer);
+ 
 program
   .parse(process.argv);
