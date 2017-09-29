@@ -19,10 +19,34 @@ function generateRsa(cb) {
 
 function generateSignature(content, keypair, cb) {
   const md = forge.md.sha1.create();
-  const privateKey = forgePki.privateKeyfromPem(keypair.private);
+  const privateKey = forgePki.privateKeyFromPem(keypair.private);
   md.update(content, 'utf8');
   const signature = privateKey.sign(md);
   return cb(null, signature, content);
 }
 
-export { generateRsa as default, generateSignature };
+function validateSignature(signature, data, keypair, cb) {
+  const publicKey = forgePki.publicKeyFromPem(keypair.public);
+  const verified = publicKey.verify(data, signature);
+  return cb(null, verified);
+}
+
+function encryptData(keypair, data, method = 'RSAES-PKCS1-V1_5', cb) {
+  if (typeof method === 'function') {
+    cb = method;  // eslint-disable-line no-param-reassign
+  }
+  const publicKey = forgePki.publicKeyFromPem(keypair.public);
+  const encrypted = publicKey.encrypt(data, method);
+  return cb(null, encrypted);
+}
+
+function decryptData(keypair, data, method = 'RSAES-PKCS1-V1_5', cb) {
+  if (typeof method === 'function') {
+    cb = method;  // eslint-disable-line no-param-reassign
+  }
+  const privateKey = forgePki.privateKeyFromPem(keypair.private);
+  const decrypted = privateKey.decrypt(data, method);
+  return cb(null, decrypted);
+}
+
+export { generateRsa as default, generateSignature, validateSignature, encryptData, decryptData };
