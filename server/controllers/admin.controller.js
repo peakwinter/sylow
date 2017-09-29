@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import decamelize from 'decamelize';
 
+import app from '../../index';
 import AccessToken from '../models/accessToken.model';
 import Client from '../models/client.model';
 import Document from '../models/document.model';
@@ -64,7 +65,7 @@ export function createEntity(req, res) {
 
   const entity = new Entity({
     username: req.body.username,
-    domain: req.body.domain || config.domain,
+    domain: req.body.domain || config.domain || app.sylowServer,
     passwordHash: req.body.passwordHash,
     passwordSalt: req.body.passwordSalt,
     authoritative: true,

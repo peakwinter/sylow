@@ -170,7 +170,7 @@ describe('## Admin Interface', () => {
           superfluousEntity.id = testuserCard.find('.ui.negative.button').data('params');
           expect(contents.length).to.equal(2);
           expect(testuserCard.find('.content .header').first().html())
-            .to.equal('newuser@sylow.dev');
+            .to.equal('newuser@testDomain');
           done();
         })
         .catch(done);

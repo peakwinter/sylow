@@ -1,6 +1,7 @@
 import uuidV4 from 'uuid/v4';
 import httpStatus from 'http-status';
 
+import app from '../../index';
 import APIError from '../helpers/APIError';
 import config from '../../config/config';
 import Entity from '../models/entity.model';
@@ -59,6 +60,10 @@ function create(req, res, next) {
   } else {
     entity.username = req.body.username;
     entity.domain = req.body.domain;
+  }
+
+  if (!entity.domain) {
+    entity.domain = app.sylowServer;
   }
 
   return entity.save()
