@@ -4,6 +4,7 @@ const dotenvExpand = require('dotenv-expand');
 const crypto = require('crypto');
 const util = require('util');
 const debug = require('debug')('sylow:cli');
+const path = require('path');
 
 const scryptAsync = require('scrypt-async');
 
@@ -15,7 +16,7 @@ module.exports = {
     // plugin bluebird promise in mongoose
     mongoose.Promise = Promise;
 
-    const myEnv = dotenv.config({ path: '../.env' });
+    const myEnv = dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
     dotenvExpand(myEnv);
     const envConfig = Object.create(myEnv.parsed);
 
