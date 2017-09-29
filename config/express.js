@@ -10,6 +10,7 @@ import expressFlash from 'express-flash';
 import expressSession from 'express-session';
 import expressWinston from 'express-winston';
 import expressValidation from 'express-validation';
+import favicon from 'serve-favicon'
 import passport from 'passport';
 import helmet from 'helmet';
 import path from 'path';
@@ -86,6 +87,9 @@ app.use('/api', routes);
 
 // mount admin routes on the root path
 app.use('/', adminRoutes);
+
+// mount favicon asset
+app.use(favicon(path.join(__dirname, '../admin/assets/favicon.ico')));
 
 // mount admin static assets
 app.use('/assets', express.static(path.join(__dirname, '../admin/assets')));
