@@ -39,6 +39,7 @@ const testClient = {
 
 const superfluousEntity = {
   username: 'newuser',
+  domain: 'testDomain',
   passwordHash: 'xxxxxx',
   passwordSalt: 'xxxxxx',
   admin: true
