@@ -57,6 +57,7 @@ ServerSchema.pre('save', function (done) {
         done(new Error(err));
       }
       Object.assign(this.keypair, keypair);
+      done();
     });
   } else {
     done();
@@ -124,6 +125,35 @@ ServerSchema.statics = {
   },
 
   /**
+   * Create and return an authoritative server
+   * @returns {Promise<Server>}
+   */
+  createAuthoritative() {
+    const datas = {
+      authoritative: true,
+      keypair: {
+        public: null,
+        private: null
+      }
+    };
+
+    if (config.domain) {
+      Object.assign(datas, {
+        domain: config.domain
+      });
+    } else if (config.env === 'test') {
+      Object.assign(datas, {
+        name: 'Sylow Test Server',
+        domain: 'sylow.dev'
+      });
+    }
+    const newServer = new this(datas);
+    return newServer.save()
+      .then(savedServer => savedServer)
+      .catch(() => Promise.reject(new Error('I cannot start, authoritative server and SY_DOMAIN not found. Please run \'cli/sylow new-server\' or set SY_DOMAIN in .env file')));
+  },
+
+  /**
    * Return the server marked as authoritative
    * @returns {Promise<Server>}
    */
@@ -133,23 +163,9 @@ ServerSchema.statics = {
       .exec()
       .then((server) => {
         if (server) {
-          return server;
-        } else if (config.env === 'test') {
-          const datas = {
-            name: 'Sylow Test Server',
-            domain: 'sylow.dev',
-            authoritative: true,
-            keypair: {
-              public: 'xxxxx',
-              private: 'xxxxx'
-            }
-          };
-          const newServer = new this(datas);
-          return newServer.save()
-            .then(savedServer => savedServer)
-            .catch(err => Promise.reject(err));
+          return Promise.resolve(server);
         }
-        return null;
+        return Promise.reject(new Error('No authoritative server found'));
       });
   }
 };

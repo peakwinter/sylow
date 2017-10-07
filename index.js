@@ -37,22 +37,30 @@ if (!module.parent) {
   Server
     .getAuthoritative()
     .then((server) => {
-      if (server) {
-        if (config.domain) {
-          console.warn('SY_DOMAIN was set, but I already have an authoritative server that I must use. To edit the autoritative server, please use the CLI.'); // eslint-disable-line no-console
-        }
-        Object.assign(app, { sylowServer: server.domain });
-        // listen on port config.port
-        app.listen(config.port, () => {
-          console.info(`server started on port ${config.port} (${config.env})`); // eslint-disable-line no-console
-        });
-      } else {
-        throw new Error('Authoritative server not found. Please run `cli/sylow new-server`.');
+      if (config.domain) {
+        console.warn('SY_DOMAIN was set, but I already have an authoritative server that I must use. To edit the autoritative server, please use the CLI.'); // eslint-disable-line no-console
       }
+      Object.assign(app, { sylowServer: server.domain });
+      // listen on port config.port
+      app.listen(config.port, () => {
+        console.info(`server started on port ${config.port} (${config.env})`); // eslint-disable-line no-console
+      });
     })
     .catch((err) => {
-      console.error(err.message); // eslint-disable-line no-console
-      process.exit(1);
+      Server
+        .createAuthoritative()
+        .then((newServer) => {
+          Object.assign(app, { sylowServer: newServer.domain });
+          // listen on port config.port
+          app.listen(config.port, () => {
+            console.info(`A new authoritative server started on port ${config.port} (${config.env})`); // eslint-disable-line no-console
+          });
+        })
+        .catch((e) => {
+          console.error(err.message); // eslint-disable-line no-console
+          console.error(e.message); // eslint-disable-line no-console
+          process.exit(1);
+        });
     });
 } else {
   Object.assign(app, { sylowServer: 'testDomain' });
