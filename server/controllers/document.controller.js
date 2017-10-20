@@ -65,7 +65,7 @@ function create(req, res, next) {
         data: doc.data || {},
         references: doc.references || {},
         mentions: doc.mentions || {},
-        tags: doc.tags || [],
+        tags: doc.tags || {},
         key: doc.key || ''
       }, {
         new: true, upsert: true, setDefaultsOnInsert: true
@@ -149,6 +149,7 @@ function getActions(req, res, next) {
     filter.created = { $gt: query.createdStart };
   }
   if ('createdEnd' in query) {
+    /* istanbul ignore else */
     if (filter.created) {
       filter.created.$lt = query.createdEnd;
     } else {
@@ -159,6 +160,7 @@ function getActions(req, res, next) {
     filter.updated = { $gt: query.updatedStart };
   }
   if ('updatedEnd' in query) {
+    /* istanbul ignore else */
     if (filter.updated) {
       filter.updated.$lt = query.updatedEnd;
     } else {
@@ -166,14 +168,24 @@ function getActions(req, res, next) {
     }
   }
   if ('tags' in query) {
-    filter.tags = { $in: query.tags };
+    const tags = query.tags;
+    const tk = Object.keys(tags);
+    for (let i = 0; i < tk.length; i += 1) {
+      const key = tk[i];
+      filter[`tags.${key}`] = tags[key];
+    }
   }
+  /* istanbul ignore if */
   if ('page' in query && finder.limit) {
     finder.skip = (finder.limit * (query.page - 1));
   }
 
-  Document.find(filter, null, finder)
-    .then(documents => res.json(documents))
+  const findDocs = Document.find(filter, null, finder);
+
+  if (query.summary) {
+    findDocs.select('-data');
+  }
+  findDocs.then(documents => res.json(documents))
     .catch(e => next(e));
 }
 

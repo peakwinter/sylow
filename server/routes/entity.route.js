@@ -9,7 +9,7 @@ const router = express.Router(); // eslint-disable-line new-cap
 
 router.route('/')
   /** GET /api/entities - Get list of entities */
-  .get(authCtrl.authenticateOAuth, entityCtrl.list)
+  .get(authCtrl.authenticateOAuth, validate(paramValidation.listEntities), entityCtrl.list)
 
   /** POST /api/entities - Create new entity */
   .post(authCtrl.authenticateOAuth, validate(paramValidation.createEntity), entityCtrl.create);

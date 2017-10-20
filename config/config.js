@@ -34,7 +34,7 @@ const envVarsSchema = Joi.object({
     .description('Mongo DB host url'),
   MONGO_PORT: Joi.number()
     .default(27017),
-  SY_DOMAIN: Joi.string().required()
+  SY_DOMAIN: Joi.string()
     .description('Domain on which entities should be based'),
   SY_ALLOW_SIGNUPS: Joi.boolean().default(true),
   SY_FILE_SYSTEM_PATH: Joi.string().regex(/^(\/[^/ ]*)+\/?$/).required()
@@ -64,6 +64,6 @@ const config = {
   schemaDomainWhitelist: envVars.SY_SCHEMA_DOMAIN_WHITELIST
 };
 
-const unvariableConfig = ['env', 'port', 'mongooseDebug', 'sessionSecret', 'mongo'];
+const unvariableConfig = ['domain', 'env', 'port', 'mongooseDebug', 'sessionSecret', 'mongo'];
 
 export { config as default, unvariableConfig };

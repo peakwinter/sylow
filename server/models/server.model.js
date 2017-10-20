@@ -6,6 +6,8 @@ import idPlugin from './plugins/id';
 import createdPlugin from './plugins/created';
 import updatedPlugin from './plugins/updated';
 import APIError from '../helpers/APIError';
+import config from '../../config/config';
+import generateRsa from '../helpers/Encrypt';
 
 /**
  * Server Storage Schema
@@ -27,10 +29,7 @@ const ServerSchema = new mongoose.Schema({
   },
   keypair: {
     private: String,
-    public: {
-      type: String,
-      required: true
-    }
+    public: String
   },
   authoritative: {
     type: Boolean,
@@ -49,6 +48,22 @@ ServerSchema.set('toJSON', { virtuals: true });
  * - validations
  * - virtuals
  */
+
+/* eslint-disable func-names */
+ServerSchema.pre('save', function (done) {
+  if (this.authoritative && !this.keypair.public && !this.keypair.private) {
+    generateRsa((err, keypair) => {
+      if (err) {
+        done(new Error(err));
+      }
+      Object.assign(this.keypair, keypair);
+      done();
+    });
+  } else {
+    done();
+  }
+});
+/* eslint-enable */
 
 /**
  * Methods
@@ -97,12 +112,61 @@ ServerSchema.statics = {
    * @param {number} limit - Limit number of servers to be returned.
    * @returns {Promise<Server[]>}
    */
-  list({ skip = 0, limit = 50 } = {}) {
-    return this.find()
+  list({ skip = 0, limit = 50, showKeys = false } = {}) {
+    const findServers = this.find()
       .sort({ created: -1 })
       .skip(+skip)
-      .limit(+limit)
-      .exec();
+      .limit(+limit);
+
+    if (!showKeys) {
+      findServers.select('-keypair');
+    }
+    return findServers.exec();
+  },
+
+  /**
+   * Create and return an authoritative server
+   * @returns {Promise<Server>}
+   */
+  createAuthoritative() {
+    const datas = {
+      authoritative: true,
+      keypair: {
+        public: null,
+        private: null
+      }
+    };
+
+    if (config.domain) {
+      Object.assign(datas, {
+        domain: config.domain
+      });
+    } else if (config.env === 'test') {
+      Object.assign(datas, {
+        name: 'Sylow Test Server',
+        domain: 'sylow.dev'
+      });
+    }
+    const newServer = new this(datas);
+    return newServer.save()
+      .then(savedServer => savedServer)
+      .catch(() => Promise.reject(new Error('I cannot start, authoritative server and SY_DOMAIN not found. Please run \'cli/sylow new-server\' or set SY_DOMAIN in .env file')));
+  },
+
+  /**
+   * Return the server marked as authoritative
+   * @returns {Promise<Server>}
+   */
+  getAuthoritative() {
+    return this.findOne({ authoritative: true })
+      .select('-keypair.private')
+      .exec()
+      .then((server) => {
+        if (server) {
+          return Promise.resolve(server);
+        }
+        return Promise.reject(new Error('No authoritative server found'));
+      });
   }
 };
 

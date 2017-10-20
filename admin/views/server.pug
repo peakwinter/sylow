@@ -1,0 +1,16 @@
+extends includes/dash.pug
+
+block dashboard
+  h1(class="ui header") #{server.domain}
+  h2(class="ui header") Edit Server  
+  form(class="ui form" id="update-form" method="POST")
+    div(class="field")
+      label= "Name"
+      input(type="text" id="servername" name="name" placeholder="Name"  value=server.name)
+    div(class="field")
+      label= "Description"
+      textarea(id="serverdescription" name="description" placeholder="Description")=server.description
+    div(class="ui hidden divider")
+    button(type="submit" class="ui large basic primary button") Save
+    a(class="ui large basic button" href="/servers")= "Go Back"
+    a(class="ui large basic secondary button" data-action="exportServer" data-params=server._id id="exportButton") Export

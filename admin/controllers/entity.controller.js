@@ -1,6 +1,7 @@
 /* eslint-env browser */
 
 import $ from 'jquery';
+import FileSaver from 'file-saver';
 
 import Controller from './index';
 import * as scrypt from '../helpers/scrypt.helper';
@@ -96,5 +97,15 @@ export default class extends Controller {
       url: `/tokens/${this.tokenToRevoke}`,
       method: 'DELETE'
     }).done(() => { window.location = window.location; });
+  }
+
+  exportEntity(event, entityId) {
+    $.ajax({
+      url: `/entities/${entityId}/export`,
+      method: 'GET'
+    }).done((datas) => {
+      const blob = new Blob([JSON.stringify(datas, null, 2)], { type: 'application/json; charset=utf-8' });
+      FileSaver.saveAs(blob, `${datas.domain}.json`);
+    });
   }
 }

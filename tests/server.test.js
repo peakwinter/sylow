@@ -32,13 +32,13 @@ describe('## Server APIs', () => {
     description: 'The second server\'s description',
     keypair: {
       public: 'xxxxxx'
-    },
-    authoritative: true
+    }
   };
 
   let accessToken;
 
-  before('Clean up test data', () => 
+
+  before('Clean up test data', () =>
     createTokens().then(({ adminAccessToken }) => {
       accessToken = adminAccessToken;
     })
@@ -84,6 +84,18 @@ describe('## Server APIs', () => {
         })
         .catch(done);
     });
+
+    it('should fail to get a nonexistent server', (done) => {
+      request(app)
+        .get('/api/servers/xxxxxx')
+        .set('Authorization', `Bearer ${accessToken.token}`)
+        .expect(httpStatus.NOT_FOUND)
+        .then((res) => {
+          expect(res.body.message).to.equal('Not Found');
+          done();
+        })
+        .catch(done);
+    });
   });
 
   describe('# PUT /api/servers/:serverId', () => {
@@ -111,9 +123,23 @@ describe('## Server APIs', () => {
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body).to.be.an('array');
+          expect(res.body[0]).to.not.have.property('keypair');
           done();
         })
         .catch(done);
+    });
+
+    it('should get all servers (with keypairs)', (done) => {
+      request(app)
+        .get('/api/servers')
+        .set('Authorization', `Bearer ${accessToken.token}`)
+        .query({ showKeys: true })
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body).to.be.an('array');
+          expect(res.body[0]).to.have.property('keypair');
+          done();
+        });
     });
   });
 

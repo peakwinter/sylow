@@ -25,13 +25,16 @@ function get(req, res) {
  * @returns {server}
  */
 function create(req, res, next) {
-  let keypair = {};
+  let keypair = { public: null, private: null };
+
+  /* istanbul ignore else */
   if (req.body.keypair) {
     keypair = {
       public: req.body.keypair.public,
       private: req.body.keypair.private
     };
   }
+
   const server = new Server({
     domain: req.body.domain,
     name: req.body.name || req.body.domain,
@@ -83,8 +86,8 @@ function remove(req, res, next) {
  * @returns {Server[]}
  */
 function list(req, res, next) {
-  const { limit = 50, skip = 0 } = req.query;
-  Server.list({ limit, skip })
+  const { skip = 0, limit = 50, showKeys = false } = req.query;
+  Server.list({ skip, limit, showKeys })
     .then(servers => res.json(servers))
     .catch(e => next(e));
 }

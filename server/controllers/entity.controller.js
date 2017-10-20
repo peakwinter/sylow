@@ -1,6 +1,7 @@
 import uuidV4 from 'uuid/v4';
 import httpStatus from 'http-status';
 
+import app from '../../index';
 import APIError from '../helpers/APIError';
 import config from '../../config/config';
 import Entity from '../models/entity.model';
@@ -36,6 +37,7 @@ function create(req, res, next) {
   }
 
   let keypair = {};
+  /* istanbul ignore else */
   if (req.body.keypair) {
     keypair = {
       public: req.body.keypair.public,
@@ -60,6 +62,10 @@ function create(req, res, next) {
     entity.domain = req.body.domain;
   }
 
+  if (!entity.domain) {
+    entity.domain = app.sylowServer;
+  }
+
   return entity.save()
     .then(savedEntity => res.json(savedEntity))
     .catch(e => next(e));
@@ -71,16 +77,19 @@ function create(req, res, next) {
  */
 function update(req, res, next) {
   const entity = req.entity;
+  /* istanbul ignore else */
   if (req.body.authoritative && req.body.passwordHash) {
     entity.passwordHash = req.body.passwordHash;
     entity.passwordSalt = req.body.passwordSalt;
   }
+  /* istanbul ignore else */
   if (req.body.authoritative && req.body.keypair) {
     entity.keypair.public = req.body.keypair.public;
     entity.keypair.private = req.body.keypair.private;
     entity.keypair.recovery = req.body.keypair.recovery;
   }
 
+  /* istanbul ignore else */
   if (req.body.entityName) {
     entity.entityName = req.body.entityName;
   } else {
@@ -99,8 +108,8 @@ function update(req, res, next) {
  * @returns {Entity[]}
  */
 function list(req, res, next) {
-  const { limit = 50, skip = 0 } = req.query;
-  Entity.list({ limit, skip })
+  const { limit = 50, skip = 0, showKeys = false } = req.query;
+  Entity.list({ limit, skip, showKeys })
     .then(entities => res.json(entities))
     .catch(e => next(e));
 }

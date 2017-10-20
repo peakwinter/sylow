@@ -6,6 +6,7 @@ export default class AppController {
   constructor() {
     $('.ui.checkbox').checkbox();
     $('.ui.dropdown').dropdown();
+    $('.sy-dash-sidebar a').popup();
   }
 
   listActions(controller = this) {

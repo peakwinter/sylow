@@ -13,6 +13,8 @@ import expressValidation from 'express-validation';
 import passport from 'passport';
 import helmet from 'helmet';
 import path from 'path';
+import moment from 'moment';
+
 import winstonInstance from './winston';
 import routes from '../server/routes/index.route';
 import adminRoutes from '../server/routes/admin.route';
@@ -43,6 +45,11 @@ app.use(expressSession({
 app.use(passport.initialize());
 app.use(passport.session());
 
+
+app.use((req, res, next) => {
+  res.setHeader('Sylow-ServerID', app.sylowServer);
+  next();
+});
 
 // secure apps by setting various HTTP headers
 app.use(helmet());
@@ -122,5 +129,7 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
     message: err.isPublic ? err.message : httpStatus[err.status]
   });
 });
+
+app.locals.moment = moment;
 
 export { app as default };
