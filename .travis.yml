@@ -1,8 +1,12 @@
 language: node_js
 node_js:
-  - "4"
-  - "6"
-  - "8"
+  - "4"  # Maintenance
+  - "6"  # Active LTS
+  - "8"  # Current Active LTS
+  - "9"  # Current
+matrix:
+  allow_failures:
+    - node_js: "9"
 services:
   - mongodb
 cache:
