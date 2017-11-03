@@ -37,8 +37,8 @@ if (!module.parent) {
   Server
     .getAuthoritative()
     .then((server) => {
-      if (config.domain) {
-        console.warn('SY_DOMAIN was set, but I already have an authoritative server that I must use. To edit the autoritative server, please use the CLI.'); // eslint-disable-line no-console
+      if (config.domain && config.domain !== server.domain) {
+        console.warn('SY_DOMAIN was set, but I already have an authoritative server that I must use. To edit the authoritative server, please use the CLI.'); // eslint-disable-line no-console
       }
       Object.assign(app, { sylowServer: server.domain });
       // listen on port config.port
