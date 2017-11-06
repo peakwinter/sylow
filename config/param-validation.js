@@ -137,7 +137,7 @@ export default {
       clientSecret: Joi.string().required(),
       clientName: Joi.string().required(),
       deviceType: Joi.string().required(),
-      redirectUri: Joi.string().required(),
+      redirectUri: Joi.string(),
       grantTypes: Joi.string(),
       scope: Joi.string()
     }
@@ -151,7 +151,7 @@ export default {
       clientSecret: Joi.string().required(),
       clientName: Joi.string().required(),
       deviceType: Joi.string().required(),
-      redirectUri: Joi.string().required(),
+      redirectUri: Joi.string(),
       grantTypes: Joi.string(),
       scope: Joi.string()
     },

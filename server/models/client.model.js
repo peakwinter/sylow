@@ -26,10 +26,7 @@ const ClientSchema = new mongoose.Schema({
     enum: ['computer', 'mobile', 'gateway', 'web', 'other'],
     required: true
   },
-  redirectUri: {
-    type: String,
-    required: true
-  },
+  redirectUri: String,
   grantTypes: String,
   scope: String,
   isTrusted: {

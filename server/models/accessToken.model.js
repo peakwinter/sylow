@@ -14,7 +14,6 @@ const AccessTokenSchema = new mongoose.Schema({
   },
   entity: {
     type: String,
-    required: true,
     match: [uuidRegex, 'The value of path {PATH} ({VALUE}) is not a valid UUID.'],
     ref: 'Entity'
   },
