@@ -5,6 +5,7 @@ import APIError from './APIError';
 import { randomStr } from '../utils/random';
 import AccessToken from '../models/accessToken.model';
 import Client from '../models/client.model';
+import Entity from '../models/entity.model';
 
 
 const oauth = oauth2orize.createServer({ userProperty: 'oauthClient' });
@@ -80,7 +81,7 @@ export function exchangePassword(client, username, passwordHash, scope, done) {
     .then((thisClient) => {
       if (!thisClient) return done(null, false);
       if (thisClient.clientSecret !== client.clientSecret) return done(null, false);
-      Entity.findOne({ username })
+      return Entity.findOne({ username })
         .then((entity) => {
           if (!entity) return done(null, false);
           if (passwordHash !== entity.passwordHash) return done(null, false);
@@ -93,12 +94,8 @@ export function exchangePassword(client, username, passwordHash, scope, done) {
           return accessToken.save()
             .then(() => done(null, token))
             .catch(err => done(err));
-          db.accessTokens.save(token, user.id, client.clientId, (error) => {
-            if (error) return done(error);
-            return done(null, token);
-          });
         });
-    })
+    });
 }
 
 
