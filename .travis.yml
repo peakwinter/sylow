@@ -1,6 +1,5 @@
 language: node_js
 node_js:
-  - "4"  # Maintenance
   - "6"  # Active LTS
   - "8"  # Current Active LTS
   - "9"  # Current
