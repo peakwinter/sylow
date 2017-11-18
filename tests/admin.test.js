@@ -110,6 +110,18 @@ describe('## Admin Interface', () => {
   });
 
   describe('# GET /', () => {
+    it('should return the first run page', (done) => {
+      adminSesh.get('/')
+        .expect(httpStatus.OK)
+        .then((res) => {
+          const html = cheerio.load(res.text);
+          const contents = html('.ui.container h1').html();
+          expect(contents).to.equal('Sylow');
+          done();
+        })
+        .catch(done);
+    });
+
     it('should return the dashboard page', (done) => {
       adminSesh.get('/')
         .expect(httpStatus.OK)
