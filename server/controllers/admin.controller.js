@@ -128,7 +128,7 @@ export function listClients(req, res) {
 }
 
 export function createClient(req, res) {
-  if (!req.body.clientId || !req.body.clientName) {
+  if (!req.body.clientId || !req.body.clientName || !req.body.deviceType) {
     req.flash('error', 'Missing values');
     return res.redirect('/clients');
   }
