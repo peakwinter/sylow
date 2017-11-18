@@ -20,14 +20,19 @@ function handleMongooseError(req, res, err, redirectPath) {
 }
 
 export function index(req, res, next) {
-  const docTypes = Document.aggregate([{ $sortByCount: '$contentType' }]);
-  const [docCount, entityCount, clientCount] = [Document.count(), Entity.count(), Client.count()];
+  if (config.SHOW_FIRST_RUN) {
+    res.render('firstRun');
+    config.SHOW_FIRST_RUN = false;
+  } else {
+    const docTypes = Document.aggregate([{ $sortByCount: '$contentType' }]);
+    const [docCount, entityCount, clientCount] = [Document.count(), Entity.count(), Client.count()];
 
-  Promise.all([docTypes, docCount, entityCount, clientCount])
-    .then(([contentTypes, documents, entities, clients]) => res.render('index', {
-      active: 'index', contentTypes, documents, entities, clients
-    }))
-    .catch(next);
+    Promise.all([docTypes, docCount, entityCount, clientCount])
+      .then(([contentTypes, documents, entities, clients]) => res.render('index', {
+        active: 'index', contentTypes, documents, entities, clients
+      }))
+      .catch(next);
+  }
 }
 
 export function exportEntity(req, res) {
