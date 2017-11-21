@@ -127,7 +127,11 @@
   },
   "babel": {
     "presets": [
-      "env",
+      ["env" , {
+        "targets": {
+          "node": "8.9"
+        }
+      }],
       "stage-2"
     ],
     "plugins": [
