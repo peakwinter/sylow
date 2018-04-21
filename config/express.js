@@ -10,7 +10,7 @@ import expressFlash from 'express-flash';
 import expressSession from 'express-session';
 import expressWinston from 'express-winston';
 import expressValidation from 'express-validation';
-import favicon from 'serve-favicon'
+import favicon from 'serve-favicon';
 import passport from 'passport';
 import helmet from 'helmet';
 import path from 'path';
