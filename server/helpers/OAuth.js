@@ -5,6 +5,7 @@ import APIError from './APIError';
 import { randomStr } from '../utils/random';
 import AccessToken from '../models/accessToken.model';
 import Client from '../models/client.model';
+import Entity from '../models/entity.model';
 
 
 const oauth = oauth2orize.createServer({ userProperty: 'oauthClient' });
@@ -75,6 +76,28 @@ export function implicitlyGrantToken(client, entity, ares, done) {
     .catch(err => done(err));
 }
 
+export function exchangePassword(client, username, passwordHash, scope, done) {
+  return Client.findOne({ clientId: client.clientId })
+    .then((thisClient) => {
+      if (!thisClient) return done(null, false);
+      if (thisClient.clientSecret !== client.clientSecret) return done(null, false);
+      return Entity.findOne({ username })
+        .then((entity) => {
+          if (!entity) return done(null, false);
+          if (passwordHash !== entity.passwordHash) return done(null, false);
+          const token = randomStr(256);
+          const accessToken = new AccessToken({
+            token,
+            entity: entity._id,
+            client: client._id
+          });
+          return accessToken.save()
+            .then(() => done(null, token))
+            .catch(err => done(err));
+        });
+    });
+}
+
 
 export const authorization = [
   oauth.authorization((clientId, redirectUri, done) =>
@@ -110,3 +133,4 @@ oauth.deserializeClient(deserializeClient);
 oauth.grant(oauth2orize.grant.code(grantAuthorizationCode));
 oauth.grant(oauth2orize.grant.token(implicitlyGrantToken));
 oauth.exchange(oauth2orize.exchange.code(exchangeAuthorizationCode));
+oauth.exchange(oauth2orize.exchange.password(exchangePassword));
