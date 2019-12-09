@@ -41,7 +41,7 @@ module.exports = {
         })
       },
       {
-        test: /\.(png|woff|woff2|eot|ttf|svg)(\?|$)/,
+        test: /\.(png|woff|woff2|eot|ttf|svg|ico)(\?|$)/,
         use: {
           loader: 'file-loader',
           options: { name: '[name].[ext]' }
