@@ -64,3 +64,51 @@ h2 {
 tr.authoritative td {
   border-bottom: 1px solid rgba(34, 36, 38, .1); 
 }
+
+a, a:active, a:visited, a:hover {
+  color: $sylow-purple;
+}
+
+#first-run {
+  font-family: 'Raleway', sans-serif !important;
+  font-size: 1.3rem;
+  color: rgba(0,0,0,.87);
+  p {
+    font-weight: 500;
+  }
+  
+  #logo {
+    position: static;
+    width: 150px;
+    margin: 2em 0;
+  }
+
+  h1, h2, h3 {
+    font-weight: 800;
+  }
+  
+  h1 {
+    font-size: 6rem;
+  }
+
+  h2 {
+    font-size: 3rem;
+  }
+
+  h3 {
+    font-size: 2rem;
+  }
+
+  a.icon-btn  {
+    text-decoration: none;
+
+    i.github {
+      height: 75px;
+    }
+  }
+
+  .thin {
+    font-weight: 300;
+    margin: 0;
+  }
+}

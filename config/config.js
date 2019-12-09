@@ -61,7 +61,8 @@ const config = {
   domain: envVars.SY_DOMAIN,
   allowSignups: envVars.SY_ALLOW_SIGNUPS,
   fileSystemPath: envVars.SY_FILE_SYSTEM_PATH,
-  schemaDomainWhitelist: envVars.SY_SCHEMA_DOMAIN_WHITELIST
+  schemaDomainWhitelist: envVars.SY_SCHEMA_DOMAIN_WHITELIST,
+  SHOW_FIRST_RUN: true
 };
 
 const unvariableConfig = ['domain', 'env', 'port', 'mongooseDebug', 'sessionSecret', 'mongo'];

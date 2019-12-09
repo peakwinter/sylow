@@ -1,0 +1,90 @@
+extends includes/base.pug
+
+block content
+  div(class="ui container" id="first-run")
+    img(src="https://sylow.info/assets/images/logo-purple.svg" id="logo" class="ui image")
+    section
+      h1(class="sy-name")= "Sylow"
+      h3(class="thin")= "The simple, efficient, encrypted personal data store and sharing system."
+      h2
+        a(class="icon-btn" href="https://github.com/SylowTech")
+          i(class="github icon")
+        a(class="icon-btn" href="mailto:hello@sylow.info")
+          i(class="envelope icon")
+    section
+      h2 What is Sylow?
+      p Sylow is a personal data store and exchange system, founded on principles of sharing and encryptability, upon which a wide variety of client applications can be built. It prioritizes a flexible, extensible schema and simple API and operation.
+      p The idea: provide an API server, connected to a database and file storage system, that can prototype different forms of data, store, encrypt and serve them in a uniform manner. One can then build a variety of different applications that use the same API, simplifying the task of developing end user applications. The servers will ultimately be able to encrypt each form of data stored using public-key encryption, and communicate with each other for decentralized sharing. 
+      p Sylow establishes a certain set of built-in schema that can be used to share data. However, since schema are linked from externally-hosted sources, individual server operators will be able to define and use their own schema. This allows new forms of data to emerge depending on the implementations different groups want to develop.
+
+    section
+      h2 Overview 
+      h3 Servers
+      p A Sylow server is a repository for a user's documents and data. The server is a sort of dumb blob store, storing encrypted data and metadata on behalf of the user. The server will also handle sharing this data with other entities as directed by the user.
+      p Servers are discovered using an SRV record stored at the root of the associated domain's DNS zone. This SRV record specifies the fully-qualified domain name and port at which users under this domain can be reached. For example, if a server wants to know where to find the Sylow server for the entity with the handle 
+        code bob@coolserver.biz, 
+        it first does a lookup for SRV records associated with 
+        code coolserver.biz, 
+        finds one for Sylow that points to 
+        code sylowapp.coolserver.biz, 
+        then passes off all of its requests to that location.
+      h3 Entities
+      p An entity is an account that is created on behalf of the user, which is used to create and interact with documents.
+      p Each entity has one server that they are registered with, and that acts as the authoritative server for that user. For example, an entity bob is registered with a Sylow server at coolserver.biz, and so coolserver.biz is the authoritative server for bob. Anytime Bob creates, retrieves, updates or deletes data, he does so from his authoritative server first before it is propagated across the rest of the network.
+      p Entities are also first-class documents that can be shared across servers. In this way, one can send records of certain entities and create relationships between them. For example, when Joe follows Bob using a Sylow-powered social media app, Joe's server sends Bob's server a copy of Joe's entity as a document, which contains Joe's profile as well as Joe's public key, which Bob's devices can use to encrypt documents to send Joe's way.
+      
+      h3 Clients  
+      p A Client is any client application that is registered with the server, and that can display or modify documents on behalf of a user. Client applications can be varied depending on the types of data one wants to store on their Sylow server.
+      p A physical device can actually include multiple Sylow Clients: a smartphone with one social media app and a second photo gallery app counts as two different clients, of course. That's because clients are actually OAuth2 clients that can each have specific permissions or be independently revoked as necessary.
+      
+      h3 Schemas
+      p Schemas represent versioned definitions of documents and all their associated fields. These schemas are used to validate documents as they are exchanged between servers, in order to standardize expected behaviours. Servers must adhere to a particular defined schema when transmitting information to another server. Sylow schemas are defined using the JSON Schema standards, and as such they can also reference other schemas and add their own fields through nesting or inheritance if necessary.
+      p Sylow comes with some built-in schemas, including for social media statuses, photos, general files, essays (blog posts) and more. Custom schemas can also be used by referencing an externally-hosted JSON Schema. A Sylow server will then look up this externally-hosted schema and use it for validating incoming documents. Servers can be set to allow or refuse custom schemas as the server operator sees fit.
+    
+      h3 Authentication 
+      p Authentication with Sylow happens in three ways:
+      ol 
+        li Administrative functions, like creating a new account or adding a new device, are done using password-based authentication. First, a user's salt is retrieved from the server. Next, this salt is used on the client side to assemble a Scrypt hash of the user's password. This hash is then transmitted to the server, and if this hash matches with what is stored for that user, the user is allowed access to the administrative function in question. This is done so that the user can potentially use the same password for administrative functions as they use for protecting their file encryption key.
+        li Device authentication with the server, including fetching lists of documents, creating them or modifying them is done using an OAuth2 token and scope system.
+        li Server-to-server communication is performed using signatures computed from a server's private/public key infrastructure.
+
+    h3 Encryption
+    p Sylow encrypts the content and metadata of communications using a combination of methods. Each entity has a public key and a private key, the latter of which is encrypted by a password and stored with the server. This public/private key combo is used to prove entity (identity) ownership, as well as encrypt documents that are shared with other entities and servers.
+    p Each document has a symmetric encryption key which is used to encrypt the contents of the document. This key is encrypted with the entity's private key and stored alongside the document. The document can then be decrypted by the user by first decrypting the individual document's key and then using said key to decrypt the document.
+    p When a document is shared with another entity, the device looks up its saved copy of the foreign entity's public key, then uses this to encrypt the individual document's key, and sends the document and encrypted key to its server. The server then handles the delivery of the document to the server of the foreign entity.
+    
+    h3 Full Example
+    p Bob uses a social media application with his Sylow server to post some interesting stuff.
+    ol
+      li Bob opens the social media client on his smartphone.
+      li The client registers with Bob's Sylow server as a unique device using OAuth2, and receives permission to create posts on Bob's behalf.
+      li Bob creates a social media post using his device.
+      li The device uses Bob's password to decrypt a locally-stored copy of his entity's private key.
+      li The device generates a symmetric encryption key to encrypt the content of his new social media post, then uses the decrypted private key to encrypt said symmetric key.
+      li The device also encrypts the symmetric key with the public key for each person that follows Bob, and uploads all of these keys to his server alongside the encrypted document.
+      li Bob's server looks up the server address for each person that follows Bob, then sends each server a copy of the document with the appropriate symmetric key.
+  
+    section
+      h2 Design Principles
+      p The design principles of Sylow can be summed up as the following:
+      ul
+        li 
+          strong Simplicity over complexity. 
+          Whether it's in its API design, protocol design or code implementation, Sylow's value comes from being a powerful tool implemented in a simple way.
+        li
+          strong Minimalism over maximalism. 
+          Sylow isn't intended to foresee every possible eventuality or use-case, but it should only respond to those that are essential for fulfilling it's core mission. To this end, the design of the protocol should not dictate the development of the application, rather it's the development of the application that should drive the expansion of the protocol.
+        li
+          strong Practicality over idealism. 
+          This is not to mean that we don't strive for the perfect, but we don't let it impede the progress of the good. Development of a feature should not be deterred simply because one of its components cannot be held to the absolute highest standards.
+      p Put simply, Sylow is intended to provide a basic framework for formatting, storing and exchanging content. Beyond that, it should provide individual users the tools to create a much more robust system on top of that, but should not enforce any standards that are not absolutely necessary for the proper performance of the system.
+
+    section(id="contribute")
+      h2 Contributing
+      p Sylow is a work in progress, and we'd love additional help with the server implementation, protocol and in creating new applications. We're 
+        a(href='https://github.com/SylowTech') Located on Github 
+        and you can check out all of our repos there, which we try to keep up-to-date with issues (new features) and milestones (release roadmaps).
+        a(href='mailto:hello@sylow.info') Give us a shout
+
+    section
+      a(href="" class="ui large basic positive button") OK ! :D   
